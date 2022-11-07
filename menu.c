@@ -132,6 +132,7 @@ void    setup_menu(void){
     //設定メニュー
     //キーは長押し途中で離した状態
     uint8_t     i;
+    uint16_t    by;
 
     menu_clear_screen();
     sprintf(tmp_string, "-- SET UP ----------");
@@ -148,15 +149,16 @@ void    setup_menu(void){
     LCD_Printf( 0*B2X, 9*B2Y, tmp_string, 2, YELLOW, 1);
     
     //ボタンの文字を表示
-    for(i = 1; i <= SET_TIME; i++){
+    for(i = 1; i < NUM_BUTTON_SETUP; i++){
         sprintf(tmp_string, "%s", bu_text_setup[i]);
-        LCD_Printf(button_setup[i][0], button_setup[i][1], tmp_string, 2, YELLOW, 1);
+        by = button_setup[i][1];
+        if (button_setup[i][3] == B2Y*2){
+            //ボタンの文字をボタンの中間高さ位置に表示
+            by += B1Y;
+        }
+        LCD_Printf(button_setup[i][0], by, tmp_string, 2, YELLOW, 1);
     }
-    //ボタンの文字をボタンの中間高さ位置に表示
-    for(i = UP; i < NUM_BUTTON_SETUP; i++){
-        sprintf(tmp_string, "%s", bu_text_setup[i]);
-        LCD_Printf(button_setup[i][0], button_setup[i][1] + B1Y, tmp_string, 2, YELLOW, 1);
-    }
+    
     
     //設定値を表示
     sprintf(tmp_string, "%2d", dist_m);
