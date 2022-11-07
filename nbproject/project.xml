@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>com.microchip.mplab.nbide.embedded.makeproject</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/make-project/1">
+            <name>BulletLogger_V8_3_57Q43</name>
+            <name>BulletLogger_V8_3_57Q43</name>
+            <name>BulletLogger_V8_57Q43</name>
+            <name>BulletLogger_V8_57Q43</name>
+            <name>BulletLogger_V8_2_57Q43_RS485</name>
+            <name>BulletLogger_V8_57Q43_SMT</name>
+            <name>BulletLogger_V782_57Q43_SMT</name>
+            <name>BulletLogger_V7_57Q43_SMT</name>
+            <name>BulletLogger_V6_57Q43_48pin_test</name>
+            <creation-uuid>11ef6d62-c0c2-47fd-9315-ddb8343cac02</creation-uuid>
+            <make-project-type>0</make-project-type>
+            <c-extensions>c</c-extensions>
+            <cpp-extensions/>
+            <header-extensions>h</header-extensions>
+            <asminc-extensions/>
+            <sourceEncoding>Shift_JIS</sourceEncoding>
+            <make-dep-projects/>
+            <sourceRootList>
+                <sourceRootElem>mcc_generated_files</sourceRootElem>
+            </sourceRootList>
+            <confList>
+                <confElem>
+                    <name>default</name>
+                    <type>2</type>
+                </confElem>
+            </confList>
+            <formatting>
+                <project-formatting-style>false</project-formatting-style>
+            </formatting>
+        </data>
+    </configuration>
+</project>
