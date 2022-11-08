@@ -100,7 +100,7 @@
 #define     ROW_V0          20
 #define     COL_V0_CHART    0
 #define     ROW_V0_CHART    50
-#define     COL_ERROR       162
+#define     COL_ERROR       156
 #define     ROW_ERROR       20
 #define     COL_VE          156     //標準フォント6x8
 #define     ROW_VE          30
@@ -164,6 +164,7 @@ typedef enum {
     IMPACT_ERROR,
     MOTION_ERROR,
     RECEIVE_ERROR,
+    TARGET_CALC_ERROR,        
     TARGET_ERROR,        
     ERROR_CLEAR,
     NUM_SENSOR_ERROR,  //宣言数  =　メッセージ配列添字数
@@ -172,15 +173,16 @@ typedef enum {
 #define     ERR_LEN     (14 + 1)    //エンドマーク分+1
 const char vmeasure_err_mes[NUM_SENSOR_ERROR][ERR_LEN] = { 
     "              ",
-    "Sens2 Timeout ",
-    "Sens3 Timeout ",
-    "Sens4 Timeout ",
+    " Sens2 Timeout",
+    " Sens3 Timeout",
+    " Sens4 Timeout",
     "Sens34 Timeout",
     "Impact Timeout",
-    "Motion Error  ",
-    "Rx Timeout    ",
-    "Target Error  ",
-    "?ERROR CLEAR? ",
+    "  Motion Error",
+    "    Rx Timeout",
+    "Target CalcErr",
+    " Target Rx Err",
+    " ?ERROR CLEAR?",
 };
 
 
@@ -637,6 +639,18 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].status = DATA_RECIEVED;
                 break;
             }
+            if (CALC_ERROR == answ){
+                //データが計算できなかったとき
+                err = TARGET_CALC_ERROR;
+                int_status.uart = 1;
+                shot_data[shot_buf_pointer].impact_x = 999.9;
+                shot_data[shot_buf_pointer].impact_y = 999.9;
+                shot_data[shot_buf_pointer].ctc_max = shot_data[shot_buf_pointer - 1].ctc_max;
+                __delay_ms(300);                                //targetからのデータに重ならないように
+                printf("s#%d target calc err\n", shot + 1);
+                shot_data[shot_buf_pointer].status = TARGET_DISP;
+                break;
+            }
             if (RX_ERROR == answ){
                 //ターゲットデータがエラーだった時
                 err = TARGET_ERROR;
@@ -645,7 +659,7 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].impact_y = 999.9;
                 shot_data[shot_buf_pointer].ctc_max = shot_data[shot_buf_pointer - 1].ctc_max;
                 __delay_ms(300);                                //targetからのデータに重ならないように
-                printf("s#%d TargetRx Error\n", shot + 1);
+                printf("s#%d tamamoni rx err\n", shot + 1);
                 shot_data[shot_buf_pointer].status = TARGET_DISP;
                 break;
             }
@@ -658,7 +672,7 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].impact_x = 999.9;
                 shot_data[shot_buf_pointer].impact_y = 999.9;
                 shot_data[shot_buf_pointer].ctc_max = shot_data[shot_buf_pointer - 1].ctc_max;
-                printf("s#%d Rx TIMEOUT\n", shot + 1);
+                printf("s#%d tamamoni rx tout\n", shot + 1);
                 shot_data[shot_buf_pointer].status = TARGET_DISP;
             }            
             break;

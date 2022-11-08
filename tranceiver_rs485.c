@@ -104,10 +104,12 @@ data_rx_status_t data_uart_receive(float *data){
             //データの代入
             num_scan = sscanf(tmp_str, "BINX0Y0dT %f %f %f END", &data[0], &data[1], &data[2]);
             //ヘッダ、フッタが一致しない場合、値を代入した数が合わなくなる
-            if ((num_scan != 3) || (data[2] == 0)){
+            if (num_scan != 3){
                 //着弾データがエラーの時
                 ans = RX_ERROR;
-            }else {
+            }else if(data[2] == 0){
+                ans = CALC_ERROR;
+            }else{
                 //データ代入OK
                 ans = RX_OK;
             }

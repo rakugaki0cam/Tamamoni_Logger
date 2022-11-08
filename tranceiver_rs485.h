@@ -17,6 +17,7 @@
 typedef enum {
     RX_OK,          //正常完了
     RX_READING,     //受信中
+    CALC_ERROR,     //計算結果がエラー        
     RX_ERROR,       //エラー
 } data_rx_status_t;
 
