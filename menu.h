@@ -12,6 +12,7 @@
 #ifndef MENU_H
 #define	MENU_H
 
+extern  int16_t     bbmass_g;
 
 
 void    setup_menu(void);

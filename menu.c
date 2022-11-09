@@ -88,10 +88,12 @@ const char bu_text_setup[BUTTON_SETUP_LEN][11] = {
 
 //手入力セットアップ値
 //前回値をeepromから読み込み
+//global
+int16_t     bbmass_g = 280;     //x1000値 mg
+//local
 int8_t      dist_m = 7;         //m +
 int16_t     dist_mm = 543;      //mm
 uint8_t     gun_num = 3;
-int16_t     bbmass_g = 280;     //x1000値 mg
 uint8_t     bb_num = 1;
 int16_t     f_extract = 150;    //gf
 

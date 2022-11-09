@@ -918,7 +918,8 @@ void print_v0_chart(bool reset){
     static float        sum_v0 = 0;     //平均のサム
     static uint16_t     n = 0;          //平均計算のための有効データ数
     uint8_t             i;
-    int8_t              i_min, i_max;    
+    int8_t              i_min, i_max;
+    float               v0, joule;
     
     if (reset == 1){
         //データリセット
@@ -945,6 +946,9 @@ void print_v0_chart(bool reset){
         i_max = (int8_t)p + 1;
     }
     
+    //BB質量
+    sprintf(tmp_string, "BB %5.3fg", (float)bbmass_g / 1000);
+    LCD_Printf(180, ROW_V0_CHART + 16, tmp_string, 1, WHITE, 1);
     //平均
     if (n == 0){
         //データ数0の時
@@ -970,12 +974,16 @@ void print_v0_chart(bool reset){
         }
         
         if(buf[i_min].v0_mps == 0){
-            sprintf(tmp_string, "#%03d   xxxx", buf[i_min].shot + 1);
+            sprintf(tmp_string, "#%03d   xxxx              ", buf[i_min].shot + 1);
         }else if (buf[i_min].v0_mps > 999){
-            sprintf(tmp_string, "#%03d   OVER", buf[i_min].shot + 1);
+            sprintf(tmp_string, "#%03d   OVER              ", buf[i_min].shot + 1);
             }else {
             //正常値の時
-            sprintf(tmp_string, "#%03d %6.2f m/s", buf[i_min].shot + 1, buf[i_min].v0_mps);
+            v0 = buf[i_min].v0_mps;
+            if ((v0 > 0) && (v0 < 150)){
+                joule = (float)bbmass_g * v0 * v0 / 2000000;
+            }
+            sprintf(tmp_string, "#%03d %6.2f m/s (%5.3f J)", buf[i_min].shot + 1, v0, joule);
         }
         LCD_Printf(COL_V0_CHART, i * 10 + ROW_V0_CHART + 16, tmp_string, 1, WHITE, 1);
     }
