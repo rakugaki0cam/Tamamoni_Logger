@@ -134,6 +134,7 @@ uint8_t     shot_buf_pointer = 0;   //ショットメモリバッファ用ポインタ
 uint8_t     len12_mm;               //初速センサ1-2の距離[mm]
 char        v0device[15];           //初速装置の種類
     
+    
 //割込&動作ステータス ー 動作シーケンスのチェック用
 typedef struct {
     bool    sensor1on;
@@ -314,8 +315,9 @@ uint8_t vmeasure(void){
     uint8_t answ;
     uint8_t i;
     float   rx_data_f[3];   //電子ターゲット着弾データ受取用
-    uint16_t ctc_num;       //戻り値用
-
+    uint16_t ctc_num;       //戻り値
+    uint8_t c2 = 0;
+    uint8_t tmp2;
     
     motion_data_read();     //モーションデータの読み出し
     
@@ -674,7 +676,17 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].ctc_max = shot_data[shot_buf_pointer - 1].ctc_max;
                 printf("s#%d tamamoni rx tout\n", shot + 1);
                 shot_data[shot_buf_pointer].status = TARGET_DISP;
-            }            
+ 
+                while (UART2_is_rx_ready()){
+                    //捨て読み
+                    tmp2 = UART2_Read();
+                    c2++;
+                    if (c2 > 64){
+                        //無限ループ対策
+                        break;
+                    }
+                }
+            }
             break;
 
         case DATA_RECIEVED:
