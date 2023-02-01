@@ -13,12 +13,12 @@
    @Description
      This source file provides implementations for driver APIs for CLC4.
      Generation Information :
-         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.7
+         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
          Device            :  PIC18F57Q43
          Driver Version    :  1.0.0
      The generated drivers are tested against the following:
-         Compiler          :  XC8 2.31 and above or later
-         MPLAB             :  MPLAB X 5.45
+         Compiler          :  XC8 2.36 and above or later
+         MPLAB             :  MPLAB X 6.00
  */ 
 
  /*
@@ -66,19 +66,19 @@ void CLC4_Initialize(void)
     CLCnPOL = 0x02;
     // D1S CLCIN5 (CLCIN5PPS); 
     CLCnSEL0 = 0x05;
-    // D2S CLCIN0 (CLCIN0PPS); 
-    CLCnSEL1 = 0x00;
-    // D3S CLCIN0 (CLCIN0PPS); 
-    CLCnSEL2 = 0x00;
-    // D4S CLCIN0 (CLCIN0PPS); 
-    CLCnSEL3 = 0x00;
+    // D2S CLC8_OUT; 
+    CLCnSEL1 = 0x3A;
+    // D3S CLCIN2 (CLCIN2PPS); 
+    CLCnSEL2 = 0x02;
+    // D4S CLC8_OUT; 
+    CLCnSEL3 = 0x3A;
     // G1D3N disabled; G1D2N disabled; G1D4N disabled; G1D1T disabled; G1D3T disabled; G1D2T disabled; G1D4T disabled; G1D1N enabled; 
     CLCnGLS0 = 0x01;
     // G2D2N disabled; G2D1N disabled; G2D4N disabled; G2D3N disabled; G2D2T disabled; G2D1T disabled; G2D4T disabled; G2D3T disabled; 
     CLCnGLS1 = 0x00;
-    // G3D1N disabled; G3D2N disabled; G3D3N disabled; G3D4N disabled; G3D1T disabled; G3D2T disabled; G3D3T disabled; G3D4T disabled; 
-    CLCnGLS2 = 0x00;
-    // G4D1N disabled; G4D2N disabled; G4D3N disabled; G4D4N disabled; G4D1T disabled; G4D2T disabled; G4D3T disabled; G4D4N disabled; 
+    // G3D1N disabled; G3D2N disabled; G3D3N enabled; G3D4N disabled; G3D1T disabled; G3D2T disabled; G3D3T disabled; G3D4T disabled; 
+    CLCnGLS2 = 0x10;
+    // G4D1N disabled; G4D2N disabled; G4D3N disabled; G4D4N disabled; G4D1T disabled; G4D2T disabled; G4D3T disabled; G4D4T disabled; 
     CLCnGLS3 = 0x00;
     // CLC4OUT 0; 
     CLCDATA = 0x00;
@@ -100,7 +100,7 @@ void CLC4_ISR(void)
     detect_sensor4();
     //
     
-    }
+}
 
 bool CLC4_OutputStatusGet(void)
 {

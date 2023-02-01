@@ -13,12 +13,12 @@
   Description:
     This header file provides implementations for pin APIs for all pins selected in the GUI.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.7
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
         Device            :  PIC18F57Q43
         Driver Version    :  2.11
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.31 and above
-        MPLAB             :  MPLAB X 5.45
+        Compiler          :  XC8 2.36 and above
+        MPLAB             :  MPLAB X 6.00
 
     Copyright (c) 2013 - 2015 released Microchip Technology Inc.  All rights reserved.
 */
@@ -61,10 +61,10 @@ void PIN_MANAGER_Initialize(void)
     /**
     LATx registers
     */
-    LATE = 0x04;
-    LATD = 0x13;
+    LATE = 0x00;
+    LATD = 0x11;
     LATA = 0x00;
-    LATF = 0x11;
+    LATF = 0x10;
     LATB = 0x00;
     LATC = 0xC0;
 
@@ -72,18 +72,18 @@ void PIN_MANAGER_Initialize(void)
     TRISx registers
     */
     TRISE = 0x06;
-    TRISF = 0x09;
+    TRISF = 0x01;
     TRISA = 0xFF;
     TRISB = 0xF3;
     TRISC = 0x26;
-    TRISD = 0x02;
+    TRISD = 0x4A;
 
     /**
     ANSELx registers
     */
-    ANSELD = 0x08;
+    ANSELD = 0x00;
     ANSELC = 0x02;
-    ANSELB = 0xD0;
+    ANSELB = 0xD1;
     ANSELE = 0x02;
     ANSELF = 0x00;
     ANSELA = 0xC0;
@@ -170,25 +170,24 @@ void PIN_MANAGER_Initialize(void)
     PIE0bits.IOCIE = 1; 
     
 	
-    U2RXPPS = 0x19;   //RD1->UART2:RX2;    
-    SPI2SDIPPS = 0x08;   //RB0->SPI2:SDI2;    
+    U2RXPPS = 0x1E;   //RD6->UART2:RX2;    
     RC3PPS = 0x37;   //RC3->I2C1:SCL1;    
     RC4PPS = 0x38;   //RC4->I2C1:SDA1;    
     CLCIN4PPS = 0x02;   //RA2->CLC4:CLCIN4;    
     CLCIN5PPS = 0x03;   //RA3->CLC4:CLCIN5;    
-    RD6PPS = 0x34;   //RD6->SPI2:SCK2;    
     I2C1SCLPPS = 0x13;   //RC3->I2C1:SCL1;    
-    SPI2SCKPPS = 0x1E;   //RD6->SPI2:SCK2;    
     RD7PPS = 0x17;   //RD7->CCP3:CCP3;    
-    RD2PPS = 0x24;   //RD2->UART2:TXDE2;    
+    RD2PPS = 0x2A;   //RD2->UART4:TXDE4;    
     SPI1SCKPPS = 0x0A;   //RB2->SPI1:SCK1;    
     I2C1SDAPPS = 0x14;   //RC4->I2C1:SDA1;    
-    RD5PPS = 0x35;   //RD5->SPI2:SDO2;    
+    U4RXPPS = 0x19;   //RD1->UART4:RX4;    
+    RD5PPS = 0x23;   //RD5->UART2:TX2;    
+    RF3PPS = 0x18;   //RF3->PWM1_16BIT:PWM11;    
     CLCIN0PPS = 0x00;   //RA0->CLC3:CLCIN0;    
     RB2PPS = 0x31;   //RB2->SPI1:SCK1;    
-    RD3PPS = 0x1C;   //RD3->PWM3_16BIT:PWM31;    
     RB3PPS = 0x32;   //RB3->SPI1:SDO1;    
-    RD0PPS = 0x23;   //RD0->UART2:TX2;    
+    RD0PPS = 0x29;   //RD0->UART4:TX4;    
+    CLCIN2PPS = 0x1B;   //RD3->CLC4:CLCIN2;    
     CLCIN1PPS = 0x01;   //RA1->CLC6:CLCIN1;    
     SPI1SDIPPS = 0x09;   //RB1->SPI1:SDI1;    
 }

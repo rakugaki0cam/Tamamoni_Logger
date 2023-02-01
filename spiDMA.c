@@ -32,6 +32,7 @@
  * 2020.09.08   PIC18F27Q43へ移植。　　DMA1*** -> DMASELECT = 0x00; DAMn*** ....  DMAが2chから6chに増えたため
  * 2021.05.02   PIC18F57Q43へ移植。　　SPI1 -> SPI2
  * 2022.10.23   カラーモード18bitのみ
+ * 2023.02.01   SPI2 -> SPI1 SDカードと共用
  * 
 */
 
@@ -42,44 +43,44 @@
 void LCD_spi_Txonly_open(void){
     //SPI TX only modeのオープン
     LCD_CS_SetLow();                //LCDチップを選択オン
-    SPI2_Open(LCDDMA_CONFIG);
+    SPI1_Open(LCDDMA_CONFIG);
     //MCCのopenだとTx onlyにできないので↓再設定
-    SPI2CON0bits.EN = 0;                    // duplex -> TX ONLY mode
-    SPI2CON0bits.BMODE = 1;                 ///転送カウンタ　BMODE:1可変転送サイズWIDTH:0で1バイト幅(BMODE:0は転送総ビット数を指定)
-    SPI2CON2bits.TXR = 1;                   //TxData Transfer
-    SPI2CON2bits.RXR = 0;                   //RxData is not stored
+    SPI1CON0bits.EN = 0;                    // duplex -> TX ONLY mode
+    SPI1CON0bits.BMODE = 1;                 ///転送カウンタ　BMODE:1可変転送サイズWIDTH:0で1バイト幅(BMODE:0は転送総ビット数を指定)
+    SPI1CON2bits.TXR = 1;                   //TxData Transfer
+    SPI1CON2bits.RXR = 0;                   //RxData is not stored
     
     //SSの処理
     //SPI1CON2bits.SSET = 0;                //SS Slave Select  cnt!=0の時active
-    SPI2CON0bits.EN = 1;                    //SPI enable
-    SPI2INTFbits.SRMTIF = 1;                //フラグセット(データ送信完了状態にしておく)////////
+    SPI1CON0bits.EN = 1;                    //SPI enable
+    SPI1INTFbits.SRMTIF = 1;                //フラグセット(データ送信完了状態にしておく)////////
 }
 
 
 void LCD_spi_Txonly_close(void){
     //SPI TX only modeのクローズ
-    while(SPI2INTFbits.SRMTIF == 0){}       //SPI側の送信完了を検出
+    while(SPI1INTFbits.SRMTIF == 0){}       //SPI側の送信完了を検出
     LCD_DC_SetHigh();                       //データ受信にしておけば　空読み込みとなる
-    SPI2_Close();
+    SPI1_Close();
     LCD_CS_SetHigh();                       //LCDチップ選択をオフ
 }
 
 
 void LCD_spi_Txonly_sendCommand(uint8_t c){
     //TX only mode でのコマンド送信
-    while(SPI2INTFbits.SRMTIF == 0){}       //送信中でないかのチェック送信完了で1になる
+    while(SPI1INTFbits.SRMTIF == 0){}       //送信中でないかのチェック送信完了で1になる
     LCD_DC_SetLow();                        //Command
-    SPI2INTFbits.SRMTIF = 0;                //送信完了フラグをリセット->必要
-    SPI2TXB = c;
+    SPI1INTFbits.SRMTIF = 0;                //送信完了フラグをリセット->必要
+    SPI1TXB = c;
 }
 
 
 void LCD_spi_Txonly_sendByte(uint8_t d){
     //TX only mode でのデータ送信
-    while(SPI2INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
+    while(SPI1INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
     LCD_DC_SetHigh();                       //Data
-    SPI2INTFbits.SRMTIF = 0;                //送信完了フラグをリセット->必要
-    SPI2TXB = d;
+    SPI1INTFbits.SRMTIF = 0;                //送信完了フラグをリセット->必要
+    SPI1TXB = d;
 
 }
 
@@ -93,12 +94,12 @@ void LCD_spi_Txonly_sendWord(uint16_t dd){
 void LCD_spi_Txonly_sendBlock(uint8_t *data, uint16_t n){
      //nバイト送信
     uint16_t i;
-    while(SPI2INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
+    while(SPI1INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
     LCD_DC_SetHigh();                       //Data
     for (i = 0; i < n; i++){
-        while(SPI2INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
-        SPI2INTFbits.SRMTIF = 0;                //送信完了フラグをリセット->必要
-        SPI2TXB = data[i];
+        while(SPI1INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
+        SPI1INTFbits.SRMTIF = 0;                //送信完了フラグをリセット->必要
+        SPI1TXB = data[i];
     } 
 }
 
@@ -119,7 +120,7 @@ void LCD_spi_Txonly_address_set(uint16_t x1, uint16_t x2, uint16_t y1, uint16_t 
 void LCD_spi_dma(uint8_t *data, uint16_t n){
     //nバイトDMA転送 条件を再設定したいとき  
     //重要　System ArbitrationロックしておかないとDMAは動かない
-    while(SPI2INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
+    while(SPI1INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
     LCD_DC_SetHigh();                       //Data
     
     DMASELECT = 0x00;
@@ -135,7 +136,7 @@ void LCD_spi_dma(uint8_t *data, uint16_t n){
 
     while(PIR2bits.DMA1SCNTIF == 0){}       //DMA転送元側カウントがゼロ///////////DMA転送が終わるまで待ってるので、もったいない
     //この時点でlcdは最後の1バイトの受信が完了していないよう
-    while(SPI2INTFbits.SRMTIF == 0){}       //SPI側の送信完了を検出
+    while(SPI1INTFbits.SRMTIF == 0){}       //SPI側の送信完了を検出
     
     //割り込みをクリア
     PIR2 &= 0x0f;                           //bit7~5:DMA1  -> clear
@@ -148,12 +149,12 @@ void LCD_spi_dma(uint8_t *data, uint16_t n){
 
 void LCD_spi_dma_onceagain(void){
     //同条件でもう一度転送する
-    while(SPI2INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
+    while(SPI1INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
     LCD_DC_SetHigh();                       //Data
     DMA1_StartTransferWithTrigger();        //転送スタート
     
     while(PIR2bits.DMA1SCNTIF == 0){}       //DMA転送元側カウントがゼロ///////////DMA転送が終わるまで待ってるので、もったいない
-    while(SPI2INTFbits.SRMTIF == 0){}       //SPI側の送信完了を検出   
+    while(SPI1INTFbits.SRMTIF == 0){}       //SPI側の送信完了を検出   
     PIR2 &= 0x0f;                           //bit7~5:DMA1  -> clear
 }
 

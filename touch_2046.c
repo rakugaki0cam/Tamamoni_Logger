@@ -5,7 +5,6 @@
  * 感圧式
  * TSC2046
  * 
- *  SPI2 >>注意
  * 
  * 2019.09.15
  * 
@@ -15,7 +14,7 @@
  *              タッチの瞬間はZT=500～600くらいあるようで、判定値が違ってくる????
  * 2022.10.26   初期化でPDモード00として、検出待機中にする。->PENIRQを有効にする
  * 2022.10.27   LCD基板で外部Vrefが3.3Vに接続されていて内部リファレンス2.50V使用不可。
- * 
+ * 2023.02.01   SPI2->SPI1 SDcardと共用
  * 
  */
 
@@ -62,33 +61,33 @@ void touch_init(void){
     disp_touch_y_gain = (float)(DISPLAY_ROW_e - DISPLAY_ROW_s + 1) / (int16_t)(disp_touch_y_end - disp_touch_y_start);
     
     TOUCH_CS_SetLow();                  //TOUCHチップを選択オン
-    SPI2_Open(TOUCH_CONFIG);
+    SPI1_Open(TOUCH_CONFIG);
     //温度計測　　　うまくいかない
     //PDモードのリファレンスは内部。外部refがつながっているのでONにできない。
-    dummy = SPI2_ExchangeByte(0b10000101);      //0x85  Temp0　dummy read
-    dummy  = SPI2_ExchangeByte(0x00);
-    dummy = SPI2_ExchangeByte(0x00);
+    dummy = SPI1_ExchangeByte(0b10000101);      //0x85  Temp0　dummy read
+    dummy = SPI1_ExchangeByte(0x00);
+    dummy = SPI1_ExchangeByte(0x00);
     __delay_ms(3);
-    dummy = SPI2_ExchangeByte(0b10000101);      //0x85  Temp0
-    ans1  = SPI2_ExchangeByte(0x00);
-    ans2  = SPI2_ExchangeByte(0x00);
+    dummy = SPI1_ExchangeByte(0b10000101);      //0x85  Temp0
+    ans1  = SPI1_ExchangeByte(0x00);
+    ans2  = SPI1_ExchangeByte(0x00);
     temp0 = (uint16_t)((ans1 << 8) + ans2) >> 3;
     vt0 = (float)(VREF * temp0 / 4096 * 1000);
     
-    dummy = SPI2_ExchangeByte(0b11110101);      //0xf5  Temp1
-    ans1  = SPI2_ExchangeByte(0x00);
-    ans2  = SPI2_ExchangeByte(0x00);
+    dummy = SPI1_ExchangeByte(0b11110101);      //0xf5  Temp1
+    ans1  = SPI1_ExchangeByte(0x00);
+    ans2  = SPI1_ExchangeByte(0x00);
     temp1 = (uint16_t)((ans1 << 8) + ans2) >> 3;
     vt1 = (float)(VREF * temp1 / 4096 * 1000);
     //temp = 2.573 * (vt1 - vt0) - 273;           //degC
     temp = (float)(0.3141 * VREF * (vt1 - vt0) - 273);     //degC　だめ全然違う
     
     //パワーダウンモードを00:検出待機状態にする
-    dummy = SPI2_ExchangeByte(0b10000100);      //0x84 
-    dummy = SPI2_ExchangeByte(0x00);
-    dummy = SPI2_ExchangeByte(0x00);
+    dummy = SPI1_ExchangeByte(0b10000100);      //0x84 
+    dummy = SPI1_ExchangeByte(0x00);
+    dummy = SPI1_ExchangeByte(0x00);
     
-    SPI2_Close();
+    SPI1_Close();
     TOUCH_CS_SetHigh();                 //TOUCHチップを選択オフ
     
     if (vt0 == 0){
@@ -187,11 +186,11 @@ void touch_adc(uint16_t * data){
     uint8_t     dummy, ans1, ans2;
     
     TOUCH_CS_SetLow();                  //TOUCHチップを選択オン
-    SPI2_Open(TOUCH_CONFIG);
+    SPI1_Open(TOUCH_CONFIG);
 
-    dummy = SPI2_ExchangeByte(0x91);    //計測コマンド+PD:01変換ー変換
-    ans1  = SPI2_ExchangeByte(0x00);
-    ans2  = SPI2_ExchangeByte(0x00);    //計測値はタイミングの都合で3ビット右シフトで12bitデータとなる
+    dummy = SPI1_ExchangeByte(0x91);    //計測コマンド+PD:01変換ー変換
+    ans1  = SPI1_ExchangeByte(0x00);
+    ans2  = SPI1_ExchangeByte(0x00);    //計測値はタイミングの都合で3ビット右シフトで12bitデータとなる
     
 #ifdef  LANDSCAPE_DISPLAY
     data[X] = ((ans1 << 8) + ans2) >> 3;   //横長
@@ -199,25 +198,25 @@ void touch_adc(uint16_t * data){
     data[Y] = (uint16_t)(((ans1 << 8) + ans2) >> 3);   //縦長
 #endif
     
-    dummy = SPI2_ExchangeByte(0xb1);
-    ans1  = SPI2_ExchangeByte(0x00);
-    ans2  = SPI2_ExchangeByte(0x00);
+    dummy = SPI1_ExchangeByte(0xb1);
+    ans1  = SPI1_ExchangeByte(0x00);
+    ans2  = SPI1_ExchangeByte(0x00);
     data[Z1] = (uint16_t)(((ans1 << 8) + ans2) >> 7);   //8bitにしておく
 
-    dummy = SPI2_ExchangeByte(0xc1);
-    ans1  = SPI2_ExchangeByte(0x00);
-    ans2  = SPI2_ExchangeByte(0x00);
+    dummy = SPI1_ExchangeByte(0xc1);
+    ans1  = SPI1_ExchangeByte(0x00);
+    ans2  = SPI1_ExchangeByte(0x00);
     data[Z2] = (uint16_t)(((ans1 << 8) + ans2) >> 7);   //8bitにしておく
 
-    dummy = SPI2_ExchangeByte(0xd0);    //計測コマンド+PD:00待機モード　PENIRQを有効に
-    ans1  = SPI2_ExchangeByte(0x00);
-    ans2  = SPI2_ExchangeByte(0x00);
+    dummy = SPI1_ExchangeByte(0xd0);    //計測コマンド+PD:00待機モード　PENIRQを有効に
+    ans1  = SPI1_ExchangeByte(0x00);
+    ans2  = SPI1_ExchangeByte(0x00);
 #ifdef  LANDSCAPE_DISPLAY
     data[Y] = (uint16_t)(((ans1 << 8) + ans2) >> 3);    //横長
 #else
     data[X] = (uint16_t)(((ans1 << 8) + ans2) >> 3);    //縦長
 #endif 
-    SPI2_Close();
+    SPI1_Close();
     TOUCH_CS_SetHigh();                 //TOUCHチップを選択オフ
     
 #if  DEBUG_AD_VALUE == 1

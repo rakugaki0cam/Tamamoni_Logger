@@ -13,12 +13,12 @@
    @Description
      This source file provides implementations for driver APIs for CLC1.
      Generation Information :
-         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.7
+         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
          Device            :  PIC18F57Q43
          Driver Version    :  1.0.0
      The generated drivers are tested against the following:
-         Compiler          :  XC8 2.31 and above or later
-         MPLAB             :  MPLAB X 5.45
+         Compiler          :  XC8 2.36 and above or later
+         MPLAB             :  MPLAB X 6.00
  */ 
 
  /*
@@ -78,7 +78,7 @@ void CLC1_Initialize(void)
     CLCnGLS1 = 0x00;
     // G3D1N disabled; G3D2N disabled; G3D3N disabled; G3D4N disabled; G3D1T disabled; G3D2T disabled; G3D3T disabled; G3D4T disabled; 
     CLCnGLS2 = 0x00;
-    // G4D1N disabled; G4D2N disabled; G4D3N disabled; G4D4N disabled; G4D1T disabled; G4D2T disabled; G4D3T disabled; G4D4N disabled; 
+    // G4D1N disabled; G4D2N disabled; G4D3N disabled; G4D4N disabled; G4D1T disabled; G4D2T disabled; G4D3T disabled; G4D4T disabled; 
     CLCnGLS3 = 0x00;
     // CLC1OUT 0; 
     CLCDATA = 0x00;
@@ -99,7 +99,7 @@ void CLC1_ISR(void)
     /////user
     detect_sensor1();
     //
-    }
+}
 
 bool CLC1_OutputStatusGet(void)
 {

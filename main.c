@@ -1,5 +1,5 @@
 /*
- * Bullet Logger V8.3
+ * Bullet Logger V9
  *      -- motion graph -- 
  * 
  *      v0, ve, impact time  measurement
@@ -13,6 +13,7 @@
  *      Touch panel 
  *      microSD card
  *      RS485 LAN(1,2)
+ *      WiFi ESP32-WROOM-32E ESO-NOW
  *
  * 
  *      Vdd = 3.3V 
@@ -179,6 +180,19 @@
  * 2022.11.09   ver.8.64    v0チャートにジュール表示追加。
  * 2022.11.10   ver.8.65    関係のない受信UARTデータを消去する。->TARGET対応
  * 
+ * _V9 edition
+ * 2023.01.28   ver.9.00    ESP32WiFiを追加に伴い、ハード変更
+ *                          ピン45 PT4_WiFi　CLCin
+ *                          ピン39←45から変更　LAN7 VIDEO_LED　PWM31→PWM11
+ *                          RS485 UART2->UART4に変更
+ *                          SPI2廃止してSPI1に統合　　3ピンあく
+ *                          ESP32通信　UART2
+ *                          MCC苦戦　部分exportで1つずつ保存。ダメなものは読込failになる
+ *                                  MC3ファイルを新しい場所に持って行って、MCCで開きgenerateするときれいなファイルができる->user分の修正が必要
+ *                                  mcc_generaateed_filesフォルダごとそっくりコピーしてもgitが効いて差分がわかるので変更修正は楽
+ * 
+ * 
+ * 
  * 
  *  ////モーションセンサーの発射時のタイミングログ取得にSMT1のタイマーを使っているけれど、着弾してしまうとタイマーが止まってしまう可能性がある。別タイマーにするか???
  * 
@@ -209,8 +223,8 @@ __EEPROM_DATA (0x02, 0x03, 0x18, 0x01, 0x01, 0x96, 0x00, 0xff);
 
 
 //global
-const char  title[] = "Bullet Logger V8.3";
-const char  version[] = "8.64"; 
+const char  title[] = "Bullet Logger V9";
+const char  version[] = "9.00"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ
@@ -313,9 +327,10 @@ void main(void)
     
     printf("\n");
     printf("********************\n");
-    printf(" Bullet Logger V8.3 \n");
+    printf(" Bullet Logger V9   \n");
     printf("           ver.%s\n", version);
     printf(" AUTO Device mode   \n");/////////ver8.10-//////////////////////////
+    printf(" WiFi ESP32         \n");/////////ver9.00-//////////////////////////
     printf("********************\n");
     
     touch_init();

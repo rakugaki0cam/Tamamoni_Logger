@@ -13,12 +13,12 @@
   @Description
     This source file provides APIs for DMA1.
     Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.7
+        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.8
         Device            :  PIC18F57Q43
         Driver Version    :  1.0.0
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.31 and above
-        MPLAB 	          :  MPLAB X 5.45
+        Compiler          :  XC8 2.36 and above
+        MPLAB 	          :  MPLAB X 6.00
 */
 
 /*
@@ -61,17 +61,17 @@ void DMA1_Initialize(void)
     //DMA Instance Selection : 0x00
     DMASELECT = 0x00;
     //Source Address : dotRGB
-    DMAnSSA = (volatile uint24_t) &dotRGB; //////user
-    //Destination Address : &SPI2TXB
-    DMAnDSA = (volatile uint16_t) &SPI2TXB;//////user
+    DMAnSSA = (volatile uint24_t) &dotRGB;  //user
+    //Destination Address : &SPI1TXB
+    DMAnDSA = (volatile uint16_t) &SPI1TXB; //user
     //DMODE unchanged; DSTP not cleared; SMR GPR; SMODE incremented; SSTP cleared; 
     DMAnCON1 = 0x03;
     //Source Message Size : 21
     DMAnSSZ = 21;
     //Destination Message Size : 1
     DMAnDSZ = 1;
-    //Start Trigger : SIRQ SPI2TX; 
-    DMAnSIRQ = 0x29;
+    //Start Trigger : SIRQ SPI1TX; 
+    DMAnSIRQ = 0x19;
     //Abort Trigger : AIRQ None; 
     DMAnAIRQ = 0x00;
 	

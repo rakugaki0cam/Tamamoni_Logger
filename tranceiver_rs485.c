@@ -4,6 +4,9 @@
  * 
  * V8
  * 
+ * 2023.02.01   V9.0からUART2->UART4
+ * 
+ * 
  * 
  *  2022.04.24
  *
@@ -43,8 +46,8 @@ data_rx_status_t data_uart_receive(float *data){
     switch(status){
         case START_UART_B:
             //最初のB
-            if (UART2_is_rx_ready()){
-                tmp_str[n] = UART2_Read();
+            if (UART4_is_rx_ready()){
+                tmp_str[n] = UART4_Read();
                 if ('B' == tmp_str[n]){
                     n++;
                     status = START_UART_I;
@@ -56,8 +59,8 @@ data_rx_status_t data_uart_receive(float *data){
             
         case START_UART_I:
             //二文字目のI
-            if (UART2_is_rx_ready()){
-                tmp_str[n] = UART2_Read();
+            if (UART4_is_rx_ready()){
+                tmp_str[n] = UART4_Read();
                 if ('I' == tmp_str[n]){
                     n++;
                     status = START_UART_N;
@@ -72,8 +75,8 @@ data_rx_status_t data_uart_receive(float *data){
             
         case START_UART_N:
             //三文字目のN
-            if (UART2_is_rx_ready()){
-                tmp_str[n] = UART2_Read();
+            if (UART4_is_rx_ready()){
+                tmp_str[n] = UART4_Read();
                 if ('N' == tmp_str[n]){
                     n++;
                     status = READ_UART;
@@ -88,8 +91,8 @@ data_rx_status_t data_uart_receive(float *data){
             
         case READ_UART:
             //データの読み込み
-            if (UART2_is_rx_ready()){
-                tmp_str[n] = UART2_Read();
+            if (UART4_is_rx_ready()){
+                tmp_str[n] = UART4_Read();
                 n++;
                 if (n > LEN_MES){
                     //読み込み完了
@@ -146,8 +149,8 @@ void    rx_buffer_clear(void){
     
     __delay_ms(100);/////////マト側がデバッグ用データを出し終わる頃まで遅延
     
-    while(UART2_is_rx_ready()){
-        UART2_Read();               //捨て読み
+    while(UART4_is_rx_ready()){
+        UART4_Read();               //捨て読み
     }
 }
 

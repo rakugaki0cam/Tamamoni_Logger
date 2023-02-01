@@ -22,7 +22,6 @@
         <logicalFolder name="f1" displayName="sd_spi" projectFiles="true">
           <itemPath>mcc_generated_files/sd_spi/sd_spi.h</itemPath>
         </logicalFolder>
-        <itemPath>mcc_generated_files/spi2.h</itemPath>
         <itemPath>mcc_generated_files/i2c1_master.h</itemPath>
         <itemPath>mcc_generated_files/device_config.h</itemPath>
         <itemPath>mcc_generated_files/spi1.h</itemPath>
@@ -36,7 +35,6 @@
         <itemPath>mcc_generated_files/fvr.h</itemPath>
         <itemPath>mcc_generated_files/smt1.h</itemPath>
         <itemPath>mcc_generated_files/clc1.h</itemPath>
-        <itemPath>mcc_generated_files/pwm3_16bit.h</itemPath>
         <itemPath>mcc_generated_files/uart2.h</itemPath>
         <itemPath>mcc_generated_files/clc2.h</itemPath>
         <itemPath>mcc_generated_files/clc3.h</itemPath>
@@ -47,6 +45,9 @@
         <itemPath>mcc_generated_files/clc6.h</itemPath>
         <itemPath>mcc_generated_files/tmr0.h</itemPath>
         <itemPath>mcc_generated_files/memory.h</itemPath>
+        <itemPath>mcc_generated_files/pwm1_16bit.h</itemPath>
+        <itemPath>mcc_generated_files/clc8.h</itemPath>
+        <itemPath>mcc_generated_files/uart4.h</itemPath>
       </logicalFolder>
       <itemPath>colorLCD.h</itemPath>
       <itemPath>font.h</itemPath>
@@ -62,8 +63,8 @@
       <itemPath>motion_graph.h</itemPath>
       <itemPath>target_graph.h</itemPath>
       <itemPath>tranceiver_rs485.h</itemPath>
-      <itemPath>Vmeasure3.h</itemPath>
       <itemPath>menu.h</itemPath>
+      <itemPath>Vmeasure4.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -75,10 +76,6 @@
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
                      projectFiles="true">
-        <logicalFolder name="docs" displayName="docs" projectFiles="true">
-          <itemPath>mcc_generated_files/docs/spi.dox</itemPath>
-          <itemPath>mcc_generated_files/docs/spi_basic.dox</itemPath>
-        </logicalFolder>
         <logicalFolder name="drivers" displayName="drivers" projectFiles="true">
           <itemPath>mcc_generated_files/drivers/spi_master.c</itemPath>
         </logicalFolder>
@@ -96,7 +93,6 @@
           <itemPath>mcc_generated_files/sd_spi/sd_spi.c</itemPath>
         </logicalFolder>
         <itemPath>mcc_generated_files/device_config.c</itemPath>
-        <itemPath>mcc_generated_files/spi2.c</itemPath>
         <itemPath>mcc_generated_files/spi1.c</itemPath>
         <itemPath>mcc_generated_files/interrupt_manager.c</itemPath>
         <itemPath>mcc_generated_files/i2c1_master.c</itemPath>
@@ -109,7 +105,6 @@
         <itemPath>mcc_generated_files/fvr.c</itemPath>
         <itemPath>mcc_generated_files/smt1.c</itemPath>
         <itemPath>mcc_generated_files/clc1.c</itemPath>
-        <itemPath>mcc_generated_files/pwm3_16bit.c</itemPath>
         <itemPath>mcc_generated_files/uart2.c</itemPath>
         <itemPath>mcc_generated_files/clc2.c</itemPath>
         <itemPath>mcc_generated_files/clc3.c</itemPath>
@@ -120,6 +115,9 @@
         <itemPath>mcc_generated_files/clc6.c</itemPath>
         <itemPath>mcc_generated_files/tmr0.c</itemPath>
         <itemPath>mcc_generated_files/memory.c</itemPath>
+        <itemPath>mcc_generated_files/pwm1_16bit.c</itemPath>
+        <itemPath>mcc_generated_files/clc8.c</itemPath>
+        <itemPath>mcc_generated_files/uart4.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>colorLCD.c</itemPath>
@@ -135,15 +133,14 @@
       <itemPath>motion_graph.c</itemPath>
       <itemPath>target_graph.c</itemPath>
       <itemPath>tranceiver_rs485.c</itemPath>
-      <itemPath>Vmeasure3.c</itemPath>
       <itemPath>menu.c</itemPath>
+      <itemPath>Vmeasure4.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
       <itemPath>MyConfig.mc3</itemPath>
-      <itemPath>BulletLogger_V8_57Q43_SMT.mc3</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

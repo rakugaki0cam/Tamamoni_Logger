@@ -14,6 +14,8 @@
  * 2022.05.07       ↑測定中リターン無し。V8バージョン　タイトルバー表示なし。ターゲット画面を広く使うため
  * 2022.10.23       メモリ対策 dotRGB 960->580(2倍角)へ。カラー18ビットのみに。
  * 2022.10.23       SDのLFN廃止でメモリ確保。dotRGB[1280]
+ * 2023.02.01       SPI2 -> SPI1 SDカードと共用化
+
  * 
  */
 
@@ -30,7 +32,7 @@ uint8_t     RGB_18bit[3];                 // RGB値からST7735の色情報に変換したテ
 //LCD SPI関連
 void LCD_spi_open(void) {
     //コマンド操作するとき必要
-    SPI2_Open(LCD_CONFIG);
+    SPI1_Open(LCD_CONFIG);
     LCD_CS_SetLow(); //LCDチップを選択オン
 }
 
@@ -38,27 +40,27 @@ void LCD_spi_close(void) {
     //CSが無いLCDでの誤作動防止対策付き
     LCD_spi_sendCommand(LCD_CMD_NOP); //空コマンドを打って、メモリー書き込みを終える
     LCD_DC_SetHigh(); //データ受信にしておけば　空読み込みとなる
-    SPI2_Close();
+    SPI1_Close();
     LCD_CS_SetHigh(); //LCDチップ選択をオフ
 }
 
 void LCD_spi_sendCommand(uint8_t c) {
     //コマンドを送る
     LCD_DC_SetLow(); //コマンド
-    SPI2_ExchangeByte(c);
+    SPI1_ExchangeByte(c);
 }
 
 void LCD_spi_sendByte(uint8_t d) {
     //1バイトデータを書き出し
     LCD_DC_SetHigh(); //データ
-    SPI2_ExchangeByte(d);
+    SPI1_ExchangeByte(d);
 }
 
 void LCD_spi_sendWord(uint16_t dd) {
     //2バイトデータを書き出し
     LCD_DC_SetHigh(); //データ
-    SPI2_ExchangeByte((uint8_t)(dd >> 8) & 0x00ff);
-    SPI2_ExchangeByte((uint8_t)(dd & 0x00ff));
+    SPI1_ExchangeByte((uint8_t)(dd >> 8) & 0x00ff);
+    SPI1_ExchangeByte((uint8_t)(dd & 0x00ff));
 }
 
 uint8_t LCD_spi_readByte(uint8_t c) {
@@ -66,9 +68,9 @@ uint8_t LCD_spi_readByte(uint8_t c) {
     uint8_t d;
     //LCD_spi_open();
     LCD_DC_SetLow(); //コマンド
-    SPI2_ExchangeByte(c);
+    SPI1_ExchangeByte(c);
     LCD_DC_SetHigh(); //データ
-    d = SPI2_ExchangeByte(0x00);
+    d = SPI1_ExchangeByte(0x00);
     //LCD_spi_close();
     return d;
 }
@@ -77,18 +79,18 @@ void LCD_spi_readLongbytes(uint8_t c, uint8_t *data, uint16_t n) {
     //コマンドを送り　nバイトのデータを読み出し  ID,Statusの3～4バイト用
     uint16_t i;
     //LCD_spi_open();
-    SPI2CON0bits.EN = 0; //SPI1:disableしてCON0を変更可に
-    SPI2CON0bits.BMODE = 1; //バリアブルビットモードに変更
-    SPI2CON0bits.EN = 1; //SPI1:enable
+    SPI1CON0bits.EN = 0; //SPI1:disableしてCON0を変更可に
+    SPI1CON0bits.BMODE = 1; //バリアブルビットモードに変更
+    SPI1CON0bits.EN = 1; //SPI1:enable
     LCD_DC_SetLow(); //コマンド
-    SPI2_ExchangeByte(c);
+    SPI1_ExchangeByte(c);
     LCD_DC_SetHigh(); //データ
-    SPI2TWIDTH = 1; //データ幅1ビット
+    SPI1TWIDTH = 1; //データ幅1ビット
     //1ビットのダミークロックを捨てる
-    SPI2_ExchangeByte(0x01);
-    SPI2TWIDTH = 0; //データ幅8ビットに戻す
+    SPI1_ExchangeByte(0x01);
+    SPI1TWIDTH = 0; //データ幅8ビットに戻す
     for (i = 0; i < n; i++) {
-        data[i] = SPI2_ExchangeByte(0x00);
+        data[i] = SPI1_ExchangeByte(0x00);
     }
     //LCD_spi_close();
 }
@@ -99,7 +101,7 @@ void LCD_spi_readVramData(uint8_t *data, uint16_t n) {
     //LCD_spi_open();
     LCD_DC_SetHigh(); //データ   
     for (i = 0; i < n; i++) {
-        data[i] = SPI2_ExchangeByte(0x00);
+        data[i] = SPI1_ExchangeByte(0x00);
     }
     //LCD_spi_close();
 }
@@ -517,7 +519,7 @@ void LCD_Printf(uint16_t x0, uint16_t y0, char *string, uint8_t font_size, uint8
             PIR2 &= 0x0f;                           //bit7~5:DMA1  -> clear
             
             LCD_spi_Txonly_address_set(x0, x1, y0, y1);
-            while(SPI2INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
+            while(SPI1INTFbits.SRMTIF == 0){}       //送信中でないかのチェック
             LCD_DC_SetHigh();                       //Data
     
             //EN enabled; SIRQEN enabled; DGO not in progress; AIRQEN disabled; 
@@ -529,7 +531,7 @@ void LCD_Printf(uint16_t x0, uint16_t y0, char *string, uint8_t font_size, uint8
 
         }      
         while(PIR2bits.DMA1SCNTIF == 0){}       //DMA転送元側カウントがゼロ
-        while(SPI2INTFbits.SRMTIF == 0){}       //SPI側の送信完了を検出
+        while(SPI1INTFbits.SRMTIF == 0){}       //SPI側の送信完了を検出
         PIR2 &= 0x0f;                           //bit7~5:DMA1  -> clear
         DMASELECT = 0x00;
         DMAnCON0bits.EN = 0;                    //DMA1 reset
