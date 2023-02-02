@@ -3,6 +3,7 @@
     <type>com.microchip.mplab.nbide.embedded.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
+            <name>BulletLogger_V9_Q43</name>
             <name>BulletLogger_V9copyMMCtest</name>
             <name>BulletLogger_V8_3_57Q43</name>
             <name>BulletLogger_V8_57Q43</name>

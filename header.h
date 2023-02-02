@@ -35,6 +35,7 @@
 #include "target_graph.h"
 #include "touch_2046.h"
 #include "tranceiver_rs485.h"
+#include "tranceiver_esp32.h"
 #include "Vmeasure4.h"
 
 

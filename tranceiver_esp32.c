@@ -1,14 +1,16 @@
-/*  tranceiver_rs485.c
+/*  tranceiver_esp32.c
  * 
  * 電子ターゲットとの通信
  * 
- * 2022.04.24   V8
- * 2023.02.01   V9.0からUART2->UART4
+ * 
+ * 2023.02.02   V9.0    UART4 - RS485
+ *                      UART2 - ESP32 UART
+ *                      の2系統
  * 
  * 
 */
 #include "header.h"
-#include "tranceiver_rs485.h"
+#include "tranceiver_esp32.h"
 
 
 #define LEN_TMP     60
@@ -17,7 +19,10 @@
 char    tmp_str[LEN_TMP];
 
 
-data_rx_status_t data_uart_receive_rs485(float *data){
+
+
+
+data_rx_status_t data_uart_receive_esp32(float *data){
     //電子ターゲットから着弾データを受信
     
     //データ処理ステータス
@@ -41,8 +46,8 @@ data_rx_status_t data_uart_receive_rs485(float *data){
     switch(status){
         case START_UART_B:
             //最初のB
-            if (UART4_is_rx_ready()){
-                tmp_str[n] = UART4_Read();
+            if (UART2_is_rx_ready()){
+                tmp_str[n] = UART2_Read();
                 if ('B' == tmp_str[n]){
                     n++;
                     status = START_UART_I;
@@ -54,8 +59,8 @@ data_rx_status_t data_uart_receive_rs485(float *data){
             
         case START_UART_I:
             //二文字目のI
-            if (UART4_is_rx_ready()){
-                tmp_str[n] = UART4_Read();
+            if (UART2_is_rx_ready()){
+                tmp_str[n] = UART2_Read();
                 if ('I' == tmp_str[n]){
                     n++;
                     status = START_UART_N;
@@ -70,8 +75,8 @@ data_rx_status_t data_uart_receive_rs485(float *data){
             
         case START_UART_N:
             //三文字目のN
-            if (UART4_is_rx_ready()){
-                tmp_str[n] = UART4_Read();
+            if (UART2_is_rx_ready()){
+                tmp_str[n] = UART2_Read();
                 if ('N' == tmp_str[n]){
                     n++;
                     status = READ_UART;
@@ -86,8 +91,8 @@ data_rx_status_t data_uart_receive_rs485(float *data){
             
         case READ_UART:
             //データの読み込み
-            if (UART4_is_rx_ready()){
-                tmp_str[n] = UART4_Read();
+            if (UART2_is_rx_ready()){
+                tmp_str[n] = UART2_Read();
                 n++;
                 if (n > LEN_MES){
                     //読み込み完了
@@ -134,7 +139,7 @@ data_rx_status_t data_uart_receive_rs485(float *data){
 }
 
 
-void    rx_buffer_clear_rs485(void){
+void    rx_buffer_clear_esp32(void){
     //受信バッファをクリア
     uint8_t     i;
     
@@ -144,8 +149,8 @@ void    rx_buffer_clear_rs485(void){
     
     __delay_ms(100);/////////マト側がデバッグ用データを出し終わる頃まで遅延
     
-    while(UART4_is_rx_ready()){
-        UART4_Read();               //捨て読み
+    while(UART2_is_rx_ready()){
+        UART2_Read();               //捨て読み
     }
 }
 

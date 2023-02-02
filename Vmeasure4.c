@@ -294,7 +294,8 @@ void vmeasure_ready(void){
     sleep_count_reset();
     shot_data[shot_buf_pointer] = clear_shot_data;  //次のデータメモリをクリア データメモリはリングバッファ
     int_status = clear_status;                      //シーケンス用割込フラグクリア
-    rx_buffer_clear();      //////////////////////////遅延タイマーあり（マトからのデータ読み捨て）
+    rx_buffer_clear_rs485();                        //遅延タイマーあり（マトからのデータ読み捨て）///////////
+    rx_buffer_clear_esp32();                        //遅延タイマーあり（マトからのデータ読み捨て）///////////
     motion_clear();                                 //最後にクリア(motion_gate=1の関係で)
 
 #ifdef  TIMING_LOG                  //debug
@@ -635,7 +636,11 @@ uint8_t vmeasure(void){
         //TARGET_GRAPH    
         case RECEIVE_DATA:
             //電子ターゲットからのデータ受信処理
-            answ = data_uart_receive(rx_data_f);    //ノンブロッキング処理
+            if (V0_TARGET_MODE == target_mode){////////////////////////////////////RS485/ESP32WiFi////////////////////////
+                answ = data_uart_receive_rs485(rx_data_f);    //ノンブロッキング処理
+            }else{
+                answ = data_uart_receive_esp32(rx_data_f);    //ノンブロッキング処理
+            }
             if (RX_OK == answ){
                 //データが正常に受信された時
                 int_status.uart = 1;

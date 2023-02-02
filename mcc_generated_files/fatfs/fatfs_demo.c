@@ -22,7 +22,7 @@
 
 
 #include "ff.h"
-#include "drva.h"
+#include "../../mcc_generated_files/sd_spi/sd_spi.h"
 
 static FATFS drive;
 static FIL file;
@@ -31,7 +31,7 @@ void FatFsDemo_Tasks(void)
 {
     UINT actualLength;
     char data[] = "Hello World!";
-    if( DRVA_IsMediaPresent() == false)
+    if( SD_SPI_IsMediaPresent() == false)
     {
         return;
     }

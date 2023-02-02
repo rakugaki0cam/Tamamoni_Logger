@@ -1,4 +1,3 @@
-/mcc_generated_files/fatfs:10:23/
 /debug/
 /nbproject/private/
 /gomi/
@@ -8,3 +7,7 @@
 /nbproject/Makefile-default.mk
 /nbproject/Makefile-impl.mk
 /nbproject/Package-default.bash
+/build/
+/dist/
+/partial-exportMC3_V8->V9
+/v9TestConfig

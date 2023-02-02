@@ -114,6 +114,14 @@ void __interrupt() INTERRUPT_InterruptManager (void)
     {
         PIN_MANAGER_IOC();
     }
+    if(PIE8bits.U2TXIE == 1 && PIR8bits.U2TXIF == 1)
+    {
+        UART2_TxInterruptHandler();
+    }
+    if(PIE8bits.U2RXIE == 1 && PIR8bits.U2RXIF == 1)
+    {
+        UART2_RxInterruptHandler();
+    }
 }
 /**
  End of File
