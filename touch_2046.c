@@ -97,10 +97,10 @@ void touch_init(void){
         //debug
         //printf("temp0 = 0x%03X\n", temp0);
         //printf("temp1 = 0x%03X\n", temp1);
-        printf("Vt0 =%7.2fmV\n", vt0);
+        //printf("Vt0 =%7.2fmV\n", vt0);
         //printf("Vt1 =%7.2fmV\n", vt1);
         //temp0Ç©ÇÁÇÃâ∑ìx
-        printf("temp0 =%6.1fdegC\n", (600 - vt0) / 2.1 + 25 + TEMP_OFFSET);
+        //printf("temp0 =%6.1fdegC\n", (600 - vt0) / 2.1 + 25 + TEMP_OFFSET);
         //temp01Ç©ÇÁÇÃâ∑ìx
         //printf("temp01=%6.1fdegC\n", temp);   ///////////çáÇÌÇ»Ç¢??????????????
     }

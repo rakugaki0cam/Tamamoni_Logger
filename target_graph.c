@@ -114,8 +114,10 @@ void target_data_reset(void){
     //ターゲットデータをリセットする。　CtoC→0mm
     //SW2長押し
     uint8_t     i;
-    
-    if ((target_mode != TARGET_ONLY_MODE) && (target_mode != V0_TARGET_MODE)){
+    device_connect_t    targetmode;
+
+    targetmode = target_mode_get();
+    if ((TARGET_ONLY_MODE != targetmode) && (V0_TARGET_MODE != targetmode)){
         return;
     }
     
@@ -130,6 +132,11 @@ void target_data_reset(void){
             return;
         }
     }
+    //電子ターゲットにクリアコマンドを送る
+    uint8_t clear[] = "CLEAR";
+    command_uart_send_esp32(clear);     //WiFi
+    command_uart_send_rs485(clear);     //LAN                                    //LANで接続の時も必要
+    
     //ターゲットをクリア
     impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE, DUMMY);
     target_graph_initialize();
@@ -187,7 +194,7 @@ float impact_plot_graph(uint16_t shot, float x0, float y0, bool redraw, bool res
     if (redraw == 0){
         //ReDraw = 0: 一着弾点を描画
         
-        //前回の着弾を赤色に
+        //前回の着弾を黄色に
         if (num > 0){
             b = (int8_t)po - 1;
             if (b < 0){

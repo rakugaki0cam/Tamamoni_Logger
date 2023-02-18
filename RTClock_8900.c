@@ -26,9 +26,6 @@
 #define     RTC_TIMING_DEBUG_no
 #define     ROW_RTCLOCK     310
 #define     COL_RTCLOCK     110
-//BCD-decimal
-#define decimaltobcd(x)     (((x / 10) << 4) + ((x - ((x / 10) * 10))))
-#define bcdtodecimal(x)     ((x & 0xF0) >> 4) * 10 + (x & 0x0F)
 
 
 //global
@@ -40,6 +37,14 @@ int8_t      low_battery_count;  //低電圧検出後のカウンタ
 //曜日用文字列変数
 char week[4];
 
+//BCD-decimal
+uint8_t decimaltobcd(uint8_t x){
+    return (uint8_t)((x / 10) << 4) + (x - ((x / 10) * 10));
+}
+
+uint8_t bcdtodecimal(uint8_t x){
+    return ((x & 0xF0) >> 4) * 10 + (x & 0x0F);
+}
 
 uint8_t RTC_initialize(void){
     uint8_t     dd[7];
@@ -236,8 +241,8 @@ void RTC8900_time_set(void) {
     button_time_t   bnum;
     uint8_t bsel = MINUTE;  //選択中のボタン
     
-    int8_t  year, month, day, wnum;
-    int8_t  hour, minute, second;
+    uint8_t  year, month, day, wnum;
+    uint8_t  hour, minute, second;
     //月毎の日数 end day of mounth
     uint8_t edom[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};     //添字と月を一致させてる。0月は0
     
@@ -397,14 +402,16 @@ void RTC8900_time_set(void) {
                             break;
                         case HOUR:
                             hour--;
-                            if (hour < 0){
+                            //if (hour < 0){
+                            if (hour > 23){             /////////////////////////////
                                 hour = 23;
                             }
                             sprintf(tmp_string, "%02d", hour);
                             break;
                         case MINUTE:
                             minute--;
-                            if (minute < 0 ){
+                            //if (minute < 0 ){
+                            if (minute > 59){           /////////////////////////
                                 minute = 59;
                             }
                             sprintf(tmp_string, "%02d", minute);
@@ -456,7 +463,7 @@ void RTC8900_time_set(void) {
                     tx_data[0] = decimaltobcd(second + 1);  //sec BCD タイミング合わせのため+1
                     tx_data[1] = decimaltobcd(minute);      //min
                     tx_data[2] = decimaltobcd(hour);        //hour
-                    tx_data[3] = 1 << wnum;                 //week bit6(0x40):sat bit5(0x20):fri bit4(0x10):tue bit3(0x8):wed bit2(0x4):tue bit1(0x2):mon bit0(0x1):sun
+                    tx_data[3] = (uint8_t)(1 << wnum);      //week bit6(0x40):sat bit5(0x20):fri bit4(0x10):tue bit3(0x8):wed bit2(0x4):tue bit1(0x2):mon bit0(0x1):sun
                     tx_data[4] = decimaltobcd(day);         //day
                     tx_data[5] = decimaltobcd(month);       //month
                     tx_data[6] = decimaltobcd(year);        //year

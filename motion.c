@@ -272,8 +272,8 @@ uint8_t angle_level_disp_average_v2(uint8_t gyroOn){
                 //rawdata_accel[axis][RINGBUF_MAX] = (int16_t)(sum_accel_v2[axis] / sum_count_v2);
                 //rawdata_gyro [axis][RINGBUF_MAX] = (int16_t)(sum_gyro_v2 [axis] / sum_count_v2);
             
-                rawdata_accel[axis][RINGBUF_MAX] = sum_accel_v2[axis] / sum_count_v2;
-                rawdata_gyro [axis][RINGBUF_MAX] = sum_gyro_v2 [axis] / sum_count_v2;
+                rawdata_accel[axis][RINGBUF_MAX] = (int16_t)(sum_accel_v2[axis] / sum_count_v2);
+                rawdata_gyro [axis][RINGBUF_MAX] = (int16_t)(sum_gyro_v2 [axis] / sum_count_v2);
             }
             disp_stage = 3;
             break;
@@ -354,12 +354,9 @@ uint8_t angle_level_tilt_print(uint8_t point, bool full_disp){
                 break;
             case 2:
                 //3軸での傾斜計算
-                //anglex = (float)(atan((float)Gx / sqrt((float)Gy * Gy + (float)Gz * Gz)) * 180 / 3.1416); 
-                //angley = (float)(atan((float)Gy / sqrt((float)Gx * Gx + (float)Gz * Gz)) * 180 / 3.1416);
-                //anglez = (float)(atan(sqrt((float)Gx * Gx + (float)Gy * Gy) / (float)Gz) * 180 / 3.1416);
-                anglex = atan((float)Gx / sqrt((float)Gy * Gy + (float)Gz * Gz)) * 180 / 3.1416; 
-                angley = atan((float)Gy / sqrt((float)Gx * Gx + (float)Gz * Gz)) * 180 / 3.1416;
-                anglez = atan(sqrt((float)Gx * Gx + (float)Gy * Gy) / (float)Gz) * 180 / 3.1416;
+                anglex = (float)(atan((float)Gx / sqrt((float)Gy * Gy + (float)Gz * Gz)) * 180 / 3.1416); 
+                angley = (float)(atan((float)Gy / sqrt((float)Gx * Gx + (float)Gz * Gz)) * 180 / 3.1416);
+                anglez = (float)(atan(sqrt((float)Gx * Gx + (float)Gy * Gy) / (float)Gz) * 180 / 3.1416);
                 //anglez < 0の時 ///////////////???
 
                 disp_stage = 3;
@@ -422,6 +419,7 @@ uint8_t motion_print_gyro(uint8_t po, float time_at_shot, bool full_disp, bool s
     static float    sigmay, sigmaz;     //ブレ量 = 角速度 x 時間 の総和
     static float    omegax, omegay, omegaz;         //角速度計算値
     static float    omegay_before, omegaz_before;   //角速度前回値
+    device_connect_t    targetmode;
 
     if (start == 1){
         omegay_before = 0;          //角速度前回値クリア
@@ -459,7 +457,9 @@ uint8_t motion_print_gyro(uint8_t po, float time_at_shot, bool full_disp, bool s
                 break;
             case 3:
                 //グラフにプロット
-                if ((V0_TARGET_MODE != target_mode) && (TARGET_ONLY_MODE != target_mode) && (V0_MODE != target_mode)){
+                //if ((V0_TARGET_MODE != target_mode) && (TARGET_ONLY_MODE != target_mode) && (V0_MODE != target_mode)){
+                targetmode = target_mode_get();
+                if ((V0_TARGET_MODE != targetmode) && (TARGET_ONLY_MODE != targetmode) && (V0_MODE != targetmode)){   ////////////////
                     //電子ターゲットではない時
                     motion_plot_graph(sigmay, sigmaz, time_at_shot);
                     //撃ち出し時のモーションはこの辺でしか計算できないかも/////////time_at_shotが前データとの比率位置//////////////
@@ -505,9 +505,12 @@ void motion_data_remain_check(uint8_t data_point){
     //最後のデータ読み込み後にFIFOカウントがゼロでない時
     //画面に警告表示
 #ifdef  MOTION_DISP_OFF_V8
-    if ((V0_TARGET_MODE == target_mode) || 
-        (TARGET_ONLY_MODE == target_mode) || 
-        (V0_MODE == target_mode)){////////////////////////
+    device_connect_t    targetmode;
+
+    targetmode = target_mode_get();
+    if ((V0_TARGET_MODE == targetmode) || 
+        (TARGET_ONLY_MODE == targetmode) || 
+        (V0_MODE == targetmode)){     ////////////////////////
         return;
     }
 #endif
@@ -520,7 +523,10 @@ void motion_data_remain_check(uint8_t data_point){
 void motion_data_at_zero(void){
     //ショット時のMPUセンサFIFOデータ数
 #ifdef  MOTION_DISP_OFF_V8
-    if ((V0_TARGET_MODE == target_mode) || (TARGET_ONLY_MODE == target_mode)){
+    device_connect_t    targetmode;
+    
+    targetmode = target_mode_get();
+    if ((V0_TARGET_MODE == targetmode) || (TARGET_ONLY_MODE == targetmode)){
         return;
     }
 #endif

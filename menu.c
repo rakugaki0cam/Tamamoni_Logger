@@ -185,7 +185,7 @@ void    setup_menu(void){
     __delay_ms(500);
     menu_clear_screen();
     angle_level_tilt_disp_init();
-    print_target_mode(INDIGO);      //sensor_connect_check()‚Íó‘Ô•Ï‰»‚ª‚È‚¢‚Æ‚«•\¦‚³‚ê‚È‚¢‚Ì‚Å
+    print_targetmode(INDIGO);      //sensor_connect_check()‚Íó‘Ô•Ï‰»‚ª‚È‚¢‚Æ‚«•\¦‚³‚ê‚È‚¢‚Ì‚Å
     
 }
 

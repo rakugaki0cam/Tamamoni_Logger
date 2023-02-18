@@ -71,6 +71,11 @@
  * 2022.08.20   v0チャート　データ数40（バッファ数）以上のとき表示スクロールしないのバグフィクス
  * 2022.10.15   v0初速センサをXCORTECHと高速ストロボの選択式にSW3で切り替え
  * 2022.10.19   ストロボ撮影時のログ項目追加
+ * 2023.02.04   WiFi追加
+ *              WiFiのとき  通信経路 -- ESP-NOW, 着弾時間遅れにWIFI分を加算
+ *              LAN線のとき         -- RS485
+ *              targetmodeは同じでいきたいので、モード検出をsensor4port からCLC4OUTに変更
+ * 
  * 
  * 
  * 
@@ -112,33 +117,47 @@
 #define     ROW_TIME        40
 #define     COL_TARGET      2
 #define     ROW_TARGET      40
-
 //
-#define     NUM_SHOTS       20
+#define     NUM_SHOTS       20      //保存しておくショットのデータ数
 //センサーステータス
-#define     SENSOR1_PORT    PORTAbits.RA0
-#define     SENSOR2_PORT    PORTAbits.RA1
-#define     SENSOR3_PORT    PORTAbits.RA2
-#define     SENSOR4_PORT    PORTAbits.RA3
+#define     SENSOR1_PORT    PORTAbits.RA0       //RA0_GetValue()
+#define     SENSOR2_PORT    PORTAbits.RA1       //RA1_GetValue()
+#define     SENSOR3_PORT    PORTAbits.RA2       //RA2_GetValue()
+//WiFiのため変更
+#define     SENSOR4_LAN     PORTAbits.RA3       //RA3_GetValue()  ->CLCIN5
+#define     SENSOR4_WIFI    PORTDbits.RD3       //RD3_GetValue()  ->CLCIN2 ターゲット着弾をWiFi受信してセンサー4信号としてESPより入力
+#define     SENSOR4_CLC     CLCDATAbits.CLC4OUT //CLC4_OutputStatusGet(void) CLC8-EN:CLCIN5(LAN), Dis:CLCIN2(WIFI)
 
+//WiFi(ESP32 ESP-NOW)通信遅延時間
+#define     WIFI_DELAY_USEC -900            //ターゲット着弾信号発生～WIFI受信完了までusec
 
 
 //global
-device_connect_t    target_mode;    ////////////local化したい
-measure_status_t    measure_status; ////////////local化したい
+measure_status_t    measure_status; ////////////local化したい/////////////////////////////////////
 shot_data_t         shot_data[NUM_SHOTS];
 uint8_t             sensor_type;
 
 
 //local
+device_connect_t    target_mode;
 const shot_data_t  clear_shot_data = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 999.9, 999.9, 0, VMEASURE_READY};
 //クリア値: 着弾座標(x,y)=(0,0)は、ど真ん中の意味なので、クリア値はマトの外の値(999.9,999.9)とする。
 uint16_t    shot = 0;               //ショット数
 uint8_t     shot_buf_pointer = 0;   //ショットメモリバッファ用ポインタ
 uint8_t     len12_mm;               //初速センサ1-2の距離[mm]
-char        v0device[15];           //初速装置の種類
-    
-    
+char        v0device[15];           //初速装置の名称
+
+//ターゲットデータ通信経路
+typedef enum {
+    NONE,
+    RS485,                          //LANケーブルでRS485 --- UART4
+    ESP_NOW,                        //WiFi 無線 ESP32 ESP-NOW --- UART2
+    NUM_TARGET_COM_PATH,            //宣言数  =　メッセージ配列添字数
+} target_path_t;
+
+target_path_t   target_com_path = RS485;    //ターゲットからのデータ受信経路
+
+
 //割込&動作ステータス ー 動作シーケンスのチェック用
 typedef struct {
     bool    sensor1on;
@@ -191,7 +210,34 @@ const char vmeasure_err_mes[NUM_SENSOR_ERROR][ERR_LEN] = {
 };
 
 
+const char target_mode_mes[NUM_SENSOR_CONNECT][11] = {    //10文字長+エンドマーク0x00なので宣言は11で
+    "!No device",
+    "!NO v0sens",
+    "!NO v0sens",
+    "    V0MODE",
+    "  !unknown",
+    "!NO v0sens",
+    "!NO v0sens",
+    "  V0MOTION",
+    "TARGETonly",
+    "!NO v0sens",
+    "!NO v0sens",
+    "TARGETmode",
+    "!NO v0sens",
+    "!NO v0sens",
+    "!NO v0sens",
+    " V0-VeMODE",
+};
+
+
+
 //
+uint8_t target_mode_get(void){
+    //変数target_modeをローカル化するための関数
+    return target_mode;
+}
+
+
 void vmeasure_initialize(void){
     //速度測定初期設定
     //SMT1 timer値
@@ -246,7 +292,7 @@ void set_v0sensor(bool change){
         case STROBE:
             len12_mm = LEN12_mm_STROBE;
             sprintf(sen12_str, "S");
-            sprintf(v0device, "STROBE  ");      //ログ出力用
+            sprintf(v0device, "STROBE  ");      //ログ出力用名称
             break;
         default:
             sensor_type = XCORTECH;     //書き込み後の最初はEEP ROMが0xFFになっている模様
@@ -294,8 +340,8 @@ void vmeasure_ready(void){
     sleep_count_reset();
     shot_data[shot_buf_pointer] = clear_shot_data;  //次のデータメモリをクリア データメモリはリングバッファ
     int_status = clear_status;                      //シーケンス用割込フラグクリア
-    rx_buffer_clear_rs485();                        //遅延タイマーあり（マトからのデータ読み捨て）///////////
-    rx_buffer_clear_esp32();                        //遅延タイマーあり（マトからのデータ読み捨て）///////////
+    rx_buffer_clear_rs485();                        //サブ内に遅延タイマーあり（マトからのデータ読み捨て）///////////
+    rx_buffer_clear_esp32();                        //サブ内に遅延タイマーあり（マトからのデータ読み捨て）///////////
     motion_clear();                                 //最後にクリア(motion_gate=1の関係で)
 
 #ifdef  TIMING_LOG                  //debug
@@ -320,7 +366,7 @@ uint8_t vmeasure(void){
     uint8_t answ;
     uint8_t i;
     float   rx_data_f[3];   //電子ターゲット着弾データ受取用
-    uint16_t ctc_num;       //戻り値
+    uint16_t ctc_num;       //着弾データサブからの戻り値
     uint8_t c2 = 0;
     uint8_t tmp2;
     
@@ -635,18 +681,24 @@ uint8_t vmeasure(void){
         
         //TARGET_GRAPH    
         case RECEIVE_DATA:
-            //電子ターゲットからのデータ受信処理
-            if (V0_TARGET_MODE == target_mode){////////////////////////////////////RS485/ESP32WiFi////////////////////////
-                answ = data_uart_receive_rs485(rx_data_f);    //ノンブロッキング処理
+            //電子ターゲットからのデータ受信処理 ノンブロッキング処理なので終了するまで何度もまわってくる
+            if (RS485 == target_com_path){
+                answ = data_uart_receive_rs485(rx_data_f);
+            }else if(ESP_NOW == target_com_path){
+                answ = data_uart_receive_esp32(rx_data_f);
             }else{
-                answ = data_uart_receive_esp32(rx_data_f);    //ノンブロッキング処理
+                printf("TARGET path error!\n");
             }
+            
             if (RX_OK == answ){
                 //データが正常に受信された時
                 int_status.uart = 1;
                 shot_data[shot_buf_pointer].impact_x = rx_data_f[0];
                 shot_data[shot_buf_pointer].impact_y = rx_data_f[1];
-                shot_data[shot_buf_pointer].impact_offset_usec = rx_data_f[2]; 
+                shot_data[shot_buf_pointer].impact_offset_usec = rx_data_f[2];
+                if (ESP_NOW == target_com_path){
+                    shot_data[shot_buf_pointer].impact_offset_usec += WIFI_DELAY_USEC;      //WiFi無線の遅延時間を加算(オフセット遅延はマイナス値)
+                }
                 shot_data[shot_buf_pointer].status = DATA_RECIEVED;
                 break;
             }
@@ -820,7 +872,7 @@ uint8_t vmeasure(void){
             shot++;
             shot_buf_pointer++;                         //ショット数+1                 
             if (shot_buf_pointer >= NUM_SHOTS){
-                shot_buf_pointer = 0;                   //0はクリア用のデータを保管してある
+                shot_buf_pointer = 0;
             }
             LED_RIGHT_SetLow();
             LED_LEFT_SetLow();
@@ -857,14 +909,44 @@ uint8_t vmeasure(void){
 
 void sensor_connect_check(void){
     //ターゲット接続チェックと測定モードの表示
-    static uint8_t  temp = 0xff;
+    //call  main()-> 起動直後, footer_rewrite()->時計等表示更新時
+    static uint8_t  prev_mode = 0xff;
     
-    target_mode = (uint8_t)(SENSOR4_PORT << 3) | (uint8_t)(SENSOR3_PORT << 2)
+    //ターゲットデータ通信経路の切換
+    if (SENSOR4_LAN == 1){
+        if (target_com_path == ESP_NOW){
+            CLCSELECT = 0x07;
+            CLCnCON = 0x80;                     //CLC8ENable -> LAN-RS485
+            target_com_path = RS485;
+            //
+            sprintf(tmp_string, "Target LAN        ");  //18文字
+            LCD_Printf(COL_WARNING, ROW_WARNING1, tmp_string, 1, PINK, 1);
+            //debug
+            printf("%s\n", tmp_string);
+            rx_buffer_clear_rs485();
+        }
+    }else{  //if(SENSOR4_LAN == 0)
+        if ((target_com_path == RS485) && (SENSOR4_WIFI == 1)){
+            CLCSELECT = 0x07;
+            CLCnCON = 0x00;                     //CLC8disable -> WIFI-ESP_NOW
+            target_com_path = ESP_NOW;
+            //
+            sprintf(tmp_string, "Target WiFi       ");  //18文字
+            LCD_Printf(COL_WARNING, ROW_WARNING1, tmp_string, 1, PINK, 1);
+            //debug
+            printf("%s\n", tmp_string);
+            rx_buffer_clear_esp32();
+       }
+    }
+    //↑切換中に測定割り込みが入ると途中になりそうだけどセンサ4オンは測定開始から時間が経ってからだから大丈夫???
+    //切り替えは装置の接続状態が変わった時だけ。
+    
+    target_mode = (uint8_t)((!SENSOR4_CLC) << 3) | (uint8_t)(SENSOR3_PORT << 2)    //sensor4はCLC4でLANとWifiを切換えている(注意...CLC4OUTは信号反転させている)
                 | (uint8_t)(SENSOR2_PORT << 1) | (uint8_t)SENSOR1_PORT;
     
-    if (target_mode != temp){
-        print_target_mode(INDIGO);
-        temp = target_mode;
+    if (target_mode != prev_mode){
+        print_targetmode(INDIGO);
+        prev_mode = target_mode;
     }
 }
     
@@ -1143,7 +1225,7 @@ void    print_target_ctc(float ctc, uint16_t num, uint8_t color){
 }
 
 
-void print_target_mode(uint8_t color){
+void print_targetmode(uint8_t color){
     //モードとパラメータの初期表示と代入
     sprintf(tmp_string, "SHOT#");
     LCD_Printf(COL_SHOT, ROW_SHOT, tmp_string, 2, WHITE, 1);
@@ -1275,6 +1357,7 @@ void detect_sensor3(void){
 
 void detect_sensor4(void){
     //センサ4オン割込 CLC4
+    //CLC8- EN:LAN, dis:WIFI
     int_status.sensor4on = 1;
     
 #ifdef  TIMING_LOG          //debug

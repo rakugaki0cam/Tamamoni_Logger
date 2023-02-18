@@ -40,27 +40,6 @@ typedef enum {
     NUM_SENSOR_CONNECT, //宣言数  =　メッセージ配列添字数     
 } device_connect_t;
 
-const char target_mode_mes[NUM_SENSOR_CONNECT][11] = {    //10文字長+エンドマーク0x00なので宣言は11で
-    "!No device",
-    "!NO v0sens",
-    "!NO v0sens",
-    "    V0MODE",
-    "  !unknown",
-    "!NO v0sens",
-    "!NO v0sens",
-    "  V0MOTION",
-    "TARGETonly",
-    "!NO v0sens",
-    "!NO v0sens",
-    "TARGETmode",
-    "!NO v0sens",
-    "!NO v0sens",
-    "!NO v0sens",
-    " V0-VeMODE",
-};
-
-extern device_connect_t target_mode;
-
 
 //measure status
 typedef enum {
@@ -128,16 +107,16 @@ typedef struct {
     uint32_t    impact_timer;           //着弾タイマー値
     float       impact_offset_usec;     //着弾時間のセンサー到達遅延時間補正量[usec]
     float       t_imp_msec;             //着弾時間[msec]
-    //impact position
+    //target
     float       impact_x;               //着弾位置x[mm]
     float       impact_y;               //着弾位置y[mm]
     float       ctc_max;                //センタtoセンタ[mm]
-    //
+    //status
     measure_status_t   status;          //ステータス
-
 } shot_data_t;
 
-extern shot_data_t     shot_data[];     //配列添字がshot#
+extern shot_data_t  shot_data[];        //配列添字がshot#
+
 
 //status
 //測定中インジケータステータス
@@ -146,10 +125,11 @@ typedef enum {
     INDI_ON,
 } indicator_status_t;
 
-extern uint8_t          sensor_type;    //初速センサタイプ
+extern uint8_t  sensor_type;            //初速センサタイプ
 
 
-
+//globalization
+uint8_t target_mode_get(void);
 
 //measure
 void    vmeasure_initialize(void);
@@ -168,7 +148,7 @@ void    print_ve(uint8_t);
 void    print_impact_time(uint8_t);
 void    print_target_xy(uint8_t);
 void    print_target_ctc(float, uint16_t, uint8_t);
-void    print_target_mode(uint8_t);
+void    print_targetmode(uint8_t);
 void    print_error(uint8_t);
 
 //debug

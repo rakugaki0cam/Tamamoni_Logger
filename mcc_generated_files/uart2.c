@@ -108,8 +108,8 @@ void UART2_Initialize(void)
     // RXBIMD Set RXBKIF on rising RX input; BRKOVR disabled; WUE disabled; SENDB disabled; ON enabled; 
     U2CON1 = 0x80;
 
-    // TXPOL not inverted; FLO Hardware flow control; RXPOL not inverted; RUNOVF RX input shifter stops all activity; STP Transmit 1Stop bit, receiver verifies first Stop bit; 
-    U2CON2 = 0x02;
+    // TXPOL not inverted; FLO off; RXPOL not inverted; RUNOVF RX input shifter stops all activity; STP Transmit 1Stop bit, receiver verifies first Stop bit; 
+    U2CON2 = 0x00;
 
     // BRGL 130; 
     U2BRGL = 0x82;

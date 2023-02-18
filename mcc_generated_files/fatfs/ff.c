@@ -1160,7 +1160,7 @@ static DWORD get_fat (		/* 0xFFFFFFFF:Disk error, 1:Internal error, 2..0x7FFFFFF
 			if (move_window(fs, fs->fatbase + (bc / SS(fs))) != FR_OK) break;
 			wc = fs->win[bc++ % SS(fs)];		/* Get 1st byte of the entry */
 			if (move_window(fs, fs->fatbase + (bc / SS(fs))) != FR_OK) break;
-			wc |= fs->win[bc % SS(fs)] << 8;	/* Merge 2nd byte of the entry */
+			wc |= (UINT)fs->win[bc % SS(fs)] << 8;	/* Merge 2nd byte of the entry */       //user
 			val = (clst & 1) ? (wc >> 4) : (wc & 0xFFF);	/* Adjust bit position */
 			break;
 
@@ -1233,7 +1233,7 @@ static FRESULT put_fat (	/* FR_OK(0):succeeded, !=0:error */
 			res = move_window(fs, fs->fatbase + (bc / SS(fs)));
 			if (res != FR_OK) break;
 			p = fs->win + bc++ % SS(fs);
-			*p = (clst & 1) ? ((*p & 0x0F) | ((BYTE)val << 4)) : (BYTE)val;		/* Put 1st byte */
+			*p = (BYTE)((clst & 1) ? ((*p & 0x0F) | ((BYTE)val << 4)) : (BYTE)val);		/* Put 1st byte */          //user
 			fs->wflag = 1;
 			res = move_window(fs, fs->fatbase + (bc / SS(fs)));
 			if (res != FR_OK) break;
@@ -3118,7 +3118,8 @@ static int get_ldnumber (	/* Returns logical drive number (-1:invalid drive numb
 	if (tc == ':') {	/* DOS/Windows style volume ID? */
 		i = FF_VOLUMES;
 		if (IsDigit(*tp) && tp + 2 == tt) {	/* Is there a numeric volume ID + colon? */
-			i = (int)*tp - '0';	/* Get the LD number */
+			//i = (int)*tp - '0';	/* Get the LD number */                       
+			i = (int)(*tp - '0');	/* Get the LD number */          ////user             
 		}
 #if FF_STR_VOLUME_ID == 1	/* Arbitrary string is enabled */
 		else {

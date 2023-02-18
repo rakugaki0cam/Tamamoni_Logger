@@ -162,7 +162,7 @@
         <platform>4</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC18F-Q_DFP" vendor="Microchip" version="1.13.211"/>
+        <pack name="PIC18F-Q_DFP" vendor="Microchip" version="1.14.237"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>
@@ -304,6 +304,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-1ffff"/>
         <property key="poweroptions.powerenable" value="true"/>
+        <property key="programmerToGoFilePath"
+                  value="/Users/isober/MPLABXProjects/BulletLogger_V9_Q43.X/debug/default/BulletLogger_V8_3_57Q43_ptg"/>
         <property key="programmerToGoImageName" value="BulletLogger_V8_3_57Q43_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
@@ -389,6 +391,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-1ffff"/>
         <property key="poweroptions.powerenable" value="true"/>
+        <property key="programmerToGoFilePath"
+                  value="/Users/isober/MPLABXProjects/BulletLogger_V9_Q43.X/debug/default/BulletLogger_V8_3_57Q43_ptg"/>
         <property key="programmerToGoImageName" value="BulletLogger_V8_3_57Q43_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>

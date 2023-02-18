@@ -190,7 +190,8 @@
  *                          MCC苦戦　部分exportで1つずつ保存。ダメなものは読込failになる
  *                                  MC3ファイルを新しい場所に持って行って、MCCで開きgenerateするときれいなファイルができる->user分の修正が必要
  *                                  mcc_generaateed_filesフォルダごとそっくりコピーしてもgitが効いて差分がわかるので変更修正は楽
- * 
+ * 2023.02.05   ver.9.01    ESPからのターゲットデバイスチェックと受信の設定
+ * 2023.02.07   ver.9.02    target_mode変数をローカル化。(target_mode_get()関数を追加)
  * 
  * 
  * 
@@ -207,7 +208,7 @@
  * VEオンリーモードでVEセンサで初速測定。動作自体はV0モードと同じ一覧表示としたい
  * デバッグの時、I2C通信中に停止するとバスエラーになるみたい。電源切らないと復帰しない。リセットも効かない。
  * 玉発射の時のモーションの計算。前データとの比率位置で求める。トリガーを引く前の静止状態の数値ではダメみたいなので。
- * 
+ * ログデータにWiFiと有線の記載を追加したい
  * 
  * 
 */
@@ -224,7 +225,7 @@ __EEPROM_DATA (0x02, 0x03, 0x18, 0x01, 0x01, 0x96, 0x00, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.00"; 
+const char  version[] = "9.02"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ
@@ -331,6 +332,7 @@ void main(void)
     printf("           ver.%s\n", version);
     printf(" AUTO Device mode   \n");/////////ver8.10-//////////////////////////
     printf(" WiFi ESP32         \n");/////////ver9.00-//////////////////////////
+    printf("           Feb 2023 \n");
     printf("********************\n");
     
     touch_init();
@@ -706,7 +708,7 @@ void    shut_down(void){
     LCD_SetColor(0,0,0);                                //黒
     LCD_DrawFillBox(0, 120, 239, 264);                  //塗りつぶし四角
     sleep_count_reset();
-    print_target_mode(INDIGO);                          //画面再描画
+    print_targetmode(INDIGO);                          //画面再描画
     vmeasure_ready();
 } 
 
@@ -754,7 +756,7 @@ void    low_battery(void){
             sprintf(tmp_string, "              ");
             LCD_Printf(COL_WARNING, ROW_WARNING1 , tmp_string, 1, BLACK, 1);
             low_bat_stat = IDLE;
-            print_target_mode(INDIGO);                      //画面再描画
+            print_targetmode(INDIGO);                      //画面再描画
             break;
             
         case POWER_OFF:

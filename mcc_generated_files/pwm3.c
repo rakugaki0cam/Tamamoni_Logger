@@ -88,12 +88,12 @@ void PWM3_LoadDutyValue(uint16_t dutyValue)
     {
         dutyValue <<= 6;
         CCPR3H = dutyValue >> 8;
-        CCPR3L = dutyValue;
+        CCPR3L = (uint8_t)dutyValue;    //user
     }
     else
     {
         CCPR3H = dutyValue >> 8;
-        CCPR3L = dutyValue;
+        CCPR3L = (uint8_t)dutyValue;    //user
     }
 }
 

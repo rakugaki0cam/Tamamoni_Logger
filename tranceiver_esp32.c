@@ -3,12 +3,13 @@
  * 電子ターゲットとの通信
  * 
  * 
- * 2023.02.02   V9.0    UART4 - RS485
- *                      UART2 - ESP32 UART
- *                      の2系統
+ * 2023.02.02   V9.0 
  * 
+ *  UART2 - ESP32 UART
  * 
-*/
+ * 2023.02.18 コマンド送信を追加
+ *                     
+ */
 #include "header.h"
 #include "tranceiver_esp32.h"
 
@@ -17,9 +18,6 @@
 #define LEN_MES     41      //受信メッセージ長
 
 char    tmp_str[LEN_TMP];
-
-
-
 
 
 data_rx_status_t data_uart_receive_esp32(float *data){
@@ -36,8 +34,7 @@ data_rx_status_t data_uart_receive_esp32(float *data){
     } rx_status_t;
     
     static rx_status_t  status = START_UART_B;
-    static uint8_t  n = 0;
-    
+    static uint8_t      n = 0;
     data_rx_status_t    ans;        //戻り値
     int16_t             num_scan;   //受信セット値の数
     
@@ -153,4 +150,18 @@ void    rx_buffer_clear_esp32(void){
         UART2_Read();               //捨て読み
     }
 }
+
+
+void    command_uart_send_esp32(uint8_t* command){
+    //コマンドをESP-NOW(WiFi)でターゲットに飛ばすためにESP32へ送る
+    uint8_t* str;
+    sprintf(tmp_str, "TARGET_%s END\n", command);
+    str = (uint8_t*)tmp_str;
+    while(*str){
+        while(!UART2_is_tx_ready());
+        UART2_Write(*str);  //データ送信
+        str++;
+    }
+}
+
 

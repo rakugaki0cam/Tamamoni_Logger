@@ -16,6 +16,6 @@
 
 data_rx_status_t data_uart_receive_esp32(float*);
 void    rx_buffer_clear_esp32(void);
-
+void    command_uart_send_esp32(uint8_t*);
 
 #endif //TRANCEIVER_ESP325_H

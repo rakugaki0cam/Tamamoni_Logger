@@ -6,7 +6,9 @@
  * 2023.02.01   V9.0からUART2->UART4
  * 
  * 
-*/
+ * 2023.02.18 コマンド送信を追加
+ *  
+ */
 #include "header.h"
 #include "tranceiver_rs485.h"
 
@@ -31,8 +33,7 @@ data_rx_status_t data_uart_receive_rs485(float *data){
     } rx_status_t;
     
     static rx_status_t  status = START_UART_B;
-    static uint8_t  n = 0;
-    
+    static uint8_t      n = 0;
     data_rx_status_t    ans;        //戻り値
     int16_t             num_scan;   //受信セット値の数
     
@@ -149,3 +150,15 @@ void    rx_buffer_clear_rs485(void){
     }
 }
 
+
+void    command_uart_send_rs485(uint8_t* command){
+    //コマンドをLANケーブルでターゲットに送る
+    uint8_t* str;
+    sprintf(tmp_str, "TARGET_%s END\n", command);
+    str = (uint8_t*)tmp_str;
+    while(*str){
+        while(!UART4_is_tx_ready());
+        UART4_Write(*str);  //データ送信
+        str++;
+    }
+}

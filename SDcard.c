@@ -361,7 +361,6 @@ void SDcard_close(void){
 void SDcard_false(void){
     //エラー内容を表示
     LCD_Printf(COL_WARNING, ROW_WARNING1, SDerror_strings1, 1, PINK, 1);        //エラー文の表示
-    //LCD_Printf(COL_WARNING, ROW_WARNING2, SDerror_strings2, 1, PINK, 1);        //エラー文の表示
     //UART Tx
     //printf("%s\n", SDerror_strings);
     ShotHeader_write_flag = 0;                 //エラーの後はヘッダーを出すことにする。
@@ -372,5 +371,4 @@ void SDcard_false_erase(void){
     //エラー表示を消す
     sprintf(SDerror_strings1, "                  ");                       //18文字分
     LCD_Printf(COL_WARNING, ROW_WARNING1, SDerror_strings1, 1, BLACK, 1);       //エラー文の消去
-    //LCD_Printf(COL_WARNING, ROW_WARNING2, SDerror_strings2, 1, BLACK, 1);       //エラー文の消去
 }

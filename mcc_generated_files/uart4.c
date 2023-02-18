@@ -108,8 +108,8 @@ void UART4_Initialize(void)
     // RXBIMD Set RXBKIF on rising RX input; BRKOVR disabled; WUE disabled; SENDB disabled; ON enabled; 
     U4CON1 = 0x80;
 
-    // TXPOL not inverted; FLO off; RXPOL not inverted; RUNOVF RX input shifter stops all activity; STP Transmit 1Stop bit, receiver verifies first Stop bit; 
-    U4CON2 = 0x00;
+    // TXPOL not inverted; FLO Hardware flow control; RXPOL not inverted; RUNOVF RX input shifter stops all activity; STP Transmit 1Stop bit, receiver verifies first Stop bit; 
+    U4CON2 = 0x02;
 
     // BRGL 130; 
     U4BRGL = 0x82;

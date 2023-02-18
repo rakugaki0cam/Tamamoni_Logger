@@ -267,11 +267,11 @@ void LCD_DrawFillBox(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1) {
 void LCD_DrawCircle(uint16_t x0, uint16_t y0, uint16_t r){
     //‰~‚ğ•`‚­
     //‚¿‚å‚Á‚Æ‘å‚«‚¢‚æ‚¤‚È???
-    int16_t     f     = 1 - r ;
-    int16_t     ddF_x = 1 ;
-    int16_t     ddF_y = -2 * r ;
-    int16_t     x     = 0 ;
-    int16_t     y     = r ;
+    int16_t     f = 1 - (int16_t)r;
+    int16_t     ddF_x = 1;
+    int16_t     ddF_y = -2 * (int16_t)r;
+    int16_t     x = 0 ;
+    int16_t     y = (int16_t)r;
 
     LCD_SetPixel(x0, y0 + r) ;
     LCD_SetPixel(x0, y0 - r) ;
@@ -287,14 +287,15 @@ void LCD_DrawCircle(uint16_t x0, uint16_t y0, uint16_t r){
         x++ ;
         ddF_x += 2 ;
         f += ddF_x ;
-        LCD_SetPixel(x0 + x, y0 + y) ;
-        LCD_SetPixel(x0 - x, y0 + y) ;
-        LCD_SetPixel(x0 + x, y0 - y) ;
-        LCD_SetPixel(x0 - x, y0 - y) ;
-        LCD_SetPixel(x0 + y, y0 + x) ;
-        LCD_SetPixel(x0 - y, y0 + x) ;
-        LCD_SetPixel(x0 + y, y0 - x) ;
-        LCD_SetPixel(x0 - y, y0 - x) ;
+        
+        LCD_SetPixel(x0 + (uint16_t)x, y0 + (uint16_t)y);
+        LCD_SetPixel(x0 - (uint16_t)x, y0 + (uint16_t)y);
+        LCD_SetPixel(x0 + (uint16_t)x, y0 - (uint16_t)y);
+        LCD_SetPixel(x0 - (uint16_t)x, y0 - (uint16_t)y);
+        LCD_SetPixel(x0 + (uint16_t)y, y0 + (uint16_t)x);
+        LCD_SetPixel(x0 - (uint16_t)y, y0 + (uint16_t)x);
+        LCD_SetPixel(x0 + (uint16_t)y, y0 - (uint16_t)x);
+        LCD_SetPixel(x0 - (uint16_t)y, y0 - (uint16_t)x);
     }
     
 }
@@ -307,12 +308,12 @@ void LCD_DrawFillCircle(uint16_t x0, uint16_t y0, uint16_t r){
     
     // lŠpŒ`ƒGƒŠƒA“à(x1,y1)(x2,y2)‚É‚Â‚¢‚Ä”¼Œar‚Ì‰~“à‚ğ“h‚è‚Â‚Ô‚·
     rr = r * r;
-    for(y = y0 - r; y < y0 + r; y++) {
-        yy = (y - y0) * (y - y0);         //’†S‚Æ‚Ì‹——£‚Ì2æ(dy^2)
-        for(x = x0 - r; x < x0 + r; x++) {
-            xx = (x - x0) * (x - x0);    //’†S‚Æ‚Ì‹——£‚Ì2æ(dx^2)
-            if ((xx + yy) <= rr){        //‰~‚ÌŒö® x^2 + y^2 = r^2
-                LCD_SetPixel(x, y);     //‰~“à‚È‚Ì‚Åƒhƒbƒg•`Ê
+    for(y = (int16_t)y0 - (int16_t)r; y < (int16_t)y0 + (int16_t)r; y++) {
+        yy = (y - (int16_t)y0) * (y - (int16_t)y0);                             //’†S‚Æ‚Ì‹——£‚Ì2æ(dy^2)
+        for(x = (int16_t)x0 - (int16_t)r; x < (int16_t)x0 + (int16_t)r; x++) {
+            xx = (x - (int16_t)x0) * (x - (int16_t)x0);                         //’†S‚Æ‚Ì‹——£‚Ì2æ(dx^2)
+            if ((xx + yy) <= rr){                                               //‰~‚ÌŒö® x^2 + y^2 = r^2
+                LCD_SetPixel((uint16_t)x, (uint16_t)y);                         //‰~“à‚È‚Ì‚Åƒhƒbƒg•`Ê
             }
         }
     }
@@ -322,13 +323,13 @@ void LCD_DrawFillCircle(uint16_t x0, uint16_t y0, uint16_t r){
 void LCD_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1){
     //ü‚ğ•`‰æ‚·‚é@DDA–@
     bool        incline;
-    int16_t     x, y;
-    int16_t     tmp;
+    uint16_t    x, y;
+    uint16_t    tmp;
     int16_t     dx, dy;     //‘•ª
     int16_t     e, ys;      //e:y‚Ì
 	
     //‘•ª‚Ì”»’è
-    incline = (abs(y1 - y0) > abs(x1 - x0));
+    incline = (abs((int16_t)y1 - (int16_t)y0) > abs((int16_t)x1 - (int16_t)x0));
     //‘•ª‚ª‘å‚«‚¢•û‚ğx‚É‚·‚é(y‚Ì‘•ª‚ª‘å‚«‚¢‚Æ“_ü‚É‚È‚Á‚Ä‚µ‚Ü‚¤)
     if (incline){
         tmp = x0;
@@ -351,8 +352,8 @@ void LCD_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1){
     }
     
     //‘•ª‚ÌŒvZ 
-    dx = x1 - x0;
-    dy = abs(y1 - y0);
+    dx = (int16_t)x1 - (int16_t)x0;
+    dy = abs((int16_t)y1 - (int16_t)y0);
     e = 0;
     y  = y0;
     
@@ -373,7 +374,8 @@ void LCD_DrawLine(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1){
         e += dy;
         if((e << 1) >= dx){
             //y‚Ì‘•ª‚Íx‚Ì‘•ª‚æ‚è¬‚³‚¢‚Ì‚Å‰½‰ñ‚©“¯‚¶yˆÊ’u‚ª‘±‚­
-            y += ys;
+            //y += ys;
+            y = (uint16_t)((int16_t)y + ys);                    ////user////////////////////////
             e -= dx;
         }
     }

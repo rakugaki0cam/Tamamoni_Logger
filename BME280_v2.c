@@ -116,13 +116,13 @@ uint8_t BME280_disp(bool full_disp){
                 break;
             case 3:
                 //湿度の計算
-                Data_Humi_32 = compensate_H(Humi_OUT_raw);
+                Data_Humi_32 = compensate_H((signed long)Humi_OUT_raw);             ///user
                 // /1024 %RH  0~100%RH  (0~102400 = 0x0~0x19000)
                 disp_stage = 4;
                 break;
             case 4:
                 //気圧の計算
-                Data_Pres_32 = compensate_P(Pres_OUT_raw);
+                Data_Pres_32 = compensate_P((signed long)Pres_OUT_raw);             ///user
                 // x0.01hPa 300~1100hPa (0~110000 = 0x00~0x1adb0)
                 disp_stage = 5;
                 break;
@@ -189,11 +189,11 @@ void Trim_Read(void){
     //補正値の読み出し
     unsigned char da[24];
     I2C1_ReadDataBlock(BME280_ADDRESS, 0x88, da, 24);  
-    dig_T1 = (da[1] << 8) | da[0];                      //0x88/0x89 -> dig_T1 [7:0]/[15:8]
+    dig_T1 = (unsigned int)((da[1] << 8) | da[0]);      //0x88/0x89 -> dig_T1 [7:0]/[15:8]      //user
     dig_T2 = (da[3] << 8) | da[2];                      //0x8A/0x8B -> dig_T2 [7:0]/[15:8]
     dig_T3 = (da[5] << 8) | da[4];                      //0x8C/0x8D -> dig_T3 [7:0]/[15:8]
     
-    dig_P1 = (da[7] << 8) | da[6];                      //0x8E/0x8F -> dig_P1 [7:0]/[15:8]
+    dig_P1 = (unsigned int)((da[7] << 8) | da[6]);      //0x8E/0x8F -> dig_P1 [7:0]/[15:8]      //user
     dig_P2 = (da[9] << 8) | da[8];                      //0x90/0x91 -> dig_P2 [7:0]/[15:8]
     dig_P3 = (da[11]<< 8) | da[10];                     //0x92/0x93 -> dig_P3 [7:0]/[15:8]
     dig_P4 = (da[13]<< 8) | da[12];                     //0x94/0x95 -> dig_P3 [7:0]/[15:8]
@@ -211,7 +211,7 @@ void Trim_Read(void){
     dig_H3 =  da[2];                                    //0xE3           -> dig_H3 [7:0]
     dig_H4 = (da[3] << 4) | (da[4] & 0x0F);             //0xE4/0xE5[3:0] -> dig_H4 [11:4]/[3:0] 12bit
     dig_H5 = (da[5] << 4) | ((da[4] & 0xF0) >> 4);      //0xE5[7:4]/0xE6 -> dig_H5 [3:0]/[11:4] 12bit
-    dig_H6 =  da[6];                                    //0xE7           -> dig_H6 [7:0]
+    dig_H6 = (signed char)da[6];                        //0xE7           -> dig_H6 [7:0]                //user
    
 }
 
@@ -242,7 +242,7 @@ unsigned long compensate_P(signed long adc_P){
         //0で割ることになった場合
         return 0;
     }    
-    p = (((unsigned long)(((signed long)1048576) - adc_P) - (var2 >> 12))) * 3125;
+    p = (((unsigned long)(((signed long)1048576) - adc_P) - (unsigned long)(var2 >> 12))) * 3125;       //user
     if (p < 0x80000000){
         p = (p << 1) / ((unsigned long) var1);   
     } else {
