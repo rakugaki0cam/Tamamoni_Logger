@@ -1,6 +1,8 @@
-Bullet Logger V8.3
+Bullet Logger V9
 
-ƒ^ƒ}ƒ‚ƒj V8.3
+Tamamoni V8.3
 
 PIC18F57Q43
+
+add ESP32  ESP-NOW
 
