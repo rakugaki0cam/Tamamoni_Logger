@@ -66,8 +66,9 @@
 
 
 //GLOBAL
-uint8_t     ctc_color;      //////////////////////////localにしたい
-
+uint8_t     ctoc_color;     //////////////////////////localにしたい
+uint16_t    ctoc_num;       //CtoCのデータ数
+float       ctoc_max = 0;   //CtoC値　(最大着弾間隔x100mm)＾2 表示の時にルートする
 
 
 void target_graph_initialize(void){
@@ -105,8 +106,9 @@ void target_graph_initialize(void){
     LCD_Printf(TARGET_X0 - 2, TARGET_Y0 - 4, POINT, 1, BLACK, 0);
     
     //着弾点再描画 
-    impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW, RESET_NONE, DUMMY);
-    
+    impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW, RESET_NONE);
+    //uartをクリア
+    rx_buffer_clear();
 }
 
 
@@ -133,25 +135,22 @@ void target_data_reset(void){
         }
     }
     //電子ターゲットにクリアコマンドを送る
-    uint8_t clear[] = "CLEAR";
-    command_uart_send_esp32(clear);     //WiFi
-    command_uart_send_rs485(clear);     //LAN                                    //LANで接続の時も必要
-    
+    target_lcd_clear_command();
+  
     //ターゲットをクリア
-    impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE, DUMMY);
+    impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);
     target_graph_initialize();
     sprintf(tmp_string, "DONE!             ");
     LCD_Printf(COL_WARNING, ROW_WARNING1 , tmp_string, 1, PINK, 1);
     __delay_ms(1000);
     sprintf(tmp_string, "                  ");
     LCD_Printf(COL_WARNING, ROW_WARNING1 , tmp_string, 1, BLACK, 1);
-
+    
     while(SW2_PORT == SW_ON){
         //キーが離されるのを待つ
     }
     
 }
-
 
 
 void target_clear_screen(void){
@@ -162,7 +161,7 @@ void target_clear_screen(void){
 }
 
 
-float impact_plot_graph(uint16_t shot, float x0, float y0, bool redraw, bool reset, uint16_t* n){
+float impact_plot_graph(uint16_t shot, float x0, float y0, bool redraw, bool reset){
     //着弾点表示
     //引数　sh:ショット#, x0,y0:着弾座標
     //オプション　redraw:グラフ再描画,  reset:CtoC計算リセット
@@ -176,8 +175,7 @@ float impact_plot_graph(uint16_t shot, float x0, float y0, bool redraw, bool res
     static int16_t  x_buf[NUM_BUFFER], y_buf[NUM_BUFFER];   //x100値
     static uint8_t  po = 0;         //バッファのポインタ
     static uint16_t num = 0;        //データ数
-    static float    ctc_max = 0;    //(最大着弾間隔x100mm)＾2 表示の時にルートする
-    float           ctc_tmp;
+    float           ctoc_tmp;
     uint8_t         i, i_max;
     int8_t          b;
     
@@ -186,8 +184,8 @@ float impact_plot_graph(uint16_t shot, float x0, float y0, bool redraw, bool res
         //このルーチン内でしかリセットできないため
         po = 0;
         num = 0;
-        *n = num;       //ポインタ受け渡し
-        ctc_max = 0;    //CtoCをゼロにする
+        ctoc_num = 0;
+        ctoc_max = 0;    //CtoCをゼロにする
         return 0;
     }
     
@@ -210,14 +208,14 @@ float impact_plot_graph(uint16_t shot, float x0, float y0, bool redraw, bool res
         draw_impact_point(x_buf[po], y_buf[po], RED);
         
         //センタtoセンタの計算
-        ctc_color = CYAN;
+        ctoc_color = CYAN;
         for (i = 0; i < po; i++){
-            ctc_tmp = (float)(x_buf[po] - x_buf[i]) * (float)(x_buf[po] - x_buf[i]);  
-            ctc_tmp += (float)(y_buf[po] - y_buf[i]) * (float)(y_buf[po] - y_buf[i]);
-            if (ctc_tmp > ctc_max){
+            ctoc_tmp = (float)(x_buf[po] - x_buf[i]) * (float)(x_buf[po] - x_buf[i]);  
+            ctoc_tmp += (float)(y_buf[po] - y_buf[i]) * (float)(y_buf[po] - y_buf[i]);
+            if (ctoc_tmp > ctoc_max){
                 //更新(着弾が広くなった)時
-                ctc_max = ctc_tmp;
-                ctc_color = RED;
+                ctoc_max = ctoc_tmp;
+                ctoc_color = RED;
             }
         }
 
@@ -249,8 +247,8 @@ float impact_plot_graph(uint16_t shot, float x0, float y0, bool redraw, bool res
             draw_impact_point(x_buf[i], y_buf[i], YELLOW);
         }
     }
-    *n = num;       //ポインタ受け渡し
-    return (float)(sqrt(ctc_max) / 100);
+    ctoc_num = num;       //ポインタ受け渡し
+    return (float)(sqrt(ctoc_max) / 100);
 }
 
 
@@ -293,4 +291,12 @@ void    draw_impact_point(int16_t x_x100, int16_t y_x100, uint8_t color){
         LCD_SetColor(0x00, 0x00, 0x00);             //BLACK
     }
     LCD_DrawCircle(draw_x, draw_y, (uint16_t)(PLOT_D / 2));
+}
+
+
+void target_lcd_clear_command(void){
+    //電子ターゲットにクリアコマンドを送る
+    uint8_t clear[] = "CLEAR";
+    command_uart_send(clear);
+    
 }

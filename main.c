@@ -192,6 +192,9 @@
  *                                  mcc_generaateed_filesフォルダごとそっくりコピーしてもgitが効いて差分がわかるので変更修正は楽
  * 2023.02.05   ver.9.01    ESPからのターゲットデバイスチェックと受信の設定
  * 2023.02.07   ver.9.02    target_mode変数をローカル化。(target_mode_get()関数を追加)
+ * 2023.02.20   ver.9.03    ESP32とのデータやり取りUART2を9600bpsから115200bpsに変更
+ * 2023.02.25   ver.9.04    UARTの整理。CtoCデータ数2つ未満のとき表示無し
+ * 2023.02.26   ver.9.05    1発目の入力不良の調査。シリアルDEBUGgerへ受信データ表示。LAN接続するとシリアル表示はキャンセルされる。ーーーーーーー
  * 
  * 
  * 
@@ -209,6 +212,9 @@
  * デバッグの時、I2C通信中に停止するとバスエラーになるみたい。電源切らないと復帰しない。リセットも効かない。
  * 玉発射の時のモーションの計算。前データとの比率位置で求める。トリガーを引く前の静止状態の数値ではダメみたいなので。
  * ログデータにWiFiと有線の記載を追加したい
+ *  WiFiペアリングされている時に、電子ターゲット側のESP32にプログラムを書き込むとタマモニがフリーズする?????
+ * 
+ * 
  * 
  * 
 */
@@ -225,7 +231,7 @@ __EEPROM_DATA (0x02, 0x03, 0x18, 0x01, 0x01, 0x96, 0x00, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.02"; 
+const char  version[] = "9.04"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ
@@ -372,10 +378,10 @@ void main(void)
         motion_data_read();
         angle_level_disp();     //傾斜角度とLED
     }
-    //タイトル終了
-    LCD_Title_Clear();
+    LCD_Title_Clear();              //タイトル終了
     
-    sensor_connect_check();   //マト側機器の接続チェックー測定モードの表示切り替え
+    sensor_connect_check();         //マト側機器の接続チェックー測定モードの表示切り替え
+    target_lcd_clear_command();     //電子ターゲットにクリアコマンドを送る
     vmeasure_ready();
     
     
@@ -482,18 +488,9 @@ void input_mmi(void){
         //SW3が押された
         sleep_count_reset();
         set_v0sensor(1);    //1:change
-
     }
     
-    while (UART2_is_rx_ready()){
-        //捨て読み
-        tmp = UART2_Read();
-        c++;
-        if (c > 64){
-            //無限ループ対策
-            break;
-        }
-    }
+    rx_buffer_clear();      //UARTバッファのゴミを捨て読み
     
     if (sleep_count >= BACKLIGHT_OFF_TIME){
         if (bloff_flag == 0){
@@ -502,11 +499,11 @@ void input_mmi(void){
             bloff_flag = 1;
         }
     }
+    
     if (sleep_count >= SLEEP_TIME){
         shut_down();
     }
 
-    
 }
 
 

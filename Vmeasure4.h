@@ -17,7 +17,7 @@
 #define     TIME_CONV_TMR3      1 / _XTAL_FREQ * 4  //usec/1bit 64MHz/4
 
 
-//global
+//GLOBAL
 
 //測定モード(マト側接続機器)4モードのみ有効
 typedef enum {
@@ -73,13 +73,13 @@ typedef enum {
     //
     RECEIVE_DATA,
     DATA_RECIEVED,
-    GRAPH_DRAW,
+    TARGET_IMPACT_DRAW,
     //
     V0_CHART,        
     //
     MOTION_GRAPH,        
     //        
-    TARGET_DISP,
+    IMPACT_POS_PRINT,
     CTOC_PRINT,        
     ERROR_DISP,        
     ANGLE_LEVEL,   
@@ -117,6 +117,16 @@ typedef struct {
 
 extern shot_data_t  shot_data[];        //配列添字がshot#
 
+//ターゲットデータ通信経路
+typedef enum {
+    NONE,
+    RS485,                          //LANケーブルでRS485 --- UART4
+    ESP_NOW,                        //WiFi 無線 ESP32 ESP-NOW --- UART2
+    NUM_TARGET_COM_PATH,            //宣言数  =　メッセージ配列添字数
+} target_path_t;
+
+extern target_path_t   target_com_path;
+
 
 //status
 //測定中インジケータステータス
@@ -125,7 +135,9 @@ typedef enum {
     INDI_ON,
 } indicator_status_t;
 
-extern uint8_t  sensor_type;            //初速センサタイプ
+extern uint8_t  sensor_type;        //初速センサタイプ
+
+
 
 
 //globalization

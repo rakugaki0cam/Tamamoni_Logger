@@ -13,7 +13,7 @@
 #include "tranceiver_rs485.h"
 
 
-#define LEN_TMP     60
+#define LEN_TMP     80
 #define LEN_MES     41      //受信メッセージ長
 
 char    tmp_str[LEN_TMP];
@@ -90,7 +90,7 @@ data_rx_status_t data_uart_receive_rs485(float *data){
             if (UART4_is_rx_ready()){
                 tmp_str[n] = UART4_Read();
                 n++;
-                if (n > LEN_MES){
+                if ((',' == tmp_str[n]) | (n > LEN_MES)){
                     //読み込み完了
                     n = 0;
                     status = DATA_SCANF;
@@ -112,10 +112,6 @@ data_rx_status_t data_uart_receive_rs485(float *data){
                 //データ代入OK
                 ans = RX_OK;
             }
-            status = COMPLETE_UART;
-            //break;    //ここでブレークするとデバッガへの表示が出ない
-            
-        case COMPLETE_UART:
             //終了処理
 #define DEBUG_RECEIVE_DATA
 #ifndef DEBUG_RECEIVE_DATA
@@ -154,7 +150,7 @@ void    rx_buffer_clear_rs485(void){
 void    command_uart_send_rs485(uint8_t* command){
     //コマンドをLANケーブルでターゲットに送る
     uint8_t* str;
-    sprintf(tmp_str, "TARGET_%s END\n", command);
+    sprintf(tmp_str, "TARGET_%s END ,\n", command); //","が読み込みエンドマーク
     str = (uint8_t*)tmp_str;
     while(*str){
         while(!UART4_is_tx_ready());

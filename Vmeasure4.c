@@ -136,6 +136,7 @@
 measure_status_t    measure_status; ////////////local化したい/////////////////////////////////////
 shot_data_t         shot_data[NUM_SHOTS];
 uint8_t             sensor_type;
+target_path_t       target_com_path = RS485;    //ターゲットからのデータ受信経路
 
 
 //local
@@ -146,16 +147,6 @@ uint16_t    shot = 0;               //ショット数
 uint8_t     shot_buf_pointer = 0;   //ショットメモリバッファ用ポインタ
 uint8_t     len12_mm;               //初速センサ1-2の距離[mm]
 char        v0device[15];           //初速装置の名称
-
-//ターゲットデータ通信経路
-typedef enum {
-    NONE,
-    RS485,                          //LANケーブルでRS485 --- UART4
-    ESP_NOW,                        //WiFi 無線 ESP32 ESP-NOW --- UART2
-    NUM_TARGET_COM_PATH,            //宣言数  =　メッセージ配列添字数
-} target_path_t;
-
-target_path_t   target_com_path = RS485;    //ターゲットからのデータ受信経路
 
 
 //割込&動作ステータス ー 動作シーケンスのチェック用
@@ -189,7 +180,7 @@ typedef enum {
     MOTION_ERROR,
     RECEIVE_ERROR,
     TARGET_CALC_ERROR,        
-    TARGET_ERROR,        
+    TARGET_RX_ERROR,        
     ERROR_CLEAR,
     NUM_SENSOR_ERROR,  //宣言数  =　メッセージ配列添字数
 } vmeasure_error_t;
@@ -340,8 +331,7 @@ void vmeasure_ready(void){
     sleep_count_reset();
     shot_data[shot_buf_pointer] = clear_shot_data;  //次のデータメモリをクリア データメモリはリングバッファ
     int_status = clear_status;                      //シーケンス用割込フラグクリア
-    rx_buffer_clear_rs485();                        //サブ内に遅延タイマーあり（マトからのデータ読み捨て）///////////
-    rx_buffer_clear_esp32();                        //サブ内に遅延タイマーあり（マトからのデータ読み捨て）///////////
+    rx_buffer_clear();                              //サブ内に遅延タイマーあり（マトからのデータ読み捨て）///////////
     motion_clear();                                 //最後にクリア(motion_gate=1の関係で)
 
 #ifdef  TIMING_LOG                  //debug
@@ -363,13 +353,9 @@ void vmeasure_ready(void){
 uint8_t vmeasure(void){
     //玉速度測定
     static vmeasure_error_t  err = SENSOR_OK;   //staticしないと値が保管されていない
-    uint8_t answ;
-    uint8_t i;
+    data_rx_status_t answ;  //着弾データ受信ステータス
     float   rx_data_f[3];   //電子ターゲット着弾データ受取用
-    uint16_t ctc_num;       //着弾データサブからの戻り値
-    uint8_t c2 = 0;
-    uint8_t tmp2;
-    
+
     motion_data_read();     //モーションデータの読み出し
     
     switch(shot_data[shot_buf_pointer].status){
@@ -429,16 +415,16 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].status = V0_TIMER_12_GET;
             }
             if (int_status.tmr1ovf == 1){
-                printf("Tmr1_OVF\n");
+                //printf("Tmr1_OVF\n");
                 shot_data[shot_buf_pointer].status = V0_TIMEOUT;
             }
             if (int_status.smt1ovf == 1){
-                printf("Smt1_OVF\n");
+                //printf("Smt1_OVF\n");
                 shot_data[shot_buf_pointer].status = V0_TIMEOUT;
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
-                printf("Tmr0_OVF\n");
+                //printf("Tmr0_OVF\n");
                 shot_data[shot_buf_pointer].status = V0_TIMEOUT;
             }
             break;
@@ -498,16 +484,16 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].status = VE_TIMER_34_GET;
             }
             if (int_status.tmr3ovf == 1){
-                printf("Tmr3_OVF\n");
+                //printf("Tmr3_OVF\n");
                 shot_data[shot_buf_pointer].status = VE_TIMEOUT;
             }
             if (int_status.smt1ovf == 1){
-                printf("Smt1_OVF\n");
+                //printf("Smt1_OVF\n");
                 shot_data[shot_buf_pointer].status = VE_TIMEOUT;
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
-                printf("Tmr0_OVF\n");
+                //printf("Tmr0_OVF\n");
                 shot_data[shot_buf_pointer].status = VE_TIMEOUT;
             }
             break;
@@ -533,12 +519,12 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].status = TIME_IMPACT_GET;
             }
             if (int_status.smt1ovf == 1){
-                printf("Smt1_OVF\n");
+                //printf("Smt1_OVF\n");
                 shot_data[shot_buf_pointer].status = IMPACT_TIMEOUT;
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
-                printf("Tmr0_OVF\n");
+                //printf("Tmr0_OVF\n");
                 shot_data[shot_buf_pointer].status = IMPACT_TIMEOUT;
             }            
             break;
@@ -577,7 +563,7 @@ uint8_t vmeasure(void){
             print_shot(RED);
             print_v0(RED);
             err = SENSOR2_ERROR;
-            printf("s#%d Sen2 TIMEOUT\n", shot + 1);
+            //printf("shot#%d Sen2 TIMEOUT\n", shot + 1);
             
             switch(target_mode){
                 case V0_MODE:
@@ -607,13 +593,13 @@ uint8_t vmeasure(void){
             print_impact_time(BLACK);
             if ((int_status.sensor3on == 0) && (int_status.sensor4on == 0)){
                 err = SENSOR34_ERROR;
-                printf("s#%d Sen34 TIMEOUT\n", shot + 1);
+                //printf("s#%d Sen34 TIMEOUT\n", shot + 1);
             }else if (int_status.sensor3on == 0){
                 err = SENSOR3_ERROR;
-                printf("s#%d Sen3 TIMEOUT\n", shot + 1);
+                //printf("s#%d Sen3 TIMEOUT\n", shot + 1);
             }else {
                 err = SENSOR4_ERROR;
-                printf("s#%d Sen4 TIMEOUT\n", shot + 1);
+                //printf("s#%d Sen4 TIMEOUT\n", shot + 1);
             }
             shot_data[shot_buf_pointer].status = MEASURE_DONE;
             break;
@@ -624,7 +610,7 @@ uint8_t vmeasure(void){
             print_ve(WHITE);    //V0_VE＿MODE以外では無効になるようにサブルーチン内にて処理
             print_impact_time(RED);
             err = IMPACT_ERROR;
-            printf("s#%d Imp TIMEOUT\n", shot + 1);
+            //printf("shot#%d Impact TIMEOUT\n", shot + 1);
             shot_data[shot_buf_pointer].status = MEASURE_DONE;
             break;
             
@@ -647,7 +633,7 @@ uint8_t vmeasure(void){
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
-                printf("s#%d Motion TIMEOUT\n", shot + 1);
+                //printf("shot#%d Motion TIMEOUT\n", shot + 1);
                 err = MOTION_ERROR;
                 shot_data[shot_buf_pointer].status = MOTION_DONE;
             }            
@@ -682,16 +668,9 @@ uint8_t vmeasure(void){
         //TARGET_GRAPH    
         case RECEIVE_DATA:
             //電子ターゲットからのデータ受信処理 ノンブロッキング処理なので終了するまで何度もまわってくる
-            if (RS485 == target_com_path){
-                answ = data_uart_receive_rs485(rx_data_f);
-            }else if(ESP_NOW == target_com_path){
-                answ = data_uart_receive_esp32(rx_data_f);
-            }else{
-                printf("TARGET path error!\n");
-            }
-            
+            answ = data_uart_receive(rx_data_f);
             if (RX_OK == answ){
-                //データが正常に受信された時
+                //データ正常受信
                 int_status.uart = 1;
                 shot_data[shot_buf_pointer].impact_x = rx_data_f[0];
                 shot_data[shot_buf_pointer].impact_y = rx_data_f[1];
@@ -700,54 +679,38 @@ uint8_t vmeasure(void){
                     shot_data[shot_buf_pointer].impact_offset_usec += WIFI_DELAY_USEC;      //WiFi無線の遅延時間を加算(オフセット遅延はマイナス値)
                 }
                 shot_data[shot_buf_pointer].status = DATA_RECIEVED;
+                rx_buffer_clear();
                 break;
             }
-            if (CALC_ERROR == answ){
-                //データが計算できなかったとき
+            //エラー
+            if (RX_READING == answ){
+                //データ読み込み中
+                if (int_status.tmr0ovf == 1){
+                    //タイムアウト検出
+                    err = RECEIVE_ERROR;
+                    //printf("shot#%d tamamoni rx timeout\n", shot + 1);
+                }else{
+                    //データ読み込み継続
+                    break;
+                }
+            }else if(CALC_ERROR == answ){
+                //受信データ数値化失敗
                 err = TARGET_CALC_ERROR;
                 int_status.uart = 1;
-                shot_data[shot_buf_pointer].impact_x = 999.9;
-                shot_data[shot_buf_pointer].impact_y = 999.9;
-                shot_data[shot_buf_pointer].ctc_max = shot_data[shot_buf_pointer - 1].ctc_max;
-                __delay_ms(300);                                //targetからのデータに重ならないように
-                printf("s#%d target calc err\n", shot + 1);
-                shot_data[shot_buf_pointer].status = TARGET_DISP;
-                break;
-            }
-            if (RX_ERROR == answ){
-                //ターゲットデータがエラーだった時
-                err = TARGET_ERROR;
-                int_status.uart = 1;
-                shot_data[shot_buf_pointer].impact_x = 999.9;
-                shot_data[shot_buf_pointer].impact_y = 999.9;
-                shot_data[shot_buf_pointer].ctc_max = shot_data[shot_buf_pointer - 1].ctc_max;
-                __delay_ms(300);                                //targetからのデータに重ならないように
-                printf("s#%d tamamoni rx err\n", shot + 1);
-                shot_data[shot_buf_pointer].status = TARGET_DISP;
-                break;
-            }
-            
-            //answ = RX_READINGの時　データ受信中
-            
-            if (int_status.tmr0ovf == 1){
-                //タイムアウト検出
-                err = RECEIVE_ERROR;
-                shot_data[shot_buf_pointer].impact_x = 999.9;
-                shot_data[shot_buf_pointer].impact_y = 999.9;
-                shot_data[shot_buf_pointer].ctc_max = shot_data[shot_buf_pointer - 1].ctc_max;
-                printf("s#%d tamamoni rx tout\n", shot + 1);
-                shot_data[shot_buf_pointer].status = TARGET_DISP;
- 
-                while (UART2_is_rx_ready()){
-                    //捨て読み
-                    tmp2 = UART2_Read();
-                    c2++;
-                    if (c2 > 64){
-                        //無限ループ対策
-                        break;
-                    }
-                }
-            }
+                //printf("shot#%d target calc err\n", shot + 1);
+            }else if (RX_ERROR == answ){
+                //ターゲットデータ受信エラー
+                err = TARGET_RX_ERROR;
+                int_status.uart = 1; 
+                //printf("shot#%d tamamoni rx err\n", shot + 1);
+            } 
+            //エラーの時の終了処理
+            shot_data[shot_buf_pointer].impact_x = 999.9;
+            shot_data[shot_buf_pointer].impact_y = 999.9;
+            shot_data[shot_buf_pointer].ctc_max = shot_data[shot_buf_pointer - 1].ctc_max;
+            shot_data[shot_buf_pointer].status = IMPACT_POS_PRINT;
+            __delay_ms(120);        //targetからのデータに重ならないように
+            rx_buffer_clear();
             break;
 
         case DATA_RECIEVED:
@@ -755,32 +718,32 @@ uint8_t vmeasure(void){
                 //補正計算してimpact time再表示
                 shot_data[shot_buf_pointer].t_imp_msec += shot_data[shot_buf_pointer].impact_offset_usec / 1000;    //オフセット値はマイナス値でくる
                 print_impact_time(WHITE);
-            }        
-            shot_data[shot_buf_pointer].status = GRAPH_DRAW;
+            }
+            shot_data[shot_buf_pointer].status = TARGET_IMPACT_DRAW;
             break;
             
-        case GRAPH_DRAW:
+        case TARGET_IMPACT_DRAW:
             //着弾位置表示
+            if ((shot_data[shot_buf_pointer].impact_x > 990) || (shot_data[shot_buf_pointer].impact_y > 990)){
+                //着弾位置データがエラーの時にはCtoC計算しない
+                shot_data[shot_buf_pointer].ctc_max = shot_data[shot_buf_pointer - 1].ctc_max;
+                err = TARGET_CALC_ERROR;
+                //printf("shot#%d target calc err\n", shot + 1);
+            }else{
 #define ONE_POINT_DRAW  0
 #define RESET_NONE      0
+                shot_data[shot_buf_pointer].ctc_max = 
+                    impact_plot_graph(shot, shot_data[shot_buf_pointer].impact_x, shot_data[shot_buf_pointer].impact_y, ONE_POINT_DRAW, RESET_NONE);
+            }
             
-            shot_data[shot_buf_pointer].ctc_max = 
-            impact_plot_graph(shot, shot_data[shot_buf_pointer].impact_x, shot_data[shot_buf_pointer].impact_y, ONE_POINT_DRAW, RESET_NONE, &ctc_num);
-
-
-            
-            
-/////////////////////////////
-            
-            //画面外のことあり///////////////
-            shot_data[shot_buf_pointer].status = TARGET_DISP;
+            shot_data[shot_buf_pointer].status = IMPACT_POS_PRINT;
             break;
            
         //v0 MODE   
         case V0_CHART:
             //初速集計チャート&平均計算
             print_v0_chart(0);  //0:通常表示
-            shot_data[shot_buf_pointer].status = TARGET_DISP;
+            shot_data[shot_buf_pointer].status = IMPACT_POS_PRINT;
             break;
             
         //MOTION_GRAPH
@@ -791,12 +754,12 @@ uint8_t vmeasure(void){
             //モーションの計算//////////////////////////////////このへんSDcard.cから分けたい//////////
             //モーションのグラフ
             
-            shot_data[shot_buf_pointer].status = TARGET_DISP;
+            shot_data[shot_buf_pointer].status = IMPACT_POS_PRINT;
             break;
             
             
         //************************////////////////////////////////////////    
-        case TARGET_DISP:
+        case IMPACT_POS_PRINT:
             if ((V0_TARGET_MODE == target_mode) || (TARGET_ONLY_MODE == target_mode)){
                 //電子ターゲットの時
                 print_target_xy(AQUA);  //着弾座標
@@ -810,9 +773,7 @@ uint8_t vmeasure(void){
             //最大着弾センタtoセンタを表示
             if ((V0_TARGET_MODE == target_mode) || (TARGET_ONLY_MODE == target_mode)){
                 //電子ターゲットの時
-                print_target_ctc(shot_data[shot_buf_pointer].ctc_max, ctc_num, ctc_color);       ///////ctc_colorはtarget_graph.c内で決定される　localにしたい
-////////////////////////////
-
+                print_target_ctc(shot_data[shot_buf_pointer].ctc_max, ctoc_num, ctoc_color);       ///////ctc_colorはtarget_graph.c内で決定される　localにしたい
             }else {
                 //ターゲット表示では無い時
                 print_target_ctc(0, 0, BLACK); //ログデータ代入のみ。画面消去しない。　(画面消去したい時はctcをゼロ以外にして呼ぶ)
@@ -888,7 +849,7 @@ uint8_t vmeasure(void){
             print_error(err);
             printf("??unexpected process??\n");
             //LED FLASH
-            for (i = 0; i < 10; i++){
+            for (uint8_t i = 0; i < 10; i++){
                 LED_RIGHT_SetHigh();
                 LED_LEFT_SetHigh();
                 __delay_ms(20);   
@@ -914,7 +875,8 @@ void sensor_connect_check(void){
     
     //ターゲットデータ通信経路の切換
     if (SENSOR4_LAN == 1){
-        if (target_com_path == ESP_NOW){
+        if (ESP_NOW == target_com_path){
+            //変更になったときだけ
             CLCSELECT = 0x07;
             CLCnCON = 0x80;                     //CLC8ENable -> LAN-RS485
             target_com_path = RS485;
@@ -922,11 +884,12 @@ void sensor_connect_check(void){
             sprintf(tmp_string, "Target LAN        ");  //18文字
             LCD_Printf(COL_WARNING, ROW_WARNING1, tmp_string, 1, PINK, 1);
             //debug
-            printf("%s\n", tmp_string);
-            rx_buffer_clear_rs485();
+            //printf("%s\n", tmp_string);
+            rx_buffer_clear();
         }
     }else{  //if(SENSOR4_LAN == 0)
-        if ((target_com_path == RS485) && (SENSOR4_WIFI == 1)){
+        if ((RS485 == target_com_path) && (SENSOR4_WIFI == 1)){
+            //変更になったときだけ
             CLCSELECT = 0x07;
             CLCnCON = 0x00;                     //CLC8disable -> WIFI-ESP_NOW
             target_com_path = ESP_NOW;
@@ -934,8 +897,8 @@ void sensor_connect_check(void){
             sprintf(tmp_string, "Target WiFi       ");  //18文字
             LCD_Printf(COL_WARNING, ROW_WARNING1, tmp_string, 1, PINK, 1);
             //debug
-            printf("%s\n", tmp_string);
-            rx_buffer_clear_esp32();
+            //printf("%s\n", tmp_string);
+            rx_buffer_clear();
        }
     }
     //↑切換中に測定割り込みが入ると途中になりそうだけどセンサ4オンは測定開始から時間が経ってからだから大丈夫???
@@ -1208,6 +1171,10 @@ void print_target_xy(uint8_t color){
 
 void    print_target_ctc(float ctc, uint16_t num, uint8_t color){
     //最大着弾点間隔 mmとサンプル数　を表示
+    if (num < 2){
+        //データ数2つ未満の時表示しない
+        return;
+    }
     sprintf(&bullet_CSVdata[TARGET_CTC][0], "        ");  //バッファをクリア
     if (color == BLACK){
         if (ctc == 0) {

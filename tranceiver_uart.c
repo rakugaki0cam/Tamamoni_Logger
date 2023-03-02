@@ -44,10 +44,19 @@ data_rx_status_t data_uart_receive(float *data){
         case START_UART_B:
             //最初のB
             if (uart_rx(n)){
+#define WIFI_ONLY_DEBUG     //*************************** DEBUG中　　LANつなぐとシリアルデバッグ不可     
+#ifdef  WIFI_ONLY_DEBUG
+                if (ESP_NOW == target_com_path){
+                    printf("1st chr:'%c' ", tmp_str[n]);  //LANケーブルの時にはターゲット側のESP32までコマンド扱いで渡ってしまいループする -> 絶対ダメ!!!
+                }                               //でもWiFiのみのときはデバッグには使える
+#endif     
                 if ('B' == tmp_str[n]){
                     n++;
                     status = START_UART_I;
                     break;
+                }else {
+                    n = 0;
+                    status = START_UART_B;
                 }
             }
             ans = RX_READING;
@@ -87,8 +96,14 @@ data_rx_status_t data_uart_receive(float *data){
             //データの読み込み
             if (uart_rx(n)){
                 n++;
-                if ((',' == tmp_str[n]) || (n > LEN_MES)){
+                if ((',' == tmp_str[n - 1]) || (n > LEN_MES)){
                     //読み込み完了
+                    tmp_str[n] = 0;     //文字列のエンドマークを追加
+#ifdef  WIFI_ONLY_DEBUG
+                    if (ESP_NOW == target_com_path){
+                        printf("UART2 read data:'%s'\n", tmp_str);  //LANケーブルの時にはターゲット側のESP32までコマンド扱いで渡ってしまいループする -> 絶対ダメ!!!
+                    }                                   //でもWiFiのみのときはデバッグには使える
+#endif                    
                     status = DATA_SCANF;
                 }
             }
@@ -97,12 +112,13 @@ data_rx_status_t data_uart_receive(float *data){
             
         case DATA_SCANF:
             //データの代入
-            num_scan = sscanf(tmp_str, "BINX0Y0dT %f %f %f END", &data[0], &data[1], &data[2]);
+            num_scan = sscanf(tmp_str, "BINX0Y0dT %f %f %f END ,", &data[0], &data[1], &data[2]);
             //ヘッダ、フッタが一致しない場合、値を代入した数が合わなくなる
             if (num_scan != 3){
                 //着弾データがエラーの時
                 ans = RX_ERROR;
             }else if(data[2] == 0){
+                //計算がエラーだった時
                 ans = CALC_ERROR;
             }else{
                 //データ代入OK
@@ -111,6 +127,7 @@ data_rx_status_t data_uart_receive(float *data){
             //終了処理
 #define DEBUG_RECEIVE_DATA_no
 #ifdef  DEBUG_RECEIVE_DATA
+            //__delay_ms(3);
             printf("\n");
             printf("rx_data=%d\n", num_scan);
             printf("x: %f\n", data[0]);
@@ -152,21 +169,20 @@ uint8_t uart_rx(uint8_t n){
 
 void    rx_buffer_clear(void){
     //受信バッファをクリア
-    uint24_t     i;
-    
-    //for (i = 0; i < LEN_TMP; i++){
-    //    tmp_str[i] = 0;
-    //}
-    tmp_str[0] = 0;
-
+    uint24_t    i;
+    uint8_t     skim;
     
     //esp32 115200bps
     i = 0;
     while(UART2_is_rx_ready()){
-        UART2_Read();               //捨て読み
-        __delay_us(1);
+        skim = UART2_Read();    //捨て読み
+#ifdef  WIFI_ONLY_DEBUG
+        if (ESP_NOW == target_com_path){
+            printf("skim:%c", skim);  //LANケーブルの時にはターゲット側のESP32までコマンド扱いで渡ってしまいループする -> 絶対ダメ!!!
+        }                               //でもWiFiのみのときはデバッグには使える
+#endif
         i++;
-        if (i > 10000){
+        if (i > 64){
             //timeout;
             break;
         }
@@ -174,10 +190,9 @@ void    rx_buffer_clear(void){
     //rs485 9600bps
     i = 0;
     while(UART4_is_rx_ready()){
-        UART4_Read();               //捨て読み
-        __delay_us(1);
+        UART4_Read();           //捨て読み
         i++;
-        if (i > 100000){
+        if (i > 64){
             //timeout;
             break;
         }
@@ -189,7 +204,7 @@ void    rx_buffer_clear(void){
 void    command_uart_send(uint8_t* command){
     //コマンドをターゲットへ送る
     uint8_t* str;
-    sprintf(tmp_str, "TARGET_%s END ,\n", command); //","が読み込みエンドマーク
+    sprintf(tmp_str, "TARGET_%s END ,", command); //","が読み込みエンドマーク
     str = (uint8_t*)tmp_str;
     
     while(*str){
