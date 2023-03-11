@@ -47,7 +47,7 @@ data_rx_status_t data_uart_receive(float *data){
 #define WIFI_ONLY_DEBUG     //*************************** DEBUG中　　LANつなぐとシリアルデバッグ不可     
 #ifdef  WIFI_ONLY_DEBUG
                 if (ESP_NOW == target_com_path){
-                    printf("1st chr:'%c' ", tmp_str[n]);  //LANケーブルの時にはターゲット側のESP32までコマンド扱いで渡ってしまいループする -> 絶対ダメ!!!
+                    printf("1st chr:'%c'\n", tmp_str[n]);  //LANケーブルの時にはターゲット側のESP32までコマンド扱いで渡ってしまいループする -> 絶対ダメ!!!
                 }                               //でもWiFiのみのときはデバッグには使える
 #endif     
                 if ('B' == tmp_str[n]){
@@ -147,6 +147,7 @@ data_rx_status_t data_uart_receive(float *data){
 
 uint8_t uart_rx(uint8_t n){
     // GLOBAL - target_com_path
+    //tmp_str(n)に代入
     
     if (RS485 == target_com_path){
         //LANケーブルRS485から受信
@@ -170,34 +171,55 @@ uint8_t uart_rx(uint8_t n){
 void    rx_buffer_clear(void){
     //受信バッファをクリア
     uint24_t    i;
-    uint8_t     skim;
+    uint8_t     skip_mes;
     
     //esp32 115200bps
+#ifdef  WIFI_ONLY_DEBUG
+    if(UART2_is_rx_ready()){
+        printf("\n--Rx buffer clear---\n");
+        i = 0;
+        while(UART2_is_rx_ready()){
+            skip_mes = UART2_Read();    //捨て読み
+            if (ESP_NOW == target_com_path){
+                printf("%c", skip_mes);    //LANケーブルの時にはターゲット側のESP32までコマンド扱いで渡ってしまいループする -> 絶対ダメ!!!
+            }                               //でもWiFiのみのときはデバッグには使える
+            i++;
+            if (i > 250){
+                //timeout;
+                break;
+            }
+        }
+        if (ESP_NOW == target_com_path){
+            printf("\n--------------------\n");
+        }
+    }
+#else
     i = 0;
     while(UART2_is_rx_ready()){
-        skim = UART2_Read();    //捨て読み
-#ifdef  WIFI_ONLY_DEBUG
-        if (ESP_NOW == target_com_path){
-            printf("skim:%c", skim);  //LANケーブルの時にはターゲット側のESP32までコマンド扱いで渡ってしまいループする -> 絶対ダメ!!!
-        }                               //でもWiFiのみのときはデバッグには使える
-#endif
+        skip_mes = UART2_Read();    //捨て読み
         i++;
         if (i > 64){
             //timeout;
             break;
         }
     }
+#endif   
+    
+    
     //rs485 9600bps
+    if (UART4_is_rx_ready()){
+        printf("--LAN buffer clear--\n\n");
+    }
     i = 0;
     while(UART4_is_rx_ready()){
         UART4_Read();           //捨て読み
         i++;
-        if (i > 64){
+        if (i > 250){
             //timeout;
             break;
         }
-        
     }
+    
 }
 
 

@@ -54,7 +54,7 @@
 #define     POINT       "x"
 
 //玉
-#define     BB          4                   //着弾円寸法mm
+#define     BB          6                   //着弾円寸法mm
 #define     PLOT_D      (float)(SCALE * BB) //グラフプロット点の円半径
 
 //impact_plot_graph呼出時の引数

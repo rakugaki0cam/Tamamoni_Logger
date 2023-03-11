@@ -386,8 +386,6 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-1ffff"/>
         <property key="poweroptions.powerenable" value="true"/>
-        <property key="programmerToGoFilePath"
-                  value="/Users/isober/MPLABXProjects/BulletLogger_V9_Q43.X/debug/default/BulletLogger_V8_3_57Q43_ptg"/>
         <property key="programmerToGoImageName" value="BulletLogger_V8_3_57Q43_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>

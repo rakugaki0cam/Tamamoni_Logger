@@ -195,7 +195,7 @@
  * 2023.02.20   ver.9.03    ESP32とのデータやり取りUART2を9600bpsから115200bpsに変更
  * 2023.02.25   ver.9.04    UARTの整理。CtoCデータ数2つ未満のとき表示無し
  * 2023.02.26   ver.9.05    1発目の入力不良の調査。シリアルDEBUGgerへ受信データ表示。LAN接続するとシリアル表示はキャンセルされる。ーーーーーーー
- * 
+ * 2023.03.11   ver.9.06    BBを6mm表示に。UARTバッファクリアを少し変更。DEBUGger表示。LANの時は表示しない。
  * 
  * 
  *  ////モーションセンサーの発射時のタイミングログ取得にSMT1のタイマーを使っているけれど、着弾してしまうとタイマーが止まってしまう可能性がある。別タイマーにするか???
@@ -231,7 +231,7 @@ __EEPROM_DATA (0x02, 0x03, 0x18, 0x01, 0x01, 0x96, 0x00, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.04"; 
+const char  version[] = "9.06"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ
@@ -490,7 +490,7 @@ void input_mmi(void){
         set_v0sensor(1);    //1:change
     }
     
-    rx_buffer_clear();      //UARTバッファのゴミを捨て読み
+    //rx_buffer_clear();      //UARTバッファのゴミを捨て読み LANのほうはしょっちゅうクリアされてしまう???/////////////////////////////
     
     if (sleep_count >= BACKLIGHT_OFF_TIME){
         if (bloff_flag == 0){

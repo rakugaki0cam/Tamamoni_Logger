@@ -415,16 +415,16 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].status = V0_TIMER_12_GET;
             }
             if (int_status.tmr1ovf == 1){
-                //printf("Tmr1_OVF\n");
+                printf("Tmr1_OVF\n");
                 shot_data[shot_buf_pointer].status = V0_TIMEOUT;
             }
             if (int_status.smt1ovf == 1){
-                //printf("Smt1_OVF\n");
+                printf("Smt1_OVF\n");
                 shot_data[shot_buf_pointer].status = V0_TIMEOUT;
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
-                //printf("Tmr0_OVF\n");
+                printf("Tmr0_OVF\n");
                 shot_data[shot_buf_pointer].status = V0_TIMEOUT;
             }
             break;
@@ -484,16 +484,16 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].status = VE_TIMER_34_GET;
             }
             if (int_status.tmr3ovf == 1){
-                //printf("Tmr3_OVF\n");
+                printf("Tmr3_OVF\n");
                 shot_data[shot_buf_pointer].status = VE_TIMEOUT;
             }
             if (int_status.smt1ovf == 1){
-                //printf("Smt1_OVF\n");
+                printf("Smt1_OVF\n");
                 shot_data[shot_buf_pointer].status = VE_TIMEOUT;
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
-                //printf("Tmr0_OVF\n");
+                printf("Tmr0_OVF\n");
                 shot_data[shot_buf_pointer].status = VE_TIMEOUT;
             }
             break;
@@ -519,12 +519,12 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].status = TIME_IMPACT_GET;
             }
             if (int_status.smt1ovf == 1){
-                //printf("Smt1_OVF\n");
+                printf("Smt1_OVF\n");
                 shot_data[shot_buf_pointer].status = IMPACT_TIMEOUT;
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
-                //printf("Tmr0_OVF\n");
+                printf("Tmr0_OVF\n");
                 shot_data[shot_buf_pointer].status = IMPACT_TIMEOUT;
             }            
             break;
@@ -563,7 +563,7 @@ uint8_t vmeasure(void){
             print_shot(RED);
             print_v0(RED);
             err = SENSOR2_ERROR;
-            //printf("shot#%d Sen2 TIMEOUT\n", shot + 1);
+            printf("shot#%d Sen2 TIMEOUT\n", shot + 1);
             
             switch(target_mode){
                 case V0_MODE:
@@ -593,13 +593,13 @@ uint8_t vmeasure(void){
             print_impact_time(BLACK);
             if ((int_status.sensor3on == 0) && (int_status.sensor4on == 0)){
                 err = SENSOR34_ERROR;
-                //printf("s#%d Sen34 TIMEOUT\n", shot + 1);
+                printf("s#%d Sen34 TIMEOUT\n", shot + 1);
             }else if (int_status.sensor3on == 0){
                 err = SENSOR3_ERROR;
-                //printf("s#%d Sen3 TIMEOUT\n", shot + 1);
+                printf("s#%d Sen3 TIMEOUT\n", shot + 1);
             }else {
                 err = SENSOR4_ERROR;
-                //printf("s#%d Sen4 TIMEOUT\n", shot + 1);
+                printf("s#%d Sen4 TIMEOUT\n", shot + 1);
             }
             shot_data[shot_buf_pointer].status = MEASURE_DONE;
             break;
@@ -610,7 +610,7 @@ uint8_t vmeasure(void){
             print_ve(WHITE);    //V0_VE＿MODE以外では無効になるようにサブルーチン内にて処理
             print_impact_time(RED);
             err = IMPACT_ERROR;
-            //printf("shot#%d Impact TIMEOUT\n", shot + 1);
+            printf("shot#%d Impact TIMEOUT\n", shot + 1);
             shot_data[shot_buf_pointer].status = MEASURE_DONE;
             break;
             
@@ -633,7 +633,7 @@ uint8_t vmeasure(void){
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
-                //printf("shot#%d Motion TIMEOUT\n", shot + 1);
+                printf("shot#%d Motion TIMEOUT\n", shot + 1);
                 err = MOTION_ERROR;
                 shot_data[shot_buf_pointer].status = MOTION_DONE;
             }            
@@ -688,7 +688,7 @@ uint8_t vmeasure(void){
                 if (int_status.tmr0ovf == 1){
                     //タイムアウト検出
                     err = RECEIVE_ERROR;
-                    //printf("shot#%d tamamoni rx timeout\n", shot + 1);
+                    printf("shot#%d tamamoni rx timeout\n", shot + 1);
                 }else{
                     //データ読み込み継続
                     break;
@@ -697,12 +697,12 @@ uint8_t vmeasure(void){
                 //受信データ数値化失敗
                 err = TARGET_CALC_ERROR;
                 int_status.uart = 1;
-                //printf("shot#%d target calc err\n", shot + 1);
+                printf("shot#%d target calc err\n", shot + 1);
             }else if (RX_ERROR == answ){
                 //ターゲットデータ受信エラー
                 err = TARGET_RX_ERROR;
                 int_status.uart = 1; 
-                //printf("shot#%d tamamoni rx err\n", shot + 1);
+                printf("shot#%d tamamoni Rx err\n", shot + 1);
             } 
             //エラーの時の終了処理
             shot_data[shot_buf_pointer].impact_x = 999.9;
