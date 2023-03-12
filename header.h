@@ -63,18 +63,18 @@
 
 //eep_rom address
 typedef enum {
-    V0SENS12_ADDRESS,           //初速センサ種類
+    V0SENS12_ADDRESS    = 0,    //初速センサ種類
     FILENAME_YEAR,              //ファイルネームの接尾辞を決める時のデータ
     FILENAME_MONTH,
     FILENAME_DAY,
     FILENAME_SUFFIX,
     DATA_OUTPUT,                //データが書き出されたか
-    DIST_M_ADRESS,
-    DIST_MM_ADRESS,             //2bytes
+    DIST_M_ADRESS       = 6,
+    DIST_MM_ADRESS,             //2bytes 7,8
     GUN_NUM_ADDRESS     = 9,
-    BB_G_ADDRESS,               //2bytes
+    BB_G_ADDRESS,               //2bytes 10,11
     BB_NUM_ADDRESS      = 12,
-    NUKIDAN_ADDRESS,            //2bytes        
+    NUKIDAN_ADDRESS,            //2bytes 13,14       
 } eeprom_address_t;
 
 //グローバル変数

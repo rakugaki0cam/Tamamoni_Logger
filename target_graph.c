@@ -107,6 +107,7 @@ void target_graph_initialize(void){
     
     //着弾点再描画 
     impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW, RESET_NONE);
+    print_i_time(); //インパクトタイムの単位部分再描画
     //uartをクリア
     rx_buffer_clear();
 }
@@ -125,8 +126,7 @@ void target_data_reset(void){
     
     sprintf(tmp_string, "TARGET CLEAR?     ");
     LCD_Printf(COL_WARNING, ROW_WARNING1 , tmp_string, 1, PINK, 1); 
-    //1秒長押し
-    for (i = 0; i < 15; i++){
+    for (i = 0; i < 10; i++){    //1sec長押し
         __delay_ms(100);
         if (SW2_PORT == SW_OFF){
             sprintf(tmp_string, "                  ");

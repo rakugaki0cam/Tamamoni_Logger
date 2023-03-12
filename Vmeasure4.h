@@ -161,6 +161,7 @@ void    print_impact_time(uint8_t);
 void    print_target_xy(uint8_t);
 void    print_target_ctc(float, uint16_t, uint8_t);
 void    print_targetmode(uint8_t);
+void    print_i_time(void);
 void    print_error(uint8_t);
 
 //debug

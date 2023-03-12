@@ -89,17 +89,26 @@ const char bu_text_setup[BUTTON_SETUP_LEN][11] = {
 //手入力セットアップ値
 //前回値をeepromから読み込み
 //global
-int16_t     bbmass_g = 280;     //x1000値 mg
+int16_t     bbmass_g = 250;     //x1000値 mg    0x00fa
 //local
-int8_t      dist_m = 7;         //m +
-int16_t     dist_mm = 543;      //mm
-uint8_t     gun_num = 3;
-uint8_t     bb_num = 1;
-int16_t     f_extract = 150;    //gf
+int8_t      dist_m = 7;         //m +   0x07
+int16_t     dist_mm = 500;      //mm    0x01f4
+uint8_t     gun_num = 2;        //      0x02
+uint8_t     bb_num = 7;         //      0x07
+int16_t     f_extract = 195;    //gf    0x00c3
 
 
-#define     AIR_GUN_MAX     14
-char air_gun_text[AIR_GUN_MAX][13] = { //max12文字+1stopcode
+#define DIST_M_MIN  0
+#define DIST_M_MAX  99
+#define DIST_MM_MIN 0
+#define DIST_MM_MAX 999
+#define BB_G_MIN    100
+#define BB_G_MAX    500
+#define EXT_F_MIN   0
+#define EXT_F_MAX   600
+
+#define AIR_GUN_NUM     14
+char air_gun_text[AIR_GUN_NUM][13] = { //max12文字+1stopcode
     "dummy       ",
     "vfc M40A3   ",
     "ares M40A6  ",
@@ -116,8 +125,8 @@ char air_gun_text[AIR_GUN_MAX][13] = { //max12文字+1stopcode
     "others      ",
 };
 
-#define     BB_TYPE_MAX        9
-char bb_type_text[BB_TYPE_MAX][13] = {    //max12文字+1stopcode
+#define     BB_TYPE_NUM        9
+char bb_type_text[BB_TYPE_NUM][13] = {    //max12文字+1stopcode
     "dummy       ",
     "G&G Pla     ",
     "G&G Bio     ",
@@ -274,21 +283,21 @@ void touch_menu(void) {
                     switch(bsel){
                         case DIST_M:
                             dist_m += plus_val;
-                            if (dist_m > 99){
-                                dist_m = 99;
+                            if (dist_m > DIST_M_MAX){
+                                dist_m = DIST_M_MAX;
                             }
                             sprintf(tmp_string, "%2d", dist_m);
                             break;
                         case DIST_MM:
                             dist_mm += plus_val;
-                            if (dist_mm > 999){
-                                dist_mm -= 1000;
+                            if (dist_mm > DIST_MM_MAX){
+                                dist_mm -= (DIST_MM_MAX + 1);
                             }
                             sprintf(tmp_string, "%03d", dist_mm);
                             break;
                         case AIRSOFT:
                             gun_num++;
-                            if (gun_num >= AIR_GUN_MAX){
+                            if (gun_num >= AIR_GUN_NUM){
                                 gun_num = 1;
                             }
                             sprintf(tmp_string, "%s", air_gun_text[gun_num]);
@@ -296,14 +305,14 @@ void touch_menu(void) {
                             break;    
                         case BB_G:
                             bbmass_g += plus_val;
-                            if (bbmass_g > 500){
-                                bbmass_g = 500;
+                            if (bbmass_g > BB_G_MAX){
+                                bbmass_g = BB_G_MAX;
                             }
                             sprintf(tmp_string, "%5.3f", (float)bbmass_g / 1000);
                             break;
                         case BB_NAME:
                             bb_num++;
-                            if (bb_num >= BB_TYPE_MAX){
+                            if (bb_num >= BB_TYPE_NUM){
                                 bb_num = 1;
                             }
                             sprintf(tmp_string, "%s", bb_type_text[bb_num]);
@@ -311,8 +320,8 @@ void touch_menu(void) {
                             break;
                         case NUKIDAN:
                             f_extract+= plus_val;
-                            if (f_extract > 600){
-                                f_extract = 600;
+                            if (f_extract > EXT_F_MAX){
+                                f_extract = EXT_F_MAX;
                             }
                             sprintf(tmp_string, "%3d", f_extract);
                             break;
@@ -334,45 +343,45 @@ void touch_menu(void) {
                     switch(bsel){
                         case DIST_M:
                             dist_m -= plus_val;
-                            if (dist_m < 0){
-                                dist_m = 0;
+                            if (dist_m < DIST_M_MIN){
+                                dist_m = DIST_M_MIN;
                             }
                             sprintf(tmp_string, "%2d", dist_m);
                             break;
                         case DIST_MM:
                             dist_mm -= plus_val;
-                            if (dist_mm < 0){
-                                dist_mm += 1000;
+                            if (dist_mm < DIST_MM_MIN){
+                                dist_mm += (DIST_MM_MAX + 1);
                             }
                             sprintf(tmp_string, "%03d", dist_mm);
                             break;
                         case AIRSOFT:
                             gun_num--;
                             if (gun_num < 1){
-                                gun_num = AIR_GUN_MAX - 1;
+                                gun_num = AIR_GUN_NUM - 1;
                             }
                             sprintf(tmp_string, "%s", air_gun_text[gun_num]);
                             __delay_ms(200);
                             break;    
                         case BB_G:
                             bbmass_g -= plus_val;
-                            if (bbmass_g < 100){
-                                bbmass_g = 100;
+                            if (bbmass_g < BB_G_MIN){
+                                bbmass_g = BB_G_MIN;
                             }
                             sprintf(tmp_string, "%5.3f", (float)bbmass_g / 1000);
                             break;
                         case BB_NAME:
                             bb_num--;
                             if (bb_num < 1){
-                                bb_num = BB_TYPE_MAX - 1;
+                                bb_num = BB_TYPE_NUM - 1;
                             }
                             __delay_ms(200);
                             sprintf(tmp_string, "%s", bb_type_text[bb_num]);
                             break;
                         case NUKIDAN:
                             f_extract -= plus_val;
-                            if (f_extract < 0){
-                                f_extract = 0;
+                            if (f_extract < EXT_F_MIN){
+                                f_extract = EXT_F_MIN;
                             }
                             sprintf(tmp_string, "%3d", f_extract);
                             break;
@@ -449,19 +458,32 @@ void    read_rom_setup(void){
     //EEP ROMからセットアップデータを代入
     
     dist_m = (int8_t)DATAEE_ReadByte(DIST_M_ADRESS);
-    
+    if ((dist_m < DIST_M_MIN) || (dist_m > DIST_M_MAX)){
+        dist_m = 10;
+    }
     dist_mm = DATAEE_ReadByte(DIST_MM_ADRESS);
     dist_mm += DATAEE_ReadByte(DIST_MM_ADRESS+1) << 8;
-    
+    if ((dist_mm < DIST_MM_MIN) || (dist_mm > DIST_MM_MAX)){
+        dist_mm = 0;
+    }    
     gun_num = DATAEE_ReadByte(GUN_NUM_ADDRESS);
-    
+    if ((gun_num < 1) || (gun_num > AIR_GUN_NUM)){
+        gun_num = 1;
+    }  
     bbmass_g = DATAEE_ReadByte(BB_G_ADDRESS);
     bbmass_g += DATAEE_ReadByte(BB_G_ADDRESS+1) << 8;
-    
+    if ((bbmass_g < BB_G_MIN) || (bbmass_g > BB_G_MAX)){
+        bbmass_g = 280;
+    }    
     bb_num = DATAEE_ReadByte(BB_NUM_ADDRESS);
-    
+    if ((bb_num < 1) || (bb_num > BB_TYPE_NUM)){
+        bb_num = 1;
+    }  
     f_extract = DATAEE_ReadByte(NUKIDAN_ADDRESS);
     f_extract += DATAEE_ReadByte(NUKIDAN_ADDRESS+1) << 8;
+    if ((f_extract < EXT_F_MIN) || (f_extract > EXT_F_MAX)){
+        f_extract = 150;
+    }    
     
     set_setup();
 }

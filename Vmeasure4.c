@@ -1072,8 +1072,8 @@ void v0_data_reset(void){
     
     sprintf(tmp_string, "v0 average RESET? ");
     LCD_Printf(COL_WARNING, ROW_WARNING1 , tmp_string, 1, PINK, 1); 
-    //1秒長押し
-    for (i = 0; i < 15; i++){
+    //1sec長押し
+    for (i = 0; i < 10; i++){
         __delay_ms(100);
         if (SW2_PORT == SW_OFF){
             sprintf(tmp_string, "                  ");
@@ -1272,6 +1272,16 @@ void print_targetmode(uint8_t color){
     
     set_v0sensor(0);    //初速センサーの表示
 
+}
+
+void print_i_time(void){
+    //ターゲットクリアした時にインパクトタイムのところが消えるので補足
+    if (V0_TARGET_MODE == target_mode){
+        sprintf(tmp_string, "time:        msec");
+        LCD_Printf(COL_TIME, ROW_TIME, tmp_string, 1, WHITE, 1);
+    }
+    sprintf(tmp_string, "x: ---   y: ---   ");
+    LCD_Printf(COL_TARGET, ROW_TARGET, tmp_string, 1, AQUA, 1);
 }
 
 

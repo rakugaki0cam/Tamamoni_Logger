@@ -196,6 +196,7 @@
  * 2023.02.25   ver.9.04    UARTの整理。CtoCデータ数2つ未満のとき表示無し
  * 2023.02.26   ver.9.05    1発目の入力不良の調査。シリアルDEBUGgerへ受信データ表示。LAN接続するとシリアル表示はキャンセルされる。ーーーーーーー
  * 2023.03.11   ver.9.06    BBを6mm表示に。UARTバッファクリアを少し変更。DEBUGger表示。LANの時は表示しない。
+ * 2023.03.12   ver.9.07    プログラム書き換え後のメニュ-データが不正になることがある。eeprom読み出しの時にチェック。
  * 
  * 
  *  ////モーションセンサーの発射時のタイミングログ取得にSMT1のタイマーを使っているけれど、着弾してしまうとタイマーが止まってしまう可能性がある。別タイマーにするか???
@@ -220,8 +221,10 @@
 */
 #include    "header.h"
 
-__EEPROM_DATA (0x00, 0x22, 0x01, 0x01, 0x41, 0x00, 0x07, 0x1f); //eeprom_address_t
-__EEPROM_DATA (0x02, 0x03, 0x18, 0x01, 0x01, 0x96, 0x00, 0xff); 
+__EEPROM_DATA (0x00, 0x23, 0x01, 0x01, 0x41, 0x00, 0x07, 0xf4); //eeprom_address_t
+//              v0    Y     M     D     suf   out   m     mmL
+__EEPROM_DATA (0x01, 0x02, 0xfa, 0x00, 0x07, 0xc3, 0x00, 0xff); 
+//              mmU   gun   bbL   bbU   BB    nuL   nuU
 //Picketの設定でpreserveにチェックするとプログラム書き込み時に書き換えられない
 
 
@@ -231,7 +234,7 @@ __EEPROM_DATA (0x02, 0x03, 0x18, 0x01, 0x01, 0x96, 0x00, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.06"; 
+const char  version[] = "9.07"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ
@@ -778,7 +781,7 @@ void    low_battery(void){
 
 void    read_rom_main(void){
     //EEP ROMからデータを代入
-    sensor_type = DATAEE_ReadByte(V0SENS12_ADDRESS);
+    sensor_type = DATAEE_ReadByte(V0SENS12_ADDRESS);    //初速計の種類
 }
 
 
