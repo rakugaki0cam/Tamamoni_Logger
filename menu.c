@@ -37,7 +37,7 @@ typedef enum {
     NUKIDAN,
     RETURN,
     POWEROFF,
-    SET_TIME,
+    TARGET_MENU, //SET_TIME,
     UP,
     DOWN,
     PLUS,
@@ -59,7 +59,7 @@ const uint16_t button_setup[BUTTON_SETUP_LEN][4] = {
     { 8*B2X, 9*B2Y, 3*B2X, B2Y},    //nukidan
     {14*B2X,11*B2Y, 6*B2X, B2Y},    //return
     {12*B2X,14*B2Y, 8*B2X, B2Y},    //poweroff
-    {13*B2X,17*B2Y, 7*B2X, B2Y},    //settime
+    {13*B2X,17*B2Y, 7*B2X, B2Y},    //targetmenu
     //ボタン高さ2
     { 7*B2X,11*B2Y, 3*B2X, B2Y*2},    //up  
     { 7*B2X,16*B2Y, 3*B2X, B2Y*2},    //down
@@ -78,7 +78,7 @@ const char bu_text_setup[BUTTON_SETUP_LEN][11] = {
     "    gf",
     "RETURN",
     "PowerOFF",
-    "SetTIME",
+    "TargetM",
     //中間高さに表示
     {0x20, 0x80, 0x00},     //↑
     {0x20, 0x81, 0x00},     //↓
@@ -169,7 +169,6 @@ void    setup_menu(void){
         }
         LCD_Printf(button_setup[i][0], by, tmp_string, 2, YELLOW, 1);
     }
-    
     
     //設定値を表示
     sprintf(tmp_string, "%2d", dist_m);
@@ -405,11 +404,12 @@ void touch_menu(void) {
                     __delay_ms(100);
                     return;                 //menuを抜ける
                     break;
-                case SET_TIME:
+                case TARGET_MENU:   //SET_TIME:
                     button_select_disp(bsel, 1, button_setup, NUM_BUTTON_SETUP);
                     write_rom_setup();
                     __delay_ms(100);
-                    RTC8900_time_set();     //時計合わせ
+                    target_menu();
+                    //RTC8900_time_set();     //時計合わせ
                     return;                 //menuを抜ける
                     break;
                 case POWEROFF:
@@ -417,6 +417,285 @@ void touch_menu(void) {
                     write_rom_setup();
                     __delay_ms(100);
                     power_off();        //パワーオフ
+                    break;
+                default:
+                    break;
+            }
+        
+#if DEBUG_BUTTON == 1
+        //button select
+        sprintf(tmp_string, "bu.sel = %2d", bsel);
+        LCD_Printf(COL_BUTTON_SEL, ROW_BUTTON_SEL, tmp_string, 1, RED, 1);
+#endif
+        }else{
+            touch_cnt = 0;     //連続タッチ終わり
+            plus_val = 1;
+        }   //if
+
+    }   //while
+}
+
+
+void target_menu(void) {
+    //ターゲットの設定メニュー
+//impact_plot_graph呼出時の引数
+#define DUMMY       0 
+#define REDRAW_NONE 0
+#define RESET_DONE  1     
+    
+    //ボタン名称
+    typedef enum {
+        IDLE,
+        OFFSET,
+        OFFSET_SET,        
+        AIMPOINT,
+        AIM_SET,        
+        BRIGHTNESS,
+        RETURN,
+        SET_TIME,
+        UP,
+        DOWN,
+        PLUS,
+        MINUS,
+        NUM_BUTTON_TARGET, //宣言数  =　メッセージ配列添字数     
+    } button_target_t;
+    
+#define BUTTON_TARGET_LEN     NUM_BUTTON_TARGET
+    
+    //メニューのボタン位置の設定
+    const uint16_t button_target[BUTTON_TARGET_LEN][4] = {
+      //{ 　　x0,  　y0, 　横幅, 高さ}, 
+        {   240,   320,     0,   0},    //dummy
+        {10*B2X, 2*B2Y, 3*B2X, B2Y},    //offset y
+        {17*B2X, 2*B2Y, 3*B2X, B2Y},    //offset set
+        {10*B2X, 4*B2Y, 3*B2X, B2Y},    //aimpoint
+        {17*B2X, 4*B2Y, 3*B2X, B2Y},    //aimpoint set
+        {12*B2X, 6*B2Y, 3*B2X, B2Y},    //brightness
+        {13*B2X,14*B2Y, 6*B2X, B2Y},    //return
+        {13*B2X,17*B2Y, 7*B2X, B2Y},    //set time
+        //ボタン高さ2
+        { 7*B2X,11*B2Y, 3*B2X, B2Y*2},  //up  
+        { 7*B2X,16*B2Y, 3*B2X, B2Y*2},  //down
+        { 1*B2X,11*B2Y, 3*B2X, B2Y*2},  //+  
+        { 1*B2X,16*B2Y, 3*B2X, B2Y*2},  //- 
+    };
+    
+    //ボタンの表示テキスト 12文字まで
+    const char bu_text_target[BUTTON_TARGET_LEN][13] = {
+        "",             //dummy
+        "   mm",
+        "SET",
+        "   mm",
+        "SET",
+        "",
+        "RETURN",
+        "setTIME",
+        //中間高さに表示
+        {0x20, 0x80, 0x00},     //↑
+        {0x20, 0x81, 0x00},     //↓
+        " + ",
+        " - ",
+    };
+
+    button_target_t  bnum;
+    button_target_t  bsel = RETURN;  //選択中のボタン
+    uint8_t         touch_cnt = 0;  //タッチが連続しているカウント
+    uint16_t        plus_val = 1;   //数値変化分
+    uint8_t         i;
+    uint16_t        by;
+    static int8_t   offset_y = -15;  //target側の初期値にあわせないといけない
+    static int8_t   aim_y = 74;
+    static int16_t  bright = 90;
+    const  uint8_t  com_offset[] = "OFFSET";
+    const  uint8_t  com_aimpoint[] = "AIMPOINT";
+    const  uint8_t  com_bright[] = "BRIGHT";
+
+#define OFFSET_MIN      -40
+#define OFFSET_MAX      35
+#define AIMPOINT_MIN    30
+#define AIMPOINT_MAX    120
+#define BRIGHTNESS_MIN  0
+#define BRIGHTNESS_MAX  250
+
+    menu_clear_screen();
+    sprintf(tmp_string, "-- TARGET CONFIG ---");
+    LCD_Printf( 0*B2X, 0*B2Y, tmp_string, 2, YELLOW, 1);
+    sprintf(tmp_string, "offsetH");
+    LCD_Printf( 0*B2X, 2*B2Y, tmp_string, 2, YELLOW, 1);
+    sprintf(tmp_string, "AimPointH");
+    LCD_Printf( 0*B2X, 4*B2Y, tmp_string, 2, YELLOW, 1);
+    sprintf(tmp_string, "Brightness");
+    LCD_Printf( 0*B2X, 6*B2Y, tmp_string, 2, YELLOW, 1);
+    
+    //ボタンの文字を表示
+    for(i = 1; i < NUM_BUTTON_TARGET; i++){
+        sprintf(tmp_string, "%s", bu_text_target[i]);
+        by = button_target[i][1];
+        if (button_target[i][3] == B2Y*2){
+            //ボタンの文字をボタンの中間高さ位置に表示
+            by += B1Y;
+        }
+        LCD_Printf(button_target[i][0], by, tmp_string, 2, YELLOW, 1);
+    }
+    //設定値を表示
+    sprintf(tmp_string, "%3d", offset_y);
+    LCD_Printf(10*B2X, 2*B2Y, tmp_string, 2, WHITE, 1);
+    sprintf(tmp_string, "%3d", aim_y);
+    LCD_Printf(10*B2X, 4*B2Y, tmp_string, 2, WHITE, 1);
+    sprintf(tmp_string, "%3d", bright);
+    LCD_Printf(12*B2X, 6*B2Y, tmp_string, 2, WHITE, 1);
+    //ボタンを表示
+    button_init(button_target, NUM_BUTTON_TARGET);
+    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);   //最初のボタンセレクトの表示
+
+    while(1){
+        if (sw1_int_flag == 1){
+            power_switch();         //ちょん押しでリターン、長押しでパワーオフ
+            sw1_int_flag = 0;
+            //write_rom_setup();
+            return;                 //menuを抜ける  
+        }
+        
+        if (RTC_int_flag == 1){
+            footer_rewrite(1);      //1:setupからの呼び出し
+            RTC_int_flag = 0;///////////////クリアしないとなぜかうまくいかない
+        }
+
+        if (TOUCH_INT_PORT == 0){
+            //タッチあり          
+            bnum = button_number(button_target, NUM_BUTTON_TARGET);
+                    
+            switch(bnum){
+                case IDLE:
+                    //idle
+                    break;
+                case OFFSET:
+                case AIMPOINT:
+                case BRIGHTNESS:
+                    //前回の位置を消去(枠グレイ表示)
+                    button_select_disp(bsel, 0, button_target, NUM_BUTTON_TARGET);
+                    bsel = bnum;
+                    //ボタン選択表示(黄色)
+                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    __delay_ms(300);
+                    break;
+                    
+                case UP:
+                    //項目間の移動　上へ
+                    button_select_disp(bsel, 0, button_target, NUM_BUTTON_TARGET);
+                    bsel--;
+                    if(bsel < OFFSET){
+                        bsel = OFFSET;
+                    }
+                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    __delay_ms(300);
+                    break;
+                    
+                case DOWN:
+                    //項目間の移動　下へ
+                    button_select_disp(bsel, 0, button_target, NUM_BUTTON_TARGET);
+                    bsel++;
+                    if(bsel > RETURN){
+                        bsel = RETURN;
+                    }
+                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    __delay_ms(300);
+                    break;
+                    
+                case PLUS:
+                    switch(bsel){
+                        case OFFSET:
+                            offset_y += 5;
+                            if (offset_y > OFFSET_MAX){
+                                offset_y = OFFSET_MAX;
+                            }
+                            sprintf(tmp_string, "%3d", offset_y);
+                            break;
+                        case AIMPOINT:
+                            aim_y++;
+                            if (aim_y > AIMPOINT_MAX){
+                                aim_y = AIMPOINT_MAX;
+                            }
+                            sprintf(tmp_string, "%3d", aim_y);
+                            break;
+                        case BRIGHTNESS:
+                            bright += 10;
+                            if (bright > BRIGHTNESS_MAX){
+                                bright = BRIGHTNESS_MAX;
+                            }
+                            sprintf(tmp_string, "%3d", bright);
+                            //電子ターゲットにコマンドを送る
+                            command_uart_send((uint8_t*)com_bright, (float)bright);
+                            __delay_ms(200);
+                            break;
+                        default:
+                            sprintf(tmp_string, "");
+                            break;
+                    }
+                    //ボタン内テキスト再描画
+                    LCD_Printf(button_target[bsel][0], button_target[bsel][1], tmp_string, 2, WHITE, 1);
+                    __delay_ms(60);
+                    
+                    break;
+                    
+                case MINUS:
+                    switch(bsel){
+                        case OFFSET:
+                            offset_y -= 5;
+                            if (offset_y < OFFSET_MIN){
+                                offset_y = OFFSET_MIN;
+                            }
+                            sprintf(tmp_string, "%3d", offset_y);
+                            break;
+                        case AIMPOINT:
+                            aim_y--;
+                            if (aim_y < DIST_MM_MIN){
+                                aim_y = DIST_MM_MIN;
+                            }
+                            sprintf(tmp_string, "%3d", aim_y);
+                            break;
+                        case BRIGHTNESS:
+                            bright -= 10;
+                            if (bright < BRIGHTNESS_MIN){
+                                bright = BRIGHTNESS_MIN;
+                            }
+                            sprintf(tmp_string, "%3d", bright);                   
+                            //電子ターゲットにコマンドを送る
+                            command_uart_send((uint8_t*)com_bright, (float)bright);
+                            __delay_ms(200);
+                            break;    
+                        default:
+                            sprintf(tmp_string, "");
+                            break;
+                    }
+                    //ボタン内テキスト再描画
+                    LCD_Printf(button_target[bsel][0], button_target[bsel][1], tmp_string, 2, WHITE, 1);
+                    __delay_ms(60);
+                    break;
+                case OFFSET_SET:
+                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    //電子ターゲットにコマンドを送る
+                    command_uart_send((uint8_t*)com_offset, (float)offset_y);
+                    impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア                 
+                    __delay_ms(500);
+                    break;
+                case AIM_SET:
+                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    //電子ターゲットにコマンドを送る
+                    command_uart_send((uint8_t*)com_aimpoint, (float)aim_y);
+                    impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア
+                    __delay_ms(500);
+                    break;
+                case RETURN:
+                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    __delay_ms(100);
+                    return;                 //menuを抜ける
+                    break;
+                case SET_TIME:
+                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    __delay_ms(100);
+                    RTC8900_time_set();     //時計合わせ
+                    return;                 //menuを抜ける
                     break;
                 default:
                     break;

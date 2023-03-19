@@ -25,6 +25,6 @@ typedef enum {
 data_rx_status_t data_uart_receive(float*);
 uint8_t uart_rx(uint8_t);
 void    rx_buffer_clear(void);
-void    command_uart_send(uint8_t*);
+void    command_uart_send(uint8_t*, float);
 
 #endif //TRANCEIVER_UART_H

@@ -106,7 +106,7 @@ void target_graph_initialize(void){
     LCD_Printf(TARGET_X0 - 2, TARGET_Y0 - 4, POINT, 1, BLACK, 0);
     
     //着弾点再描画 
-    impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW, RESET_NONE);
+    impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW, RESET_NONE);///////////////////
     print_i_time(); //インパクトタイムの単位部分再描画
     //uartをクリア
     rx_buffer_clear();
@@ -297,6 +297,13 @@ void    draw_impact_point(int16_t x_x100, int16_t y_x100, uint8_t color){
 void target_lcd_clear_command(void){
     //電子ターゲットにクリアコマンドを送る
     uint8_t clear[] = "CLEAR";
-    command_uart_send(clear);
+    command_uart_send(clear, 0);
+    
+}
+
+void target_lcd_default_command(void){
+    //電子ターゲットにデフォルトセットコマンドを送る
+    uint8_t default_set[] = "DEFAULT";
+    command_uart_send(default_set, 0);
     
 }

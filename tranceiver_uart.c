@@ -223,10 +223,10 @@ void    rx_buffer_clear(void){
 }
 
 
-void    command_uart_send(uint8_t* command){
+void    command_uart_send(uint8_t* command, float value){
     //コマンドをターゲットへ送る
     uint8_t* str;
-    sprintf(tmp_str, "TARGET_%s END ,", command); //","が読み込みエンドマーク
+    sprintf(tmp_str, "TARGET_%s %5.1f END ,", command, value); //","が読み込みエンドマーク
     str = (uint8_t*)tmp_str;
     
     while(*str){

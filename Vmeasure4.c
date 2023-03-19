@@ -1194,6 +1194,11 @@ void    print_target_ctc(float ctc, uint16_t num, uint8_t color){
 
 void print_targetmode(uint8_t color){
     //モードとパラメータの初期表示と代入
+//impact_plot_graph呼出時の引数
+#define DUMMY       0 
+#define REDRAW_NONE 0
+#define RESET_DONE  1    
+    
     sprintf(tmp_string, "SHOT#");
     LCD_Printf(COL_SHOT, ROW_SHOT, tmp_string, 2, WHITE, 1);
     
@@ -1242,6 +1247,7 @@ void print_targetmode(uint8_t color){
         //target
         case V0_TARGET_MODE:    //1011* 電子ターゲット　初速、着弾時間測定、着弾位置表示モード　v0,x,y,time
             target_graph_initialize();
+            impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア
             sprintf(tmp_string, "v0:      m/s");
             LCD_Printf(COL_V0, ROW_V0, tmp_string, 2, WHITE, 1);
             sprintf(tmp_string, "            ");
@@ -1254,6 +1260,7 @@ void print_targetmode(uint8_t color){
             
         case TARGET_ONLY_MODE:  //1000* 初速無し電子ターゲットのみ　着弾位置表示モード 着弾x,y
             target_graph_initialize();
+            impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア
             sprintf(tmp_string, "            ");
             LCD_Printf(COL_V0, ROW_V0, tmp_string, 2, BLACK, 1);
             sprintf(tmp_string, "            ");

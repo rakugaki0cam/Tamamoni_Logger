@@ -26,5 +26,7 @@ void    target_clear_screen(void);
 float   impact_plot_graph(uint16_t, float, float, bool, bool);
 void    draw_impact_point(int16_t, int16_t, uint8_t);
 void    target_lcd_clear_command(void);
+void    target_lcd_default_command(void);
+
 
 #endif //TARGET_GRAPH_H
