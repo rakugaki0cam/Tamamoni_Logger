@@ -200,6 +200,8 @@
  * 2023.03.18   ver.9.10    ターゲット設定メニューを追加
  * 2023.03.22   ver.9.11    ターゲットメニューにキャンセル追加。リターン時はセットしてから->セット&リターンボタンに変更
  * 2023.03.25   ver.9.12    ターゲット有線接続時のprintf整理
+ * 2023.04.15   ver.9.13    ターゲットCtoC集計n=49発まで　-> 80発　エラー表示。  memory Data 89->91%
+ * 
  * 
  * 
  * 
@@ -239,7 +241,7 @@ __EEPROM_DATA (0x01, 0x02, 0xfa, 0x00, 0x07, 0xc3, 0x00, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.12"; 
+const char  version[] = "9.13"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ

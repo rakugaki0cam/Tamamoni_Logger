@@ -169,7 +169,7 @@ float impact_plot_graph(uint16_t shot, float x0, float y0, bool redraw, bool res
     //戻り値:CtoC[mm]
     //      n:num CtoCのサンプル数　ポインタにて受け渡し
     
-#define NUM_BUFFER  50
+#define NUM_BUFFER  81
    
     static uint16_t shot_buf[NUM_BUFFER];
     static int16_t  x_buf[NUM_BUFFER], y_buf[NUM_BUFFER];   //x100値
@@ -230,7 +230,10 @@ float impact_plot_graph(uint16_t shot, float x0, float y0, bool redraw, bool res
         //データ数を進める
         num++;
         if (num >= NUM_BUFFER){
-            num = NUM_BUFFER - 1;    //データ数は上限で止まる。
+            num = NUM_BUFFER - 1;   //データ数は上限で止まる。
+            //エラー表示
+            sprintf(tmp_string, "CtoC memory FULL!   ");
+            LCD_Printf(COL_WARNING, ROW_WARNING1, tmp_string, 1, PINK, 1);
         }
         
     }else {
