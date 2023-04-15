@@ -446,12 +446,13 @@ void target_menu(void) {
     //ボタン名称
     typedef enum {
         IDLE,
-        OFFSET,
         OFFSET_SET,        
-        AIMPOINT,
         AIM_SET,        
+        OFFSET,
+        AIMPOINT,
         BRIGHTNESS,
         RETURN,
+        CANCEL,
         SET_TIME,
         UP,
         DOWN,
@@ -466,12 +467,13 @@ void target_menu(void) {
     const uint16_t button_target[BUTTON_TARGET_LEN][4] = {
       //{ 　　x0,  　y0, 　横幅, 高さ}, 
         {   240,   320,     0,   0},    //dummy
-        {10*B2X, 2*B2Y, 3*B2X, B2Y},    //offset y
         {17*B2X, 2*B2Y, 3*B2X, B2Y},    //offset set
-        {10*B2X, 4*B2Y, 3*B2X, B2Y},    //aimpoint
         {17*B2X, 4*B2Y, 3*B2X, B2Y},    //aimpoint set
+        {10*B2X, 2*B2Y, 3*B2X, B2Y},    //offset y
+        {10*B2X, 4*B2Y, 3*B2X, B2Y},    //aimpoint
         {12*B2X, 6*B2Y, 3*B2X, B2Y},    //brightness
-        {13*B2X,14*B2Y, 6*B2X, B2Y},    //return
+        { 9*B2X, 8*B2Y,10*B2X, B2Y},    //set&return
+        {13*B2X,13*B2Y, 6*B2X, B2Y},    //cansel
         {13*B2X,17*B2Y, 7*B2X, B2Y},    //set time
         //ボタン高さ2
         { 7*B2X,11*B2Y, 3*B2X, B2Y*2},  //up  
@@ -483,12 +485,13 @@ void target_menu(void) {
     //ボタンの表示テキスト 12文字まで
     const char bu_text_target[BUTTON_TARGET_LEN][13] = {
         "",             //dummy
-        "   mm",
         "SET",
-        "   mm",
         "SET",
+        "    mm",
+        "    mm",
         "",
-        "RETURN",
+        "SET&RETURN",
+        "CANCEL",
         "setTIME",
         //中間高さに表示
         {0x20, 0x80, 0x00},     //↑
@@ -498,9 +501,7 @@ void target_menu(void) {
     };
 
     button_target_t  bnum;
-    button_target_t  bsel = RETURN;  //選択中のボタン
-    uint8_t         touch_cnt = 0;  //タッチが連続しているカウント
-    uint16_t        plus_val = 1;   //数値変化分
+    button_target_t  bsel = CANCEL;  //初期選択ボタン
     uint8_t         i;
     uint16_t        by;
     static int8_t   offset_y = -15;  //target側の初期値にあわせないといけない
@@ -509,7 +510,9 @@ void target_menu(void) {
     const  uint8_t  com_offset[] = "OFFSET";
     const  uint8_t  com_aimpoint[] = "AIMPOINT";
     const  uint8_t  com_bright[] = "BRIGHT";
-
+    int8_t          offset_tmp = offset_y;
+    int8_t          aim_tmp = aim_y;
+    
 #define OFFSET_MIN      -40
 #define OFFSET_MAX      35
 #define AIMPOINT_MIN    30
@@ -595,8 +598,8 @@ void target_menu(void) {
                     //項目間の移動　下へ
                     button_select_disp(bsel, 0, button_target, NUM_BUTTON_TARGET);
                     bsel++;
-                    if(bsel > RETURN){
-                        bsel = RETURN;
+                    if(bsel > CANCEL){
+                        bsel = CANCEL;
                     }
                     button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
                     __delay_ms(300);
@@ -605,18 +608,18 @@ void target_menu(void) {
                 case PLUS:
                     switch(bsel){
                         case OFFSET:
-                            offset_y += 5;
-                            if (offset_y > OFFSET_MAX){
-                                offset_y = OFFSET_MAX;
+                            offset_tmp += 5;
+                            if (offset_tmp > OFFSET_MAX){
+                                offset_tmp = OFFSET_MAX;
                             }
-                            sprintf(tmp_string, "%3d", offset_y);
+                            sprintf(tmp_string, "%3d", offset_tmp);
                             break;
                         case AIMPOINT:
-                            aim_y++;
-                            if (aim_y > AIMPOINT_MAX){
-                                aim_y = AIMPOINT_MAX;
+                            aim_tmp++;
+                            if (aim_tmp > AIMPOINT_MAX){
+                                aim_tmp = AIMPOINT_MAX;
                             }
-                            sprintf(tmp_string, "%3d", aim_y);
+                            sprintf(tmp_string, "%3d", aim_tmp);
                             break;
                         case BRIGHTNESS:
                             bright += 10;
@@ -641,18 +644,18 @@ void target_menu(void) {
                 case MINUS:
                     switch(bsel){
                         case OFFSET:
-                            offset_y -= 5;
-                            if (offset_y < OFFSET_MIN){
-                                offset_y = OFFSET_MIN;
+                            offset_tmp -= 5;
+                            if (offset_tmp < OFFSET_MIN){
+                                offset_tmp = OFFSET_MIN;
                             }
-                            sprintf(tmp_string, "%3d", offset_y);
+                            sprintf(tmp_string, "%3d", offset_tmp);
                             break;
                         case AIMPOINT:
-                            aim_y--;
-                            if (aim_y < DIST_MM_MIN){
-                                aim_y = DIST_MM_MIN;
+                            aim_tmp--;
+                            if (aim_tmp < DIST_MM_MIN){
+                                aim_tmp = DIST_MM_MIN;
                             }
-                            sprintf(tmp_string, "%3d", aim_y);
+                            sprintf(tmp_string, "%3d", aim_tmp);
                             break;
                         case BRIGHTNESS:
                             bright -= 10;
@@ -674,6 +677,7 @@ void target_menu(void) {
                     break;
                 case OFFSET_SET:
                     button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    offset_y = offset_tmp;
                     //電子ターゲットにコマンドを送る
                     command_uart_send((uint8_t*)com_offset, (float)offset_y);
                     impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア                 
@@ -681,6 +685,7 @@ void target_menu(void) {
                     break;
                 case AIM_SET:
                     button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    aim_y = aim_tmp;
                     //電子ターゲットにコマンドを送る
                     command_uart_send((uint8_t*)com_aimpoint, (float)aim_y);
                     impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア
@@ -688,7 +693,18 @@ void target_menu(void) {
                     break;
                 case RETURN:
                     button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
-                    __delay_ms(100);
+                    offset_y = offset_tmp;
+                    aim_y = aim_tmp;
+                    //電子ターゲットにコマンドを送る
+                    command_uart_send((uint8_t*)com_offset, (float)offset_y);
+                    command_uart_send((uint8_t*)com_aimpoint, (float)aim_y);
+                    impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア
+                    __delay_ms(500);
+                    return;                 //menuを抜ける
+                    break;
+                case CANCEL:
+                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    __delay_ms(300);
                     return;                 //menuを抜ける
                     break;
                 case SET_TIME:
@@ -706,9 +722,6 @@ void target_menu(void) {
         sprintf(tmp_string, "bu.sel = %2d", bsel);
         LCD_Printf(COL_BUTTON_SEL, ROW_BUTTON_SEL, tmp_string, 1, RED, 1);
 #endif
-        }else{
-            touch_cnt = 0;     //連続タッチ終わり
-            plus_val = 1;
         }   //if
 
     }   //while

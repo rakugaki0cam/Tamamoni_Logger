@@ -176,7 +176,9 @@ void    rx_buffer_clear(void){
     //esp32 115200bps
 #ifdef  WIFI_ONLY_DEBUG
     if(UART2_is_rx_ready()){
-        printf("\n--Rx buffer clear---\n");
+        if (ESP_NOW == target_com_path){
+            printf("\n--Rx buffer clear---\n"); //LANケーブル接続時は表示しない
+        }
         i = 0;
         while(UART2_is_rx_ready()){
             skip_mes = UART2_Read();    //捨て読み
@@ -190,15 +192,15 @@ void    rx_buffer_clear(void){
             }
         }
         if (ESP_NOW == target_com_path){
-            printf("\n--------------------\n");
+            printf("\n--------------------\n"); //LANケーブル接続時は表示しない
         }
     }
 #else
     i = 0;
     while(UART2_is_rx_ready()){
-        skip_mes = UART2_Read();    //捨て読み
+        UART2_Read();    //捨て読み
         i++;
-        if (i > 64){
+        if (i > 250){
             //timeout;
             break;
         }
@@ -208,7 +210,9 @@ void    rx_buffer_clear(void){
     
     //rs485 9600bps
     if (UART4_is_rx_ready()){
-        printf("--LAN buffer clear--\n\n");
+        if (ESP_NOW == target_com_path){
+            printf("--LAN buffer clear--\n\n"); //LANケーブル接続時は表示しない
+        }
     }
     i = 0;
     while(UART4_is_rx_ready()){
