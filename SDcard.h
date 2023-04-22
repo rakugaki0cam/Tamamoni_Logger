@@ -40,6 +40,7 @@ enum data_csv_item                      //CSVデータの項目並び
     V0,
     VE,
     IMPACT_TIME,
+    TARGET_AIM_H,       //ターゲット狙点高さ
     TARGET_X,
     TARGET_Y,
     TARGET_CTC,

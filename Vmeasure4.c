@@ -1171,11 +1171,12 @@ void print_target_xy(uint8_t color){
 
 void    print_target_ctc(float ctc, uint16_t num, uint8_t color){
     //最大着弾点間隔 mmとサンプル数　を表示
+    
+    sprintf(&bullet_CSVdata[TARGET_CTC][0], "        ");  //バッファをクリア データ数2以下の時もクリア
     if (num < 2){
         //データ数2つ未満の時表示しない
         return;
     }
-    sprintf(&bullet_CSVdata[TARGET_CTC][0], "        ");  //バッファをクリア
     if (color == BLACK){
         if (ctc == 0) {
             //表示を消去しない。
@@ -1256,6 +1257,7 @@ void print_targetmode(uint8_t color){
             LCD_Printf(COL_TIME, ROW_TIME, tmp_string, 1, WHITE, 1);
             sprintf(tmp_string, "x: ---   y: ---   ");
             LCD_Printf(COL_TARGET, ROW_TARGET, tmp_string, 1, AQUA, 1);
+            target_set_up_command();
             break;
             
         case TARGET_ONLY_MODE:  //1000* 初速無し電子ターゲットのみ　着弾位置表示モード 着弾x,y
@@ -1269,6 +1271,7 @@ void print_targetmode(uint8_t color){
             LCD_Printf(COL_TIME, ROW_TIME, tmp_string, 1, BLACK, 1);
             sprintf(tmp_string, "x: ---   y: ---   ");
             LCD_Printf(COL_TARGET, ROW_TARGET, tmp_string, 1, AQUA, 1);
+            target_set_up_command();
             break;
             
         default:

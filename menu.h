@@ -16,10 +16,11 @@ extern  int16_t     bbmass_g;
 
 
 void    setup_menu(void);
-void    menu_clear_screen(void);
 void    touch_menu(void);
 void    target_menu(void);
 //
+void    target_set_up_command(void);
+void    menu_clear_screen(void);
 void    set_setup(void);
 void    read_rom_setup(void);
 void    write_rom_setup(void);

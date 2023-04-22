@@ -99,9 +99,10 @@ uint8_t shotheader_sd_write(void){
     sprintf(tmp_string, "\n%s,%s\n", bullet_CSVdata[DATE], bullet_CSVdata[TIME]);
     SDcard_write();
     
-    sprintf(tmp_string, "shot#,date      ,time    ,temp   ,humi   ,baropres,distance,gun type    ,v0device,BB    ,BBtype      ,extract,v0time ,v0       ,ve       ,imp time    ,target x,target y,C to C  ,tilt     ,elevation,mode      ,status          \n");
+    sprintf(tmp_string, "shot#,date      ,time    ,temp   ,humi   ,baropres,distance,gun type    ,v0device,BB    ,BBtype      ,extract,v0time ,v0       ,ve       ,imp time    ,aim h,target x,target y,C to C  ,tilt     ,elevation,mode      ,status          \n");
     SDcard_write();
-    sprintf(tmp_string, "     ,          ,        ,degC   ,%%RH    ,hPa     ,m       ,            ,        ,g     ,            ,gf     ,usec   ,m/sec    ,m/sec    ,msec        ,mm      ,mm      ,mm      ,deg      ,deg      ,          ,                \n");
+    sprintf(tmp_string, "     ,          ,        ,degC   ,%%RH    ,hPa     ,m      ,             ,        ,g     ,            ,gf     ,usec   ,m/sec    ,m/sec    ,msec        ,mm   ,mm      ,mm      ,mm      ,deg      ,deg      ,          ,                \n");
+    //                                                     %‚Ì‚¹‚¢‚Å1•¶Žš‚¸‚ê‚ÄŒ©‚¦‚Ä‚¢‚é
     SDcard_write();
     SDcard_close();
     return ans;
@@ -126,7 +127,7 @@ uint8_t shot_log_sd_write(void){
         return ans;
     }
     sprintf(tmp_string, 
-        "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+        "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
         bullet_CSVdata[SHOT],
         bullet_CSVdata[DATE],
         bullet_CSVdata[TIME],
@@ -143,6 +144,7 @@ uint8_t shot_log_sd_write(void){
         bullet_CSVdata[V0],
         bullet_CSVdata[VE],
         bullet_CSVdata[IMPACT_TIME],
+        bullet_CSVdata[TARGET_AIM_H],
         bullet_CSVdata[TARGET_X],
         bullet_CSVdata[TARGET_Y],            
         bullet_CSVdata[TARGET_CTC],            

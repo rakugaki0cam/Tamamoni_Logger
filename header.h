@@ -74,7 +74,10 @@ typedef enum {
     GUN_NUM_ADDRESS     = 9,
     BB_G_ADDRESS,               //2bytes 10,11
     BB_NUM_ADDRESS      = 12,
-    NUKIDAN_ADDRESS,            //2bytes 13,14       
+    NUKIDAN_ADDRESS,            //2bytes 13,14
+    TARGET_OFFSET_Y     = 15,
+    TARGET_AIM_Y,
+    TARGET_BRIGHT,              //2byte 17,18
 } eeprom_address_t;
 
 //ÉOÉçÅ[ÉoÉãïœêî

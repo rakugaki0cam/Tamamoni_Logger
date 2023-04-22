@@ -201,8 +201,8 @@
  * 2023.03.22   ver.9.11    ターゲットメニューにキャンセル追加。リターン時はセットしてから->セット&リターンボタンに変更
  * 2023.03.25   ver.9.12    ターゲット有線接続時のprintf整理
  * 2023.04.15   ver.9.13    ターゲットCtoC集計n=49発まで　-> 80発　エラー表示。  memory Data 89->91%
- * 
- * 
+ * 2023.04.22   ver.9.14    ターゲットクリア後のCtoCログ値が前回の値になっているのを修正
+ * 2023.04.23   ver.9.15    ターゲット設定値をEEPROMへ保存し、起動時反映。ログに狙点高さを追加
  * 
  * 
  *  ////モーションセンサーの発射時のタイミングログ取得にSMT1のタイマーを使っているけれど、着弾してしまうとタイマーが止まってしまう可能性がある。別タイマーにするか???
@@ -222,6 +222,8 @@
  *  WiFiペアリングされている時に、電子ターゲット側のESP32にプログラムを書き込むとタマモニがフリーズする?????
  * ターゲットデバイスに変化があった時に着玉データが残ることがある。着玉データのクリアのタイミング?
  * 
+ * command_uart_send() target_set_up_command() この辺整理してtarget_graph.cへ
+ * 
  * 
  * 
  * 
@@ -230,8 +232,10 @@
 
 __EEPROM_DATA (0x00, 0x23, 0x01, 0x01, 0x41, 0x00, 0x07, 0xf4); //eeprom_address_t
 //              v0    Y     M     D     suf   out   m     mmL
-__EEPROM_DATA (0x01, 0x02, 0xfa, 0x00, 0x07, 0xc3, 0x00, 0xff); 
-//              mmU   gun   bbL   bbU   BB    nuL   nuU
+__EEPROM_DATA (0x01, 0x02, 0xfa, 0x00, 0x07, 0xc3, 0x00, 0xf1); 
+//              mmU   gun   bbL   bbU   BB    nuL   nuU   osY
+__EEPROM_DATA (0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff); 
+//              aiY   brL   brU
 //Picketの設定でpreserveにチェックするとプログラム書き込み時に書き換えられない
 
 
@@ -241,7 +245,7 @@ __EEPROM_DATA (0x01, 0x02, 0xfa, 0x00, 0x07, 0xc3, 0x00, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.13"; 
+const char  version[] = "9.15"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ
@@ -391,7 +395,8 @@ void main(void)
     LCD_Title_Clear();              //タイトル終了
     
     sensor_connect_check();         //マト側機器の接続チェックー測定モードの表示切り替え
-    target_lcd_default_command();   //電子ターゲットにデフォルトセットコマンドを送る
+    //target_lcd_default_command();   //電子ターゲットにデフォルトセットコマンドを送る
+    target_set_up_command();
     vmeasure_ready();
     
     //***** MAIN LOOP **********************************************************

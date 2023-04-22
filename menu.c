@@ -90,14 +90,23 @@ const char bu_text_setup[BUTTON_SETUP_LEN][11] = {
 //前回値をeepromから読み込み
 //global
 int16_t     bbmass_g = 250;     //x1000値 mg    0x00fa
+
 //local
 int8_t      dist_m = 7;         //m +   0x07
 int16_t     dist_mm = 500;      //mm    0x01f4
 uint8_t     gun_num = 2;        //      0x02
 uint8_t     bb_num = 7;         //      0x07
 int16_t     f_extract = 195;    //gf    0x00c3
+//target
+int8_t      offset_h = -15;  //target側の初期値にあわせないといけない
+int8_t      aim_h = 74;
+int16_t     bright = 90;
+//target command
+const  uint8_t  com_offset[] = "OFFSET";
+const  uint8_t  com_aimpoint[] = "AIMPOINT";
+const  uint8_t  com_bright[] = "BRIGHT";
 
-
+//setting
 #define DIST_M_MIN  0
 #define DIST_M_MAX  99
 #define DIST_MM_MIN 0
@@ -106,6 +115,14 @@ int16_t     f_extract = 195;    //gf    0x00c3
 #define BB_G_MAX    500
 #define EXT_F_MIN   0
 #define EXT_F_MAX   600
+//target
+#define OFFSET_MIN      -40
+#define OFFSET_MAX      35
+#define AIMPOINT_MIN    30
+#define AIMPOINT_MAX    120
+#define BRIGHTNESS_MIN  0
+#define BRIGHTNESS_MAX  250
+
 
 #define AIR_GUN_NUM     14
 char air_gun_text[AIR_GUN_NUM][13] = { //max12文字+1stopcode
@@ -409,7 +426,6 @@ void touch_menu(void) {
                     write_rom_setup();
                     __delay_ms(100);
                     target_menu();
-                    //RTC8900_time_set();     //時計合わせ
                     return;                 //menuを抜ける
                     break;
                 case POWEROFF:
@@ -438,6 +454,7 @@ void touch_menu(void) {
 
 void target_menu(void) {
     //ターゲットの設定メニュー
+    
 //impact_plot_graph呼出時の引数
 #define DUMMY       0 
 #define REDRAW_NONE 0
@@ -451,7 +468,7 @@ void target_menu(void) {
         OFFSET,
         AIMPOINT,
         BRIGHTNESS,
-        RETURN,
+        SET_RETURN,
         CANCEL,
         SET_TIME,
         UP,
@@ -500,26 +517,14 @@ void target_menu(void) {
         " - ",
     };
 
-    button_target_t  bnum;
-    button_target_t  bsel = CANCEL;  //初期選択ボタン
+    button_target_t but_num;
+    button_target_t but_sel = CANCEL;  //初期選択ボタン
+    uint16_t        but_y;
     uint8_t         i;
-    uint16_t        by;
-    static int8_t   offset_y = -15;  //target側の初期値にあわせないといけない
-    static int8_t   aim_y = 74;
-    static int16_t  bright = 90;
-    const  uint8_t  com_offset[] = "OFFSET";
-    const  uint8_t  com_aimpoint[] = "AIMPOINT";
-    const  uint8_t  com_bright[] = "BRIGHT";
-    int8_t          offset_tmp = offset_y;
-    int8_t          aim_tmp = aim_y;
-    
-#define OFFSET_MIN      -40
-#define OFFSET_MAX      35
-#define AIMPOINT_MIN    30
-#define AIMPOINT_MAX    120
-#define BRIGHTNESS_MIN  0
-#define BRIGHTNESS_MAX  250
+    int8_t          offset_tmp;     //ボタン操作中の値
+    int8_t          aim_tmp;        //ボタン操作中の値
 
+    
     menu_clear_screen();
     sprintf(tmp_string, "-- TARGET CONFIG ---");
     LCD_Printf( 0*B2X, 0*B2Y, tmp_string, 2, YELLOW, 1);
@@ -533,24 +538,27 @@ void target_menu(void) {
     //ボタンの文字を表示
     for(i = 1; i < NUM_BUTTON_TARGET; i++){
         sprintf(tmp_string, "%s", bu_text_target[i]);
-        by = button_target[i][1];
+        but_y = button_target[i][1];
         if (button_target[i][3] == B2Y*2){
             //ボタンの文字をボタンの中間高さ位置に表示
-            by += B1Y;
+            but_y += B1Y;
         }
-        LCD_Printf(button_target[i][0], by, tmp_string, 2, YELLOW, 1);
+        LCD_Printf(button_target[i][0], but_y, tmp_string, 2, YELLOW, 1);
     }
     //設定値を表示
-    sprintf(tmp_string, "%3d", offset_y);
+    sprintf(tmp_string, "%3d", offset_h);
     LCD_Printf(10*B2X, 2*B2Y, tmp_string, 2, WHITE, 1);
-    sprintf(tmp_string, "%3d", aim_y);
+    sprintf(tmp_string, "%3d", aim_h);
     LCD_Printf(10*B2X, 4*B2Y, tmp_string, 2, WHITE, 1);
     sprintf(tmp_string, "%3d", bright);
     LCD_Printf(12*B2X, 6*B2Y, tmp_string, 2, WHITE, 1);
     //ボタンを表示
     button_init(button_target, NUM_BUTTON_TARGET);
-    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);   //最初のボタンセレクトの表示
-
+    button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);   //最初のボタンセレクトの表示
+    //
+    offset_tmp = offset_h;
+    aim_tmp = aim_h;
+    
     while(1){
         if (sw1_int_flag == 1){
             power_switch();         //ちょん押しでリターン、長押しでパワーオフ
@@ -566,9 +574,9 @@ void target_menu(void) {
 
         if (TOUCH_INT_PORT == 0){
             //タッチあり          
-            bnum = button_number(button_target, NUM_BUTTON_TARGET);
+            but_num = button_number(button_target, NUM_BUTTON_TARGET);
                     
-            switch(bnum){
+            switch(but_num){
                 case IDLE:
                     //idle
                     break;
@@ -576,37 +584,37 @@ void target_menu(void) {
                 case AIMPOINT:
                 case BRIGHTNESS:
                     //前回の位置を消去(枠グレイ表示)
-                    button_select_disp(bsel, 0, button_target, NUM_BUTTON_TARGET);
-                    bsel = bnum;
+                    button_select_disp(but_sel, 0, button_target, NUM_BUTTON_TARGET);
+                    but_sel = but_num;
                     //ボタン選択表示(黄色)
-                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);
                     __delay_ms(300);
                     break;
                     
                 case UP:
                     //項目間の移動　上へ
-                    button_select_disp(bsel, 0, button_target, NUM_BUTTON_TARGET);
-                    bsel--;
-                    if(bsel < OFFSET){
-                        bsel = OFFSET;
+                    button_select_disp(but_sel, 0, button_target, NUM_BUTTON_TARGET);
+                    but_sel--;
+                    if(but_sel < OFFSET){
+                        but_sel = OFFSET;
                     }
-                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);
                     __delay_ms(300);
                     break;
                     
                 case DOWN:
                     //項目間の移動　下へ
-                    button_select_disp(bsel, 0, button_target, NUM_BUTTON_TARGET);
-                    bsel++;
-                    if(bsel > CANCEL){
-                        bsel = CANCEL;
+                    button_select_disp(but_sel, 0, button_target, NUM_BUTTON_TARGET);
+                    but_sel++;
+                    if(but_sel > CANCEL){
+                        but_sel = CANCEL;
                     }
-                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
+                    button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);
                     __delay_ms(300);
                     break;
                     
                 case PLUS:
-                    switch(bsel){
+                    switch(but_sel){
                         case OFFSET:
                             offset_tmp += 5;
                             if (offset_tmp > OFFSET_MAX){
@@ -636,13 +644,13 @@ void target_menu(void) {
                             break;
                     }
                     //ボタン内テキスト再描画
-                    LCD_Printf(button_target[bsel][0], button_target[bsel][1], tmp_string, 2, WHITE, 1);
+                    LCD_Printf(button_target[but_sel][0], button_target[but_sel][1], tmp_string, 2, WHITE, 1);
                     __delay_ms(60);
                     
                     break;
                     
                 case MINUS:
-                    switch(bsel){
+                    switch(but_sel){
                         case OFFSET:
                             offset_tmp -= 5;
                             if (offset_tmp < OFFSET_MIN){
@@ -672,59 +680,77 @@ void target_menu(void) {
                             break;
                     }
                     //ボタン内テキスト再描画
-                    LCD_Printf(button_target[bsel][0], button_target[bsel][1], tmp_string, 2, WHITE, 1);
+                    LCD_Printf(button_target[but_sel][0], button_target[but_sel][1], tmp_string, 2, WHITE, 1);
                     __delay_ms(60);
                     break;
+                    
                 case OFFSET_SET:
-                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
-                    offset_y = offset_tmp;
+                    button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);
+                    offset_h = offset_tmp;
                     //電子ターゲットにコマンドを送る
-                    command_uart_send((uint8_t*)com_offset, (float)offset_y);
-                    impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア                 
+                    command_uart_send((uint8_t*)com_offset, (float)offset_h);
+                    impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア 
                     __delay_ms(500);
+                    write_rom_setup();
                     break;
+                    
                 case AIM_SET:
-                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
-                    aim_y = aim_tmp;
+                    button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);
+                    aim_h = aim_tmp;
                     //電子ターゲットにコマンドを送る
-                    command_uart_send((uint8_t*)com_aimpoint, (float)aim_y);
+                    command_uart_send((uint8_t*)com_aimpoint, (float)aim_h);
                     impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア
                     __delay_ms(500);
+                    write_rom_setup();
                     break;
-                case RETURN:
-                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
-                    offset_y = offset_tmp;
-                    aim_y = aim_tmp;
+                    
+                case SET_RETURN:
+                    button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);
+                    offset_h = offset_tmp;
+                    aim_h = aim_tmp;
                     //電子ターゲットにコマンドを送る
-                    command_uart_send((uint8_t*)com_offset, (float)offset_y);
-                    command_uart_send((uint8_t*)com_aimpoint, (float)aim_y);
+                    command_uart_send((uint8_t*)com_offset, (float)offset_h);
+                    command_uart_send((uint8_t*)com_aimpoint, (float)aim_h);
                     impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア
                     __delay_ms(500);
+                    write_rom_setup();
                     return;                 //menuを抜ける
                     break;
+                    
                 case CANCEL:
-                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
-                    __delay_ms(300);
+                    button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);
+                    __delay_ms(500);
                     return;                 //menuを抜ける
                     break;
+                    
                 case SET_TIME:
-                    button_select_disp(bsel, 1, button_target, NUM_BUTTON_TARGET);
-                    __delay_ms(100);
+                    button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);
+                    __delay_ms(500);
                     RTC8900_time_set();     //時計合わせ
                     return;                 //menuを抜ける
                     break;
+                    
                 default:
                     break;
             }
         
 #if DEBUG_BUTTON == 1
         //button select
-        sprintf(tmp_string, "bu.sel = %2d", bsel);
+        sprintf(tmp_string, "bu.sel = %2d", but_sel);
         LCD_Printf(COL_BUTTON_SEL, ROW_BUTTON_SEL, tmp_string, 1, RED, 1);
 #endif
         }   //if
 
     }   //while
+}
+
+
+void    target_set_up_command(void){
+    //ターゲットへコマンドを送り初期化
+    command_uart_send((uint8_t*)com_offset, (float)offset_h);
+    command_uart_send((uint8_t*)com_aimpoint, (float)aim_h);
+    command_uart_send((uint8_t*)com_bright, (float)bright);
+    target_lcd_clear_command();
 }
 
 
@@ -736,13 +762,15 @@ void    menu_clear_screen(void){
 
 
 void    set_setup(void){
-    //マト距離とエアソフトガンの種類とBB弾の種類のセット
-    sprintf(&bullet_CSVdata[DISTANCE][0], "%8.3f", (float)dist_mm / 1000 + dist_m);
-    sprintf(&bullet_CSVdata[AIRSOFT_TYPE][0], "%s", air_gun_text[gun_num]);     //12文字
-    sprintf(&bullet_CSVdata[BB_MASS][0], "%6.3f", (float)bbmass_g / 1000);
-    sprintf(&bullet_CSVdata[BB_TYPE][0], "%s", bb_type_text[bb_num]);           //12文字
-    sprintf(&bullet_CSVdata[F_EXTRACT][0], "%7d", f_extract);
+    //マト距離とエアソフトガンの種類とBB弾の種類のログデータへのセット
     
+    sprintf(&bullet_CSVdata[DISTANCE][0],     "%8.3f", (float)dist_mm / 1000 + dist_m);
+    sprintf(&bullet_CSVdata[AIRSOFT_TYPE][0], "%s",    air_gun_text[gun_num]);     //12文字
+    sprintf(&bullet_CSVdata[BB_MASS][0],      "%6.3f", (float)bbmass_g / 1000);
+    sprintf(&bullet_CSVdata[BB_TYPE][0],      "%s",    bb_type_text[bb_num]);           //12文字
+    sprintf(&bullet_CSVdata[F_EXTRACT][0],    "%7d",   f_extract);
+    sprintf(&bullet_CSVdata[TARGET_AIM_H][0], "%5d",   aim_h);
+
 }
 
 
@@ -775,7 +803,22 @@ void    read_rom_setup(void){
     f_extract += DATAEE_ReadByte(NUKIDAN_ADDRESS+1) << 8;
     if ((f_extract < EXT_F_MIN) || (f_extract > EXT_F_MAX)){
         f_extract = 150;
-    }    
+    }
+    
+    //target
+    offset_h = (int8_t)DATAEE_ReadByte(TARGET_OFFSET_Y);
+    if ((offset_h < OFFSET_MIN) || (offset_h > OFFSET_MAX)){
+        offset_h = 0;
+    }
+    aim_h = (int8_t)DATAEE_ReadByte(TARGET_AIM_Y);
+    if ((aim_h < AIMPOINT_MIN) || (aim_h > AIMPOINT_MAX)){
+        aim_h = 60;
+    }  
+    bright = (int16_t)DATAEE_ReadByte(TARGET_BRIGHT);
+    bright += (int16_t)DATAEE_ReadByte(TARGET_BRIGHT+1) << 8;
+    if ((bright < BRIGHTNESS_MIN) || (bright > BRIGHTNESS_MAX)){
+        bright = 90;
+    }  
     
     set_setup();
 }
@@ -799,5 +842,11 @@ void    write_rom_setup(void){
     DATAEE_WriteByte(NUKIDAN_ADDRESS, (uint8_t)f_extract);
     DATAEE_WriteByte(NUKIDAN_ADDRESS+1, (uint8_t)(f_extract >> 8));
     
+    //target
+    DATAEE_WriteByte(TARGET_OFFSET_Y, (uint8_t)offset_h);
+    DATAEE_WriteByte(TARGET_AIM_Y, (uint8_t)aim_h);
+    DATAEE_WriteByte(TARGET_BRIGHT, (uint8_t)bright);
+    DATAEE_WriteByte(TARGET_BRIGHT+1, (uint8_t)(bright >> 8));
+        
     set_setup();
 }
