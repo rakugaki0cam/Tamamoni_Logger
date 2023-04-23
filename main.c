@@ -396,7 +396,7 @@ void main(void)
     
     sensor_connect_check();         //マト側機器の接続チェックー測定モードの表示切り替え
     //target_lcd_default_command();   //電子ターゲットにデフォルトセットコマンドを送る
-    target_set_up_command();
+    //target_set_up_command();
     vmeasure_ready();
     
     //***** MAIN LOOP **********************************************************
