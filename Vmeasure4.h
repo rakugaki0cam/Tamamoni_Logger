@@ -3,7 +3,8 @@
  * 
  * 
  *  2022.04.24  V7 Vmeasure2.h‚æ‚èˆÚA
- *
+ * 
+ *  2023.06.26  TMR1,TMR2 prescaler 1:1 -> 1:2 ’á‘¬‘Î‰ž
  * 
  */
 
@@ -12,9 +13,9 @@
 
 
 //constant value
-#define     TIME_CONV_SMT1      1 / _XTAL_FREQ * 4  //usec/1bit 64MHz/4
-#define     TIME_CONV_TMR1      1 / _XTAL_FREQ * 4  //usec/1bit 64MHz/4
-#define     TIME_CONV_TMR3      1 / _XTAL_FREQ * 4  //usec/1bit 64MHz/4
+#define     TIME_CONV_SMT1      1 / _XTAL_FREQ * 4  //usec/1bit 64MHz/4 
+#define     TIME_CONV_TMR1      1 / _XTAL_FREQ * 4 * 2 //usec/1bit 64MHz/4 prescaler1:2
+#define     TIME_CONV_TMR3      1 / _XTAL_FREQ * 4 * 2 //usec/1bit 64MHz/4 prescaler1:2
 
 
 //GLOBAL

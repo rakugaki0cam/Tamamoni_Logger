@@ -103,8 +103,8 @@ void TMR1_Initialize(void)
     // Set Default Gated Interrupt Handler
     TMR1_SetGateInterruptHandler(TMR1_DefaultGateInterruptHandler);
 
-    // CKPS 1:1; NOT_SYNC synchronize; TMR1ON enabled; T1RD16 enabled; 
-    T1CON = 0x03;
+    // CKPS 1:2; NOT_SYNC synchronize; TMR1ON enabled; T1RD16 enabled; 
+    T1CON = 0x13;
 }
 
 void TMR1_StartTimer(void)

@@ -29,12 +29,15 @@
  *                  rise edge to rise edge
  *                  -SMT1PRAIF割込 & SMT1CPRタイマー値
  * 
- *                  SMT1,TMR1,TMR3とも
+ *                  SMT1
  *                  FOSC/4 = 16MHz Xtal 分解能0.0625usec 
+ *                  TMR1,TMR3
+ *                  FOSC/4 = 8MHz Xtal 分解能0.125usec (2023.06.26~)
+ * 
  *                   精度+-30ppm = +-0.003%
  *                  オーバーフロー
  *                   SMT1:24bit     --- 1.048576sec　　//@30mくらいまでは対応??
- *                   TMR1,TMR3:16bit--- 0.004096sec
+ *                   TMR1,TMR3:16bit--- 0.004096sec -> 0.008192sec 低速側7.5m/secに対応(2023.06.26~)
  *
  * 
  * 
@@ -75,7 +78,7 @@
  *              WiFiのとき  通信経路 -- ESP-NOW, 着弾時間遅れにWIFI分を加算
  *              LAN線のとき         -- RS485
  *              targetmodeは同じでいきたいので、モード検出をsensor4port からCLC4OUTに変更
- * 
+ * 2023.06.26   TMR1,TMR2 prescaler 1:1 -> 1:2 低速対応
  * 
  * 
  * 

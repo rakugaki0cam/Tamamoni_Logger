@@ -103,8 +103,8 @@ void TMR3_Initialize(void)
     // Set Default Gated Interrupt Handler
     TMR3_SetGateInterruptHandler(TMR3_DefaultGateInterruptHandler);
 
-    // CKPS 1:1; NOT_SYNC synchronize; TMR3ON enabled; T3RD16 enabled; 
-    T3CON = 0x03;
+    // CKPS 1:2; NOT_SYNC synchronize; TMR3ON enabled; T3RD16 enabled; 
+    T3CON = 0x13;
 }
 
 void TMR3_StartTimer(void)
