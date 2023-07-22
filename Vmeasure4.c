@@ -79,6 +79,7 @@
  *              LAN線のとき         -- RS485
  *              targetmodeは同じでいきたいので、モード検出をsensor4port からCLC4OUTに変更
  * 2023.06.26   TMR1,TMR2 prescaler 1:1 -> 1:2 低速対応
+ * 2023.07.22   着弾表示時のオフセット値が有線接続時には反映されていなかったので修正。
  * 
  * 
  * 
@@ -680,6 +681,8 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].impact_offset_usec = rx_data_f[2];
                 if (ESP_NOW == target_com_path){
                     shot_data[shot_buf_pointer].impact_offset_usec += WIFI_DELAY_USEC;      //WiFi無線の遅延時間を加算(オフセット遅延はマイナス値)
+                }else {
+                    shot_data[shot_buf_pointer].impact_y -= target_offset_h();              //有線接続時にはオフセット値の補正が必要(ターゲットPIC32は知らない値)
                 }
                 shot_data[shot_buf_pointer].status = DATA_RECIEVED;
                 rx_buffer_clear();

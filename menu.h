@@ -25,5 +25,7 @@ void    set_setup(void);
 void    read_rom_setup(void);
 void    write_rom_setup(void);
 
+int8_t  target_offset_h(void);
+    
 #endif	/* MENU_H */
 
