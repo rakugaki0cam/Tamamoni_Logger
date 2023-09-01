@@ -89,13 +89,13 @@ const char bu_text_setup[BUTTON_SETUP_LEN][11] = {
 //手入力セットアップ値
 //前回値をeepromから読み込み
 //global
-int16_t     bbmass_g = 250;     //x1000値 mg    0x00fa
+int16_t     bbmass_g = 280;     //x1000値 mg    0x0118
 
 //local
 static int8_t      dist_m = 7;         //m +   0x07
 static int16_t     dist_mm = 500;      //mm    0x01f4
-static uint8_t     gun_num = 2;        //      0x02
-static uint8_t     bb_num = 7;         //      0x07
+static uint8_t     gun_num = 3;        //      0x03
+static uint8_t     bb_num = 1;         //      0x01
 static int16_t     f_extract = 195;    //gf    0x00c3
 //target
 static int8_t      offset_h = -15;  //target側の初期値にあわせないといけない
@@ -124,14 +124,15 @@ const  uint8_t  com_bright[] = "BRIGHT";
 #define BRIGHTNESS_MAX  250
 
 
-#define AIR_GUN_NUM     14
+#define AIR_GUN_NUM     15
 char air_gun_text[AIR_GUN_NUM][13] = { //max12文字+1stopcode
     "dummy       ",
     "vfc M40A3   ",
     "ares M40A6  ",
     "VSR10-G     ",
     "VSR10Gstrobe",
-    "VSR10       ",
+    "VSR10-ProSna",
+    "MagpulPro700",
     "vfc M110 GBB",
     "vfc M4A1 GBB",
     "vfc M27 GBB ",
@@ -142,7 +143,7 @@ char air_gun_text[AIR_GUN_NUM][13] = { //max12文字+1stopcode
     "others      ",
 };
 
-#define     BB_TYPE_NUM        9
+#define     BB_TYPE_NUM        8
 char bb_type_text[BB_TYPE_NUM][13] = {    //max12文字+1stopcode
     "dummy       ",
     "G&G Pla     ",
@@ -151,7 +152,6 @@ char bb_type_text[BB_TYPE_NUM][13] = {    //max12文字+1stopcode
     "BLS Pla     ",
     "BLS Bio     ",
     "NovritschBio",
-    "PM Bio      ",
     "others      ",
 };
 
@@ -218,9 +218,12 @@ void    setup_menu(void){
 void touch_menu(void) {
     //タッチメニュー
     button_setup_t  bnum;
-    button_setup_t  bsel = RETURN;  //選択中のボタン
-    uint8_t         touch_cnt = 0;  //タッチが連続しているカウント
-    uint16_t        plus_val = 1;   //数値変化分
+    button_setup_t  bsel = RETURN;      //選択中のボタン
+    uint8_t         touch_cnt = 0;      //タッチが連続しているカウント
+    uint16_t        notouch_cnt = 0;    //タッチしていないカウント
+    uint16_t        plus_val = 1;       //数値変化分
+    uint8_t         color_val = WHITE;  //数値の表示色
+    volatile char   string_val[16];     //メニュー数値書き込み&前回値保持
     
     button_select_disp(bsel, 1, button_setup, NUM_BUTTON_SETUP);   //最初のボタンセレクトの表示
 
@@ -241,14 +244,16 @@ void touch_menu(void) {
             //タッチあり
             if(touch_cnt == 0){
                 touch_cnt = 1;
-                plus_val = 1;/////////////////////////うまく使うと大送り後の保持に活かせるかも？たくさん行きすぎた後の修正が大変
+                //plus_val = 1;/////////////////////////うまく使うと大送り後の保持に活かせるかも？たくさん行きすぎた後の修正が大変
             }else{
                 //連続タッチ中
                 touch_cnt ++;
+                __delay_ms(50);
                 if (touch_cnt > 100){
                     touch_cnt = 100;
                 }
                 if (touch_cnt > 10){
+                    //変化ステップを増やす
                     plus_val = 10;
                 }
             }
@@ -296,50 +301,60 @@ void touch_menu(void) {
                     break;
                     
                 case PLUS:
+                    if (plus_val > 1){
+                        //プラス分が大きい時は少しゆっくりに
+                        __delay_ms(100);
+                        color_val = LEMON;
+                    }else{
+                        color_val = WHITE;
+                    }
+                    
                     switch(bsel){
                         case DIST_M:
                             dist_m += plus_val;
                             if (dist_m > DIST_M_MAX){
                                 dist_m = DIST_M_MAX;
                             }
-                            sprintf(tmp_string, "%2d", dist_m);
+                            sprintf(string_val, "%2d", dist_m);
                             break;
                         case DIST_MM:
                             dist_mm += plus_val;
                             if (dist_mm > DIST_MM_MAX){
                                 dist_mm -= (DIST_MM_MAX + 1);
                             }
-                            sprintf(tmp_string, "%03d", dist_mm);
+                            sprintf(string_val, "%03d", dist_mm);
                             break;
                         case AIRSOFT:
                             gun_num++;
+                            color_val = WHITE;
                             if (gun_num >= AIR_GUN_NUM){
                                 gun_num = 1;
                             }
-                            sprintf(tmp_string, "%s", air_gun_text[gun_num]);
-                            __delay_ms(200);
+                            sprintf(string_val, "%s", air_gun_text[gun_num]);
+                            __delay_ms(300);
                             break;    
                         case BB_G:
                             bbmass_g += plus_val;
                             if (bbmass_g > BB_G_MAX){
                                 bbmass_g = BB_G_MAX;
                             }
-                            sprintf(tmp_string, "%5.3f", (float)bbmass_g / 1000);
+                            sprintf(string_val, "%5.3f", (float)bbmass_g / 1000);
                             break;
                         case BB_NAME:
                             bb_num++;
+                            color_val = WHITE;
                             if (bb_num >= BB_TYPE_NUM){
                                 bb_num = 1;
                             }
-                            sprintf(tmp_string, "%s", bb_type_text[bb_num]);
-                            __delay_ms(200);
+                            sprintf(string_val, "%s", bb_type_text[bb_num]);
+                            __delay_ms(300);
                             break;
                         case NUKIDAN:
                             f_extract+= plus_val;
                             if (f_extract > EXT_F_MAX){
                                 f_extract = EXT_F_MAX;
                             }
-                            sprintf(tmp_string, "%3d", f_extract);
+                            sprintf(string_val, "%3d", f_extract);
                             break;
                         case RETURN:
                             button_select_disp(bsel, 1, button_setup, NUM_BUTTON_SETUP);
@@ -348,58 +363,68 @@ void touch_menu(void) {
                             return;                 //menuを抜ける
                             break;
                         default:
-                            sprintf(tmp_string, "");
+                            sprintf(string_val, "");
                             break;
                     }
                     //ボタン内テキスト再描画
-                    LCD_Printf(button_setup[bsel][0], button_setup[bsel][1], tmp_string, 2, WHITE, 1);
+                    LCD_Printf(button_setup[bsel][0], button_setup[bsel][1], string_val, 2, color_val, 1);
                     break;
                     
                 case MINUS:
+                    if (plus_val > 1){
+                        //プラス分が大きい時は少しゆっくりに
+                        __delay_ms(100);
+                        color_val = LEMON;
+                    }else{
+                        color_val = WHITE;
+                    }
+                    
                     switch(bsel){
                         case DIST_M:
                             dist_m -= plus_val;
                             if (dist_m < DIST_M_MIN){
                                 dist_m = DIST_M_MIN;
                             }
-                            sprintf(tmp_string, "%2d", dist_m);
+                            sprintf(string_val, "%2d", dist_m);
                             break;
                         case DIST_MM:
                             dist_mm -= plus_val;
                             if (dist_mm < DIST_MM_MIN){
                                 dist_mm += (DIST_MM_MAX + 1);
                             }
-                            sprintf(tmp_string, "%03d", dist_mm);
+                            sprintf(string_val, "%03d", dist_mm);
                             break;
                         case AIRSOFT:
                             gun_num--;
+                            color_val = WHITE;
                             if (gun_num < 1){
                                 gun_num = AIR_GUN_NUM - 1;
                             }
-                            sprintf(tmp_string, "%s", air_gun_text[gun_num]);
-                            __delay_ms(200);
+                            sprintf(string_val, "%s", air_gun_text[gun_num]);
+                            __delay_ms(300);
                             break;    
                         case BB_G:
                             bbmass_g -= plus_val;
                             if (bbmass_g < BB_G_MIN){
                                 bbmass_g = BB_G_MIN;
                             }
-                            sprintf(tmp_string, "%5.3f", (float)bbmass_g / 1000);
+                            sprintf(string_val, "%5.3f", (float)bbmass_g / 1000);
                             break;
                         case BB_NAME:
                             bb_num--;
+                            color_val = WHITE;
                             if (bb_num < 1){
                                 bb_num = BB_TYPE_NUM - 1;
                             }
-                            __delay_ms(200);
-                            sprintf(tmp_string, "%s", bb_type_text[bb_num]);
+                            __delay_ms(300);
+                            sprintf(string_val, "%s", bb_type_text[bb_num]);
                             break;
                         case NUKIDAN:
                             f_extract -= plus_val;
                             if (f_extract < EXT_F_MIN){
                                 f_extract = EXT_F_MIN;
                             }
-                            sprintf(tmp_string, "%3d", f_extract);
+                            sprintf(string_val, "%3d", f_extract);
                             break;
                         case RETURN:
                             button_select_disp(bsel, 1, button_setup, NUM_BUTTON_SETUP);
@@ -408,11 +433,11 @@ void touch_menu(void) {
                             return;                 //menuを抜ける
                             break;
                         default:
-                            sprintf(tmp_string, "");
+                            sprintf(string_val, "");
                             break;
                     }
                     //ボタン内テキスト再描画
-                    LCD_Printf(button_setup[bsel][0], button_setup[bsel][1], tmp_string, 2, WHITE, 1);
+                    LCD_Printf(button_setup[bsel][0], button_setup[bsel][1], string_val, 2, color_val, 1);
                     break;
                     
                 case RETURN:
@@ -444,8 +469,22 @@ void touch_menu(void) {
         LCD_Printf(COL_BUTTON_SEL, ROW_BUTTON_SEL, tmp_string, 1, RED, 1);
 #endif
         }else{
-            touch_cnt = 0;     //連続タッチ終わり
-            plus_val = 1;
+            if (touch_cnt != 0){
+                notouch_cnt = 1;
+                touch_cnt = 0;     //連続タッチ終わり
+            }
+            if (notouch_cnt != 0){
+                __delay_ms(1);
+                notouch_cnt++;
+                if(notouch_cnt > 1000){
+                    //タッチ切れて少し間が生じたらプラス分を1に戻す。
+                    //それまでは前のプラス10分を活かす
+                    plus_val = 1;
+                    color_val = WHITE;
+                    LCD_Printf(button_setup[bsel][0], button_setup[bsel][1], string_val, 2, color_val, 1);      //プラス10解除を知らせる
+                    notouch_cnt = 0;
+                }
+            }
         }   //if
 
     }   //while
@@ -615,7 +654,7 @@ void target_menu(void) {
                 case PLUS:
                     switch(but_sel){
                         case OFFSET:
-                            offset_tmp += 5;
+                            offset_tmp += 1;
                             if (offset_tmp > OFFSET_MAX){
                                 offset_tmp = OFFSET_MAX;
                             }
@@ -651,7 +690,7 @@ void target_menu(void) {
                 case MINUS:
                     switch(but_sel){
                         case OFFSET:
-                            offset_tmp -= 5;
+                            offset_tmp -= 1;
                             if (offset_tmp < OFFSET_MIN){
                                 offset_tmp = OFFSET_MIN;
                             }
@@ -711,7 +750,7 @@ void target_menu(void) {
                     __delay_ms(500);    //つづけざまに送ると無効になるみたい
                     aim_h = aim_tmp;
                     command_uart_send((uint8_t*)com_aimpoint, (float)aim_h);
-                    __delay_ms(500);
+                    //__delay_ms(500);
                     impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア
                     __delay_ms(500);
                     write_rom_setup();

@@ -204,7 +204,9 @@
  * 2023.04.22   ver.9.14    ターゲットクリア後のCtoCログ値が前回の値になっているのを修正
  * 2023.04.23   ver.9.15    ターゲット設定値をEEPROMへ保存し、起動時反映。ログに狙点高さを追加
  * 2023.06.26   ver.9.16    TMR1,TMR2 prescaler 1:1 -> 1:2 初速低速対応
- * 2023.07.22   ver.9.17    有線接続時にターゲット表示オフセットが反映されない(ESP32間でのみ値が共有されていてPIC32のほうは知らない値となっている)
+ * 2023.07.22   ver.9.17    有線接続時にターゲット表示オフセットが反映されない(ESP32間でのみ値が共有されていてPIC32のほうは知らない値となっている)のの直し
+ * 2023.08.07   ver.9.18    銃Pro700追加。メニューでの早送り見直し。
+ * 2023.09.01   ver.9.19    メニュー数値早送り中の数字表示をイエローに
  * 
  * 
  * 
@@ -234,7 +236,7 @@
 
 __EEPROM_DATA (0x00, 0x23, 0x01, 0x01, 0x41, 0x00, 0x07, 0xf4); //eeprom_address_t
 //              v0    Y     M     D     suf   out   m     mmL
-__EEPROM_DATA (0x01, 0x02, 0xfa, 0x00, 0x07, 0xc3, 0x00, 0xf1); 
+__EEPROM_DATA (0x01, 0x03, 0x18, 0x01, 0x01, 0xc3, 0x00, 0xf1); 
 //              mmU   gun   bbL   bbU   BB    nuL   nuU   osY
 __EEPROM_DATA (0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff); 
 //              aiY   brL   brU
@@ -247,7 +249,7 @@ __EEPROM_DATA (0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.17"; 
+const char  version[] = "9.19"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ
