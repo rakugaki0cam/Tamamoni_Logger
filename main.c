@@ -207,6 +207,7 @@
  * 2023.07.22   ver.9.17    有線接続時にターゲット表示オフセットが反映されない(ESP32間でのみ値が共有されていてPIC32のほうは知らない値となっている)のの直し
  * 2023.08.07   ver.9.18    銃Pro700追加。メニューでの早送り見直し。
  * 2023.09.01   ver.9.19    メニュー数値早送り中の数字表示をイエローに
+ * 2023.09.16   ver.9.20    銃AS-01追加。
  * 
  * 
  * 
@@ -228,6 +229,7 @@
  * 
  * command_uart_send() target_set_up_command() この辺整理してtarget_graph.cへ
  * 
+ * プログラム書き込み時にタマモニへUSB給電したほうがいいみたい???　PICKIT電力不足???
  * 
  * 
  * 
@@ -249,7 +251,7 @@ __EEPROM_DATA (0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.19"; 
+const char  version[] = "9.20"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ

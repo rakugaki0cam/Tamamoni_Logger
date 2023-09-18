@@ -124,7 +124,7 @@ const  uint8_t  com_bright[] = "BRIGHT";
 #define BRIGHTNESS_MAX  250
 
 
-#define AIR_GUN_NUM     15
+#define AIR_GUN_NUM     16
 char air_gun_text[AIR_GUN_NUM][13] = { //max12文字+1stopcode
     "dummy       ",
     "vfc M40A3   ",
@@ -133,6 +133,7 @@ char air_gun_text[AIR_GUN_NUM][13] = { //max12文字+1stopcode
     "VSR10Gstrobe",
     "VSR10-ProSna",
     "MagpulPro700",
+    "AMOEBA AS-01",
     "vfc M110 GBB",
     "vfc M4A1 GBB",
     "vfc M27 GBB ",
@@ -272,6 +273,11 @@ void touch_menu(void) {
                 case NUKIDAN:
                     //前回の位置を消去(枠グレイ表示)
                     button_select_disp(bsel, 0, button_setup, NUM_BUTTON_SETUP);
+                    if(color_val == LEMON){
+                        plus_val = 1;
+                        color_val = WHITE;
+                        LCD_Printf(button_setup[bsel][0], button_setup[bsel][1], string_val, 2, color_val, 1);      //プラス10解除
+                    }
                     bsel = bnum;
                     //ボタン選択表示(黄色)
                     button_select_disp(bsel, 1, button_setup, NUM_BUTTON_SETUP);
@@ -281,6 +287,11 @@ void touch_menu(void) {
                 case UP:
                     //項目間の移動　上へ
                     button_select_disp(bsel, 0, button_setup, NUM_BUTTON_SETUP);
+                    if(color_val == LEMON){
+                        plus_val = 1;
+                        color_val = WHITE;
+                        LCD_Printf(button_setup[bsel][0], button_setup[bsel][1], string_val, 2, color_val, 1);      //プラス10解除
+                    }
                     bsel--;
                     if(bsel < DIST_M){
                         bsel = DIST_M;
@@ -292,6 +303,11 @@ void touch_menu(void) {
                 case DOWN:
                     //項目間の移動　下へ
                     button_select_disp(bsel, 0, button_setup, NUM_BUTTON_SETUP);
+                    if(color_val == LEMON){
+                        plus_val = 1;
+                        color_val = WHITE;
+                        LCD_Printf(button_setup[bsel][0], button_setup[bsel][1], string_val, 2, color_val, 1);      //プラス10解除
+                    }
                     bsel++;
                     if(bsel > RETURN){
                         bsel = RETURN;
@@ -469,6 +485,7 @@ void touch_menu(void) {
         LCD_Printf(COL_BUTTON_SEL, ROW_BUTTON_SEL, tmp_string, 1, RED, 1);
 #endif
         }else{
+            //タッチ無し
             if (touch_cnt != 0){
                 notouch_cnt = 1;
                 touch_cnt = 0;     //連続タッチ終わり
@@ -476,7 +493,7 @@ void touch_menu(void) {
             if (notouch_cnt != 0){
                 __delay_ms(1);
                 notouch_cnt++;
-                if(notouch_cnt > 1000){
+                if((notouch_cnt > 1000) && (color_val == LEMON)){
                     //タッチ切れて少し間が生じたらプラス分を1に戻す。
                     //それまでは前のプラス10分を活かす
                     plus_val = 1;
