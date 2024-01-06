@@ -81,8 +81,8 @@ unsigned char BME280_initialize(void){
     unsigned char filter = 0b010;   //IIRfilter 000:off, 001:2, 010:4, 011:8, 100:16
     
     I2C1_Write1ByteRegister(BME280_ADDRESS, 0xf2, (uint8_t)osrs_h);                                  //ctrl-hum
-    I2C1_Write1ByteRegister(BME280_ADDRESS, 0xf4, (uint8_t)((osrs_t << 5) + (osrs_p << 2) + mode));    //ctrl-meas
     I2C1_Write1ByteRegister(BME280_ADDRESS, 0xf5, (uint8_t)((t_sb << 5) + (filter << 2)));             //config
+    I2C1_Write1ByteRegister(BME280_ADDRESS, 0xf4, (uint8_t)((osrs_t << 5) + (osrs_p << 2) + mode));    //ctrl-meas
     
     Trim_Read();
     printf("OK!\n");

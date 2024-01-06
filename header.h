@@ -75,9 +75,10 @@ typedef enum {
     BB_G_ADDRESS,               //2bytes 10,11
     BB_NUM_ADDRESS      = 12,
     NUKIDAN_ADDRESS,            //2bytes 13,14
-    TARGET_OFFSET_Y     = 15,
+    TARGET_ID           = 15,
+    TARGET_OFFSET_Y,
     TARGET_AIM_Y,
-    TARGET_BRIGHT,              //2byte 17,18
+    TARGET_BRIGHT,              //2byte 18,19
 } eeprom_address_t;
 
 //ÉOÉçÅ[ÉoÉãïœêî

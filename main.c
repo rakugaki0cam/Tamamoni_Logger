@@ -207,7 +207,9 @@
  * 2023.07.22   ver.9.17    有線接続時にターゲット表示オフセットが反映されない(ESP32間でのみ値が共有されていてPIC32のほうは知らない値となっている)のの直し
  * 2023.08.07   ver.9.18    銃Pro700追加。メニューでの早送り見直し。
  * 2023.09.01   ver.9.19    メニュー数値早送り中の数字表示をイエローに
- * 2023.09.16   ver.9.20    銃AS-01追加。
+ * 2023.09.16   ver.9.20    銃AS-01追加。早送り停止の時の表示を黄色から白に換える処理が余計な時にも働くのを直した。
+ * 2023.09.24   ver.9.21    起動時SDカードが入っていない時の表示。
+ * 2024.01.06   ver.9.30    電子ターゲット1号機,2号機の選択メニュー
  * 
  * 
  * 
@@ -238,10 +240,10 @@
 
 __EEPROM_DATA (0x00, 0x23, 0x01, 0x01, 0x41, 0x00, 0x07, 0xf4); //eeprom_address_t
 //              v0    Y     M     D     suf   out   m     mmL
-__EEPROM_DATA (0x01, 0x03, 0x18, 0x01, 0x01, 0xc3, 0x00, 0xf1); 
-//              mmU   gun   bbL   bbU   BB    nuL   nuU   osY
-__EEPROM_DATA (0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff); 
-//              aiY   brL   brU
+__EEPROM_DATA (0x01, 0x03, 0x18, 0x01, 0x01, 0xc3, 0x00, 0x01); 
+//              mmU   gun   bbL   bbU   BB    nuL   nuU   tID
+__EEPROM_DATA (0xf1, 0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff); 
+//              osY   aiY   brL   brU
 //Picketの設定でpreserveにチェックするとプログラム書き込み時に書き換えられない
 
 
@@ -251,7 +253,7 @@ __EEPROM_DATA (0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.20"; 
+const char  version[] = "9.30"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ
@@ -311,7 +313,7 @@ void main(void)
     i2c_master_initialize();        //手製シンプルI2Cドライバ
     //バックブースト電源
 
-    __delay_ms(500);                //やや長押しとする
+    __delay_ms(300);                //やや長押しとする
     if(SW1_PORT == SW_ON){
         POWER_MODE_SetLow();        //L:ハイパワーモード, H:パワーセーブ
         POWER_EN2_SetHigh();        //バックブースト電源3.3Vオン
@@ -320,6 +322,8 @@ void main(void)
     //******* パワーオン *************
     LED_RIGHT_SetHigh();     
     LED_LEFT_SetHigh();                          //傾斜LEDを両方とも点灯
+    
+    __delay_ms(200);
     
     //RTCCモジュールクロック出力オン
     RTCC_FOE_SetHigh();
@@ -345,21 +349,6 @@ void main(void)
 
     LCD_initialize();
     PWM3_LoadDutyValue(100 * (0x03ff / 100));   //LCDバックライトオン　100% (10bit)
-
-    //LCD タイトル
-    LED_RIGHT_SetLow();     
-    LED_LEFT_SetLow();                          //傾斜LEDを両方とも消灯
-    LCD_Title();
-    __delay_ms(200);
-    
-    printf("\n");
-    printf("********************\n");
-    printf(" Bullet Logger V9   \n");
-    printf("           ver.%s\n", version);
-    printf(" AUTO Device mode   \n");/////////ver8.10-//////////////////////////
-    printf(" WiFi ESP32         \n");/////////ver9.00-//////////////////////////
-    printf("           Feb 2023 \n");
-    printf("********************\n");
     
     touch_init();
     
@@ -374,14 +363,41 @@ void main(void)
     BME280_disp(1);                             //フル表示
     RTC_disp(1);                                //全体表示　クロックに電源断等あったときはセットタイム画面になる。
     
+    //タイトル
+    printf("\n");
+    printf("********************\n");
+    printf(" Bullet Logger V9   \n");
+    printf("           ver.%s\n", version);
+    printf(" AUTO Device mode   \n");/////////ver8.10-//////////////////////////
+    printf(" WiFi ESP32         \n");/////////ver9.00-//////////////////////////
+    printf("           Feb 2023 \n");
+    printf("********************\n");
+    
+    LCD_Title();
+    LED_RIGHT_SetLow();     
+    LED_LEFT_SetLow();                          //傾斜LEDを両方とも消灯
+    
+    //SD
     generate_filename_date();                   //保存用ファイルネーム生成
     if (shotheader_sd_write() == 0){
         //ヘッダーが書き込めたのでSDカードは入っている
         ShotHeader_write_flag = 1;              //ヘッダ書き出し済み
     }else{
         ShotHeader_write_flag = 0;
+        sprintf(tmp_string, "NO SD CARD!!!");
+        LCD_Printf(10, 95, tmp_string, 1, MAGENTA, 0);
+        //LED点滅で注意喚起
+        for (i = 0; i < 4; i++){
+            LED_RIGHT_SetHigh();
+            LED_LEFT_SetHigh();
+            __delay_ms(300);
+            LED_RIGHT_SetLow();    
+            LED_LEFT_SetLow();
+            __delay_ms(200);
+        }      
     }
     
+ 
     while(SW1_PORT == SW_ON){
         //スイッチオンのキーを離すのを待つ
     }
@@ -393,7 +409,7 @@ void main(void)
  
     //タイトル表示中
     for(i = 0; i < 200; i++){
-        __delay_ms(10);
+        __delay_ms(15);
         footer_rewrite(1);      //時計等の表示更新のみ
         motion_data_read();
         angle_level_disp();     //傾斜角度とLED
