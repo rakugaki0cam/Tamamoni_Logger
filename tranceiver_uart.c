@@ -249,3 +249,17 @@ void    command_uart_send(uint8_t* command, float value){
     }
 }
 
+void    esp_command_uart_send(uint8_t* command, float value){   //////////////////////
+    //ESPへのコマンドを送る
+    //有線接続の時ESPへコマンドを送れないので
+    uint8_t* str;
+    sprintf(tmp_str, "ESP_%s %5.1f END ,", command, value); //","が読み込みエンドマーク
+    str = (uint8_t*)tmp_str;
+    
+    while(*str){
+        while(!UART2_is_tx_ready());
+        UART2_Write(*str);
+        str++;
+    }
+}
+

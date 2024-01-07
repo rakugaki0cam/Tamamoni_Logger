@@ -103,7 +103,7 @@ static int8_t      offset_h = -15;      //target側の初期値にあわせないといけない
 static int8_t      aim_h = 74;
 static int16_t     bright = 90;
 //target command
-const  uint8_t  str_com_target_id[] = "ID_NUM";
+const  uint8_t  str_com_target_id[] = "TARGET_ID";
 const  uint8_t  str_com_offset[] = "OFFSET";
 const  uint8_t  str_com_aimpoint[] = "AIMPOINT";
 const  uint8_t  str_com_bright[] = "BRIGHT";
@@ -615,6 +615,7 @@ void target_menu(void) {
         LCD_Printf(button_target[i][0], but_y, tmp_string, 2, YELLOW, 1);
     }
     //設定値を表示
+    target_id_tmp = target_id;
     offset_tmp = offset_h;
     aim_tmp = aim_h;  
     sprintf(tmp_string, "%3d", target_id);
@@ -772,8 +773,9 @@ void target_menu(void) {
                 case TARGET_ID_SET:
                     button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);
                     target_id = target_id_tmp;
-                    //電子ターゲットにコマンドを送る
-                    command_uart_send((uint8_t*)str_com_target_id, (float)target_id);
+                    //ESPにコマンドを送る
+                    target_num_send();
+                    target_set_up_command();
                     impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア 
                     __delay_ms(500);
                     write_rom_setup();
@@ -803,7 +805,7 @@ void target_menu(void) {
                     button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);
                     //電子ターゲットにコマンドを送る
                     target_id = target_id_tmp;
-                    command_uart_send((uint8_t*)str_com_target_id, (float)target_id);
+                    esp_command_uart_send((uint8_t*)str_com_target_id, (float)target_id);
                     __delay_ms(200);    //つづけざまに送ると無効になるみたい
                     offset_h = offset_tmp;
                     command_uart_send((uint8_t*)str_com_offset, (float)offset_h);
@@ -845,10 +847,27 @@ void target_menu(void) {
 }
 
 
+
+//****** sub **********************
+
+void    target_num_send(void){
+    //ESP32へIDナンバーを送りペアリング
+    esp_command_uart_send((uint8_t*)str_com_target_id, (float)target_id);
+    __delay_ms(500);
+    sprintf(tmp_string, "Target #%2d        ", target_id);  //18文字
+    LCD_Printf(COL_WARNING, ROW_WARNING1, tmp_string, 1, PINK, 1);
+    
+}
+
+
+uint8_t target_id_read(void){
+    //接続中のターゲット#をかえす
+    return target_id;
+}
+
+
 void    target_set_up_command(void){
     //ターゲットへコマンドを送り初期化
-    command_uart_send((uint8_t*)str_com_target_id, (float)target_id);
-    __delay_ms(200);    //つづけざまに送ると無効になるみたい
     command_uart_send((uint8_t*)str_com_offset, (float)offset_h);
     __delay_ms(200);
     command_uart_send((uint8_t*)str_com_aimpoint, (float)aim_h);
@@ -911,7 +930,7 @@ void    read_rom_setup(void){
     }
     
     //target
-    target_id = (uint8_t)DATAEE_ReadByte(TARGET_ID);
+    target_id = (uint8_t)DATAEE_ReadByte(TARGET_ID_NUM);
     if ((target_id < TARGET_MIN) || (target_id > TARGET_MAX)){
         target_id = 1;
     }
@@ -952,7 +971,7 @@ void    write_rom_setup(void){
     DATAEE_WriteByte(NUKIDAN_ADDRESS+1, (uint8_t)(f_extract >> 8));
     
     //target
-    DATAEE_WriteByte(TARGET_ID, (uint8_t)target_id);
+    DATAEE_WriteByte(TARGET_ID_NUM, (uint8_t)target_id);
     DATAEE_WriteByte(TARGET_OFFSET_Y, (uint8_t)offset_h);
     DATAEE_WriteByte(TARGET_AIM_Y, (uint8_t)aim_h);
     DATAEE_WriteByte(TARGET_BRIGHT, (uint8_t)bright);

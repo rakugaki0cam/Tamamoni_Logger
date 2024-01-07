@@ -900,7 +900,7 @@ void sensor_connect_check(void){
             CLCnCON = 0x00;                     //CLC8disable -> WIFI-ESP_NOW
             target_com_path = ESP_NOW;
             //
-            sprintf(tmp_string, "Target WiFi       ");  //18•¶Žš
+            sprintf(tmp_string, "Target #%2d WiFi   ", target_id_read());  //18•¶Žš
             LCD_Printf(COL_WARNING, ROW_WARNING1, tmp_string, 1, PINK, 1);
             //debug
             //printf("%s\n", tmp_string);

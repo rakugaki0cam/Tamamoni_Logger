@@ -8,12 +8,12 @@
  *      calender time                           RX8900
  * 
  *      LC115H case
- *      color LCD 2.4" 240x320
+ *      color TFT.LCD 2.4" 240x320 ILI9341
  *      Li-ION Battery
  *      Touch panel 
  *      microSD card
  *      RS485 LAN(1,2)
- *      WiFi ESP32-WROOM-32E ESO-NOW
+ *      WiFi ESP32-WROOM-32E ESP-NOW
  *
  * 
  *      Vdd = 3.3V 
@@ -210,6 +210,7 @@
  * 2023.09.16   ver.9.20    銃AS-01追加。早送り停止の時の表示を黄色から白に換える処理が余計な時にも働くのを直した。
  * 2023.09.24   ver.9.21    起動時SDカードが入っていない時の表示。
  * 2024.01.06   ver.9.30    電子ターゲット1号機,2号機の選択メニュー
+ * 2024.01.07   ver.9.31    ESPへのコマンド送信追加(ターゲット号機切り替え)
  * 
  * 
  * 
@@ -253,7 +254,7 @@ __EEPROM_DATA (0xf1, 0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.30"; 
+const char  version[] = "9.31"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ
@@ -406,6 +407,9 @@ void main(void)
     //EEP ROM読み込み
     read_rom_main();
     read_rom_setup();
+    
+    //ESP32へTARGET#IDを送信(romよりの読出値)
+    target_num_send();
  
     //タイトル表示中
     for(i = 0; i < 200; i++){

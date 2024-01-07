@@ -75,11 +75,12 @@ typedef enum {
     BB_G_ADDRESS,               //2bytes 10,11
     BB_NUM_ADDRESS      = 12,
     NUKIDAN_ADDRESS,            //2bytes 13,14
-    TARGET_ID           = 15,
+    TARGET_ID_NUM       = 15,
     TARGET_OFFSET_Y,
     TARGET_AIM_Y,
     TARGET_BRIGHT,              //2byte 18,19
 } eeprom_address_t;
+
 
 //グローバル変数
 extern const char   title[];            //プログラムタイトル表示用          @colorLCD.c

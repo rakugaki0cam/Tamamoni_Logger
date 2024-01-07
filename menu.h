@@ -19,6 +19,9 @@ void    setup_menu(void);
 void    touch_menu(void);
 void    target_menu(void);
 //
+void    target_num_send(void);
+uint8_t target_id_read(void);
+
 void    target_set_up_command(void);
 void    menu_clear_screen(void);
 void    set_setup(void);
