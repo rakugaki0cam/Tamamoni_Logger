@@ -80,7 +80,7 @@
  *              targetmodeは同じでいきたいので、モード検出をsensor4port からCLC4OUTに変更
  * 2023.06.26   TMR1,TMR2 prescaler 1:1 -> 1:2 低速対応
  * 2023.07.22   着弾表示時のオフセット値が有線接続時には反映されていなかったので修正。
- * 
+ * 2024.02.25   printfエラー表示を#ifdefにて停止
  * 
  * 
  * 
@@ -89,6 +89,8 @@
 #include "header.h"
 #include "Vmeasure4.h"
 
+
+#define     DEBUG_MEAS_ERR_no           //DEBUGger用printf表示 (エラー関連)
 
 //constant value
 #define     XCORTECH            0       //初速計
@@ -419,16 +421,22 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].status = V0_TIMER_12_GET;
             }
             if (int_status.tmr1ovf == 1){
+#ifdef DEBUG_MEAS_ERR
                 printf("Tmr1_OVF\n");
+#endif
                 shot_data[shot_buf_pointer].status = V0_TIMEOUT;
             }
             if (int_status.smt1ovf == 1){
+#ifdef DEBUG_MEAS_ERR
                 printf("Smt1_OVF\n");
+#endif
                 shot_data[shot_buf_pointer].status = V0_TIMEOUT;
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
+#ifdef DEBUG_MEAS_ERR
                 printf("Tmr0_OVF\n");
+#endif
                 shot_data[shot_buf_pointer].status = V0_TIMEOUT;
             }
             break;
@@ -488,16 +496,22 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].status = VE_TIMER_34_GET;
             }
             if (int_status.tmr3ovf == 1){
+#ifdef DEBUG_MEAS_ERR
                 printf("Tmr3_OVF\n");
+#endif
                 shot_data[shot_buf_pointer].status = VE_TIMEOUT;
             }
             if (int_status.smt1ovf == 1){
+#ifdef DEBUG_MEAS_ERR
                 printf("Smt1_OVF\n");
+#endif
                 shot_data[shot_buf_pointer].status = VE_TIMEOUT;
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
+#ifdef DEBUG_MEAS_ERR
                 printf("Tmr0_OVF\n");
+#endif
                 shot_data[shot_buf_pointer].status = VE_TIMEOUT;
             }
             break;
@@ -523,12 +537,16 @@ uint8_t vmeasure(void){
                 shot_data[shot_buf_pointer].status = TIME_IMPACT_GET;
             }
             if (int_status.smt1ovf == 1){
+#ifdef DEBUG_MEAS_ERR
                 printf("Smt1_OVF\n");
+#endif
                 shot_data[shot_buf_pointer].status = IMPACT_TIMEOUT;
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
+#ifdef DEBUG_MEAS_ERR
                 printf("Tmr0_OVF\n");
+#endif
                 shot_data[shot_buf_pointer].status = IMPACT_TIMEOUT;
             }            
             break;
@@ -567,8 +585,9 @@ uint8_t vmeasure(void){
             print_shot(RED);
             print_v0(RED);
             err = SENSOR2_ERROR;
+#ifdef DEBUG_MEAS_ERR
             printf("shot#%d Sen2 TIMEOUT\n", shot + 1);
-            
+#endif            
             switch(target_mode){
                 case V0_MODE:
                     //2～3行目消去
@@ -597,13 +616,19 @@ uint8_t vmeasure(void){
             print_impact_time(BLACK);
             if ((int_status.sensor3on == 0) && (int_status.sensor4on == 0)){
                 err = SENSOR34_ERROR;
+#ifdef DEBUG_MEAS_ERR
                 printf("s#%d Sen34 TIMEOUT\n", shot + 1);
+#endif
             }else if (int_status.sensor3on == 0){
                 err = SENSOR3_ERROR;
+#ifdef DEBUG_MEAS_ERR
                 printf("s#%d Sen3 TIMEOUT\n", shot + 1);
+#endif
             }else {
                 err = SENSOR4_ERROR;
+#ifdef DEBUG_MEAS_ERR
                 printf("s#%d Sen4 TIMEOUT\n", shot + 1);
+#endif
             }
             shot_data[shot_buf_pointer].status = MEASURE_DONE;
             break;
@@ -614,7 +639,9 @@ uint8_t vmeasure(void){
             print_ve(WHITE);    //V0_VE＿MODE以外では無効になるようにサブルーチン内にて処理
             print_impact_time(RED);
             err = IMPACT_ERROR;
+#ifdef DEBUG_MEAS_ERR
             printf("shot#%d Impact TIMEOUT\n", shot + 1);
+#endif
             shot_data[shot_buf_pointer].status = MEASURE_DONE;
             break;
             
@@ -637,7 +664,9 @@ uint8_t vmeasure(void){
             }
             if (int_status.tmr0ovf == 1){
                 //予備のタイムアウト検出
+#ifdef DEBUG_MEAS_ERR
                 printf("shot#%d Motion TIMEOUT\n", shot + 1);
+#endif
                 err = MOTION_ERROR;
                 shot_data[shot_buf_pointer].status = MOTION_DONE;
             }            
@@ -694,7 +723,9 @@ uint8_t vmeasure(void){
                 if (int_status.tmr0ovf == 1){
                     //タイムアウト検出
                     err = RECEIVE_ERROR;
+#ifdef DEBUG_MEAS_ERR
                     printf("shot#%d tamamoni rx timeout\n", shot + 1);
+#endif
                 }else{
                     //データ読み込み継続
                     break;
@@ -703,12 +734,16 @@ uint8_t vmeasure(void){
                 //受信データ数値化失敗
                 err = TARGET_CALC_ERROR;
                 int_status.uart = 1;
+#ifdef DEBUG_MEAS_ERR
                 printf("shot#%d target calc err\n", shot + 1);
+#endif
             }else if (RX_ERROR == answ){
                 //ターゲットデータ受信エラー
                 err = TARGET_RX_ERROR;
                 int_status.uart = 1; 
+#ifdef DEBUG_MEAS_ERR
                 printf("shot#%d tamamoni Rx err\n", shot + 1);
+#endif
             } 
             //エラーの時の終了処理
             shot_data[shot_buf_pointer].impact_x = 999.9;
@@ -734,7 +769,9 @@ uint8_t vmeasure(void){
                 //着弾位置データがエラーの時にはCtoC計算しない
                 shot_data[shot_buf_pointer].ctc_max = shot_data[shot_buf_pointer - 1].ctc_max;
                 err = TARGET_CALC_ERROR;
-                //printf("shot#%d target calc err\n", shot + 1);
+#ifdef DEBUG_MEAS_ERR                
+                printf("shot#%d target calc err\n", shot + 1);
+#endif
             }else{
 #define ONE_POINT_DRAW  0
 #define RESET_NONE      0
