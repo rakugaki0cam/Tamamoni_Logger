@@ -111,12 +111,21 @@ void UART4_Initialize(void)
     // TXPOL not inverted; FLO Hardware flow control; RXPOL not inverted; RUNOVF RX input shifter stops all activity; STP Transmit 1Stop bit, receiver verifies first Stop bit; 
     U4CON2 = 0x02;
 
+    //115200bps  (user...MCCïsí≤ÇÃÇΩÇﬂéËèëÇ´)
+    // BRGL 138; 
+    U4BRGL = 0x8A;
+    
+    // BRGH 0; 
+    U4BRGH = 0x00;
+    
+    //9600bps (user)
     // BRGL 130; 
-    U4BRGL = 0x82;
-
+    // U4BRGL = 0x82;
+    
     // BRGH 6; 
-    U4BRGH = 0x06;
+    // U4BRGH = 0x06;
 
+    
     // STPMD in middle of first Stop bit; TXWRE No error; 
     U4FIFO = 0x00;
 

@@ -160,11 +160,11 @@ enum{
         t_data[POINT_X] = (uint16_t)((int16_t)(data[X] - disp_touch_x_start) * disp_touch_x_gain);
         t_data[POINT_Y] = (uint16_t)((int16_t)(data[Y] - disp_touch_y_start) * disp_touch_y_gain);
 
-#if DEBUG_SET_PIXEL == 0
+#if DEBUG_SET_PIXEL == 1
         LCD_SetColor(0x00, 0x00, 0xff);     //BLUE
         LCD_SetPixel(t_data[POINT_X], t_data[POINT_Y]);
         //DEBUGger
-        printf("x:%3d y:%3d z:%3d\n", t_data[POINT_X], t_data[POINT_Y], t_data[TOUCH_ZT]);
+        printf("t. x:%3d y:%3d z:%3d\n", t_data[POINT_X], t_data[POINT_Y], t_data[TOUCH_ZT]);
 #endif
     }else{
         return 1;

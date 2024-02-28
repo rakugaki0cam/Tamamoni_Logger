@@ -212,6 +212,9 @@
  * 2024.01.06   ver.9.30    電子ターゲット1号機,2号機の選択メニュー
  * 2024.01.07   ver.9.31    ESPへのコマンド送信追加(ターゲット号機切り替え)
  * 2024.02.25   ver.9.32    エラーのprintf出力を#ifdefで停止(有線時にターゲットとのやり取りに支障???)
+ * 2024.02.28   ver.9.33    センサ1オンで無線PT1(弾発射信号)を送る。連射時の遅延対策。
+ *                          DEBUGger(LANコネクタ)9600bps -> 115200bps
+ * 
  * 
  * 
  *  ////モーションセンサーの発射時のタイミングログ取得にSMT1のタイマーを使っているけれど、着弾してしまうとタイマーが止まってしまう可能性がある。別タイマーにするか???
@@ -254,7 +257,7 @@ __EEPROM_DATA (0xf1, 0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.32"; 
+const char  version[] = "9.33"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ
@@ -570,7 +573,7 @@ void Stop_until_SW1(void){
     while(SW1_PORT == SW_ON){
         //スイッチオンのキーを離すのを待つ
     }
-    __delay_ms(500);
+    __delay_ms(300);
     
 }
 

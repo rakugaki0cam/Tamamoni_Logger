@@ -750,7 +750,7 @@ uint8_t vmeasure(void){
             shot_data[shot_buf_pointer].impact_y = 999.9;
             shot_data[shot_buf_pointer].ctc_max = shot_data[shot_buf_pointer - 1].ctc_max;
             shot_data[shot_buf_pointer].status = IMPACT_POS_PRINT;
-            __delay_ms(120);        //targetからのデータに重ならないように
+            //__delay_ms(120);        //targetからのデータに重ならないように/////////////////////////////////////2024.02.28
             rx_buffer_clear();
             break;
 
