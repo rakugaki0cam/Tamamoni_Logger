@@ -208,7 +208,7 @@ void    rx_buffer_clear(void){
 #endif   
     
     
-    //rs485 9600bps
+    //rs485 9600bps -> 115200bps
     if (UART4_is_rx_ready()){
         if (ESP_NOW == target_com_path){
             printf("--LAN buffer clear--\n\n"); //LANケーブル接続時は表示しない

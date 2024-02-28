@@ -210,6 +210,8 @@
  * 2023.09.16   ver.9.20    銃AS-01追加。
  * 
  * 2024.02.28   ver.9.20mb1 macbook branch no.1 
+ *                          センサ1オンで無線PT1(弾発射信号)を送る。連射時の遅延対策。
+ *                          DEBUGger(LANコネクタ)9600bps -> 115200bps
  * 
  * 
  *  ////モーションセンサーの発射時のタイミングログ取得にSMT1のタイマーを使っているけれど、着弾してしまうとタイマーが止まってしまう可能性がある。別タイマーにするか???
@@ -252,7 +254,7 @@ __EEPROM_DATA (0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.20"; 
+const char  version[] = "9.20mb1"; 
 char        tmp_string[256];    //sprintf文字列用
 uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
 bool        sw1_int_flag = 0;   //SW1割込フラグ
@@ -312,7 +314,7 @@ void main(void)
     i2c_master_initialize();        //手製シンプルI2Cドライバ
     //バックブースト電源
 
-    __delay_ms(500);                //やや長押しとする
+    __delay_ms(300);                //やや長押しとする
     if(SW1_PORT == SW_ON){
         POWER_MODE_SetLow();        //L:ハイパワーモード, H:パワーセーブ
         POWER_EN2_SetHigh();        //バックブースト電源3.3Vオン
@@ -551,7 +553,7 @@ void Stop_until_SW1(void){
     while(SW1_PORT == SW_ON){
         //スイッチオンのキーを離すのを待つ
     }
-    __delay_ms(500);
+    __delay_ms(300);
     
 }
 
@@ -638,7 +640,7 @@ uint8_t BatV_disp(bool full_disp){
 }
 
 
-void sleep_count_reset(void){
+void    sleep_count_reset(void){
     //スリープカウントをリセットする
     //バックライト減光時は復帰
     sleep_count = 0;
