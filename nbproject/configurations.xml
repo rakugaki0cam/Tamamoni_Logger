@@ -18,6 +18,7 @@
           <itemPath>mcc_generated_files/fatfs/ff.h</itemPath>
           <itemPath>mcc_generated_files/fatfs/diskio.h</itemPath>
           <itemPath>mcc_generated_files/fatfs/integer.h</itemPath>
+          <itemPath>mcc_generated_files/fatfs/fatfs_demo.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="sd_spi" projectFiles="true">
           <itemPath>mcc_generated_files/sd_spi/sd_spi.h</itemPath>
@@ -82,6 +83,10 @@
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
                      projectFiles="true">
+        <logicalFolder name="docs" displayName="docs" projectFiles="true">
+          <itemPath>mcc_generated_files/docs/spi_basic.dox</itemPath>
+          <itemPath>mcc_generated_files/docs/spi.dox</itemPath>
+        </logicalFolder>
         <logicalFolder name="drivers" displayName="drivers" projectFiles="true">
           <itemPath>mcc_generated_files/drivers/spi_master.c</itemPath>
         </logicalFolder>
@@ -94,6 +99,7 @@
           <itemPath>mcc_generated_files/fatfs/ff.c</itemPath>
           <itemPath>mcc_generated_files/fatfs/ff_time.c</itemPath>
           <itemPath>mcc_generated_files/fatfs/ffsystem.c</itemPath>
+          <itemPath>mcc_generated_files/fatfs/fatfs_demo.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f1" displayName="sd_spi" projectFiles="true">
           <itemPath>mcc_generated_files/sd_spi/sd_spi.c</itemPath>
@@ -399,6 +405,8 @@
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-1ffff"/>
         <property key="poweroptions.powerenable" value="true"/>
+        <property key="programmerToGoFilePath"
+                  value="/Users/isober/MPLABXProjects/BulletLogger_V9_Q43.X/debug/default/BulletLogger_V8_3_57Q43_ptg"/>
         <property key="programmerToGoImageName" value="BulletLogger_V8_3_57Q43_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>

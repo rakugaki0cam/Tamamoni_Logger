@@ -66,8 +66,8 @@ void SYSTEM_Initialize(void)
     CLC4_Initialize();
     CLC8_Initialize();
     CLC6_Initialize();
-    CLC3_Initialize();
     TMR3_Initialize();
+    CLC3_Initialize();
     PWM3_Initialize();
     TMR1_Initialize();
     UART2_Initialize();

@@ -153,6 +153,26 @@
 #define MOTION_INT_SetAnalogMode()      do { ANSELAbits.ANSELA5 = 1; } while(0)
 #define MOTION_INT_SetDigitalMode()     do { ANSELAbits.ANSELA5 = 0; } while(0)
 
+// get/set PT1_TO_ESP aliases
+#define PT1_TO_ESP_TRIS                 TRISBbits.TRISB0
+#define PT1_TO_ESP_LAT                  LATBbits.LATB0
+#define PT1_TO_ESP_PORT                 PORTBbits.RB0
+#define PT1_TO_ESP_WPU                  WPUBbits.WPUB0
+#define PT1_TO_ESP_OD                   ODCONBbits.ODCB0
+#define PT1_TO_ESP_ANS                  ANSELBbits.ANSELB0
+#define PT1_TO_ESP_SetHigh()            do { LATBbits.LATB0 = 1; } while(0)
+#define PT1_TO_ESP_SetLow()             do { LATBbits.LATB0 = 0; } while(0)
+#define PT1_TO_ESP_Toggle()             do { LATBbits.LATB0 = ~LATBbits.LATB0; } while(0)
+#define PT1_TO_ESP_GetValue()           PORTBbits.RB0
+#define PT1_TO_ESP_SetDigitalInput()    do { TRISBbits.TRISB0 = 1; } while(0)
+#define PT1_TO_ESP_SetDigitalOutput()   do { TRISBbits.TRISB0 = 0; } while(0)
+#define PT1_TO_ESP_SetPullup()          do { WPUBbits.WPUB0 = 1; } while(0)
+#define PT1_TO_ESP_ResetPullup()        do { WPUBbits.WPUB0 = 0; } while(0)
+#define PT1_TO_ESP_SetPushPull()        do { ODCONBbits.ODCB0 = 0; } while(0)
+#define PT1_TO_ESP_SetOpenDrain()       do { ODCONBbits.ODCB0 = 1; } while(0)
+#define PT1_TO_ESP_SetAnalogMode()      do { ANSELBbits.ANSELB0 = 1; } while(0)
+#define PT1_TO_ESP_SetDigitalMode()     do { ANSELBbits.ANSELB0 = 0; } while(0)
+
 // get/set RB1 procedures
 #define RB1_SetHigh()            do { LATBbits.LATB1 = 1; } while(0)
 #define RB1_SetLow()             do { LATBbits.LATB1 = 0; } while(0)
