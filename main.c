@@ -214,6 +214,7 @@
  * 2024.02.25   ver.9.32    エラーのprintf出力を#ifdefで停止(有線時にターゲットとのやり取りに支障???)
  * 2024.02.28   ver.9.33    センサ1オンで無線PT1(弾発射信号)を送る。連射時の遅延対策。
  *                          DEBUGger(LANコネクタ)9600bps -> 115200bps
+ * 2024.03.02   ver.9.40    センサPT1オンでESPよりターゲットにスタート信号を送る、ためのRB0GPIO出力を追加。PT1_TO_ESP startHi
  * 
  * 
  * 
@@ -257,15 +258,15 @@ __EEPROM_DATA (0xf1, 0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.33"; 
-char        tmp_string[256];    //sprintf文字列用
-uint8_t     dotRGB[1280];        //可変できない 2倍角文字576バイト
-bool        sw1_int_flag = 0;   //SW1割込フラグ
-
+const char  version[] = "9.40"; 
 //FATfs関連 ここで定義しないとスペース確保できずにエラー
 FATFS       drive;
 FIL         file;
 UINT        actualLength;
+uint8_t     dotRGB[1280];       //可変できない 2倍角文字576バイト  
+char        tmp_string[256];    //sprintf文字列用
+bool        sw1_int_flag = 0;   //SW1割込フラグ
+
 
 
 

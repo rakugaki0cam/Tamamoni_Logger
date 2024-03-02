@@ -83,15 +83,17 @@ typedef enum {
 
 
 //グローバル変数
+extern FATFS        drive;              //FATfs関連ここで宣言しないとスペース不足エラーでコンパイルできない?
+extern FIL          file;
+extern UINT         actualLength;
+extern bool         sw1_int_flag;       //SW1割込フラグ
+
 extern const char   title[];            //プログラムタイトル表示用          @colorLCD.c
 extern const char   version[];          //プログラムタイトル表示用          @colorLCD.c
 extern char         tmp_string[];       //sprintf用文字列
 extern uint8_t      dotRGB[];           //可変できないので、とりあえずMAX width=320 *4 sdからデータ1ライン読み込み用
                                         //1280->640にしたらダメSD動かなくなった。画面クリア時に240x3=720使っているよう
-extern FATFS        drive;              //FATfs関連ここで宣言しないとスペース不足エラーでコンパイルできない?
-extern FIL          file;
-extern UINT         actualLength;
-extern bool         sw1_int_flag;       //SW1割込フラグ
+
 
 
 #ifdef  TIMING_LOG   //debug

@@ -39,6 +39,7 @@
  *                   SMT1:24bit     --- 1.048576sec　　//@30mくらいまでは対応??
  *                   TMR1,TMR3:16bit--- 0.004096sec -> 0.008192sec 低速側7.5m/secに対応(2023.06.26~)
  *
+ *          PT1 -> PT1_TO_ESP(RB0 out) ---> ESP32 (IOxx in IRQ) ---> ESP-NOW -------> TARGET 弾が発射された
  * 
  * 
  * ver.1.00 2020.08.09  BulletVerocityHost12より移植しサブルーチン化
@@ -81,7 +82,7 @@
  * 2023.06.26   TMR1,TMR2 prescaler 1:1 -> 1:2 低速対応
  * 2023.07.22   着弾表示時のオフセット値が有線接続時には反映されていなかったので修正。
  * 2024.02.25   printfエラー表示を#ifdefにて停止
- * 
+ * 2024.03.02   PT1_TO_ESP追加
  * 
  * 
 */
@@ -316,6 +317,7 @@ void vmeasure_ready(void){
     TMR1_StopTimer();
     TMR3_StopTimer();    
     SMT1_DataAcquisitionDisable();
+    PT1_TO_ESP_SetHigh();           //PT1_TO_ESP idle//////////////////////////
     PWM1_16BIT_Disable();           //VideoSyncLED off
     //割込クリア
     PIR3bits.CCP1IF = 0;
@@ -1352,8 +1354,10 @@ void detect_sensor1(void){
     if (shot_data[shot_buf_pointer].status != VMEASURE_READY){
         return;
     }
+    //PT1 -> ESP --> TARGET
+    LATBbits.LATB0 = 0;     //PT1_TO_ESP_SetLow();
     //VideoSync LED PWM start
-    PWM1CONbits.EN = 1; //PWM1_16BIT_Enable();
+    PWM1CONbits.EN = 1;     //PWM1_16BIT_Enable();
     
     motion_gate = AFTER_SHOT_COUNT + 1; //スタート後のカウント数をセット
     int_status.sensor1on = 1;
