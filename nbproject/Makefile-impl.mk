@@ -27,11 +27,11 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 PROJECTNAME=BulletLogger_V9_Q43.X
 
 # Active Configuration
-DEFAULTCONF=default
+DEFAULTCONF=Config_2
 CONF=${DEFAULTCONF}
 
 # All Configurations
-ALLCONFS=PRO_Comparison 
+ALLCONFS=default Config_2 
 
 
 # build
@@ -45,13 +45,15 @@ ALLCONFS=PRO_Comparison
 
 # clobber
 .clobber-impl: .clobber-pre .depcheck-impl
-	    ${MAKE} SUBPROJECTS=${SUBPROJECTS} CONF=PRO_Comparison clean
+	    ${MAKE} SUBPROJECTS=${SUBPROJECTS} CONF=default clean
+	    ${MAKE} SUBPROJECTS=${SUBPROJECTS} CONF=Config_2 clean
 
 
 
 # all
 .all-impl: .all-pre .depcheck-impl
-	    ${MAKE} SUBPROJECTS=${SUBPROJECTS} CONF=PRO_Comparison build
+	    ${MAKE} SUBPROJECTS=${SUBPROJECTS} CONF=default build
+	    ${MAKE} SUBPROJECTS=${SUBPROJECTS} CONF=Config_2 build
 
 
 
