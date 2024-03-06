@@ -1,0 +1,299 @@
+Version 4.0 HI-TECH Software Intermediate Code
+"88 mcc_generated_files/fatfs/../../mcc_generated_files/sd_spi/sd_spi.h
+[v _SD_SPI_IsMediaPresent `(a ~T0 @X0 0 ef ]
+"86
+[v _SD_SPI_IsMediaInitialized `(a ~T0 @X0 0 ef ]
+"89
+[v _SD_SPI_IsWriteProtected `(a ~T0 @X0 0 ef ]
+"50 mcc_generated_files/fatfs/diskio.c
+[c E85 0 .. ]
+[n E85 DRIVER_LIST DRVA  ]
+"87 mcc_generated_files/fatfs/../../mcc_generated_files/sd_spi/sd_spi.h
+[v _SD_SPI_MediaInitialize `(a ~T0 @X0 0 ef ]
+"70 mcc_generated_files/fatfs/diskio.c
+[c E12 0 1 2 3 4 .. ]
+[n E12 . RES_OK RES_ERROR RES_WRPRT RES_NOTRDY RES_PARERR  ]
+"123 mcc_generated_files/fatfs/../../mcc_generated_files/sd_spi/sd_spi.h
+[v _SD_SPI_SectorRead `(a ~T0 @X0 0 ef3`ul`*uc`us ]
+"154
+[v _SD_SPI_SectorWrite `(a ~T0 @X0 0 ef3`ul`*Cuc`us ]
+"23 mcc_generated_files/fatfs/diskio.c
+[v _disk_status `(uc ~T0 @X0 1 ef1`uc ]
+"26
+{
+[e :U _disk_status ]
+"24
+[v _pdrv `uc ~T0 @X0 1 r1 ]
+"26
+[f ]
+"27
+[v _stat `uc ~T0 @X0 1 a ]
+[e = _stat -> -> 1 `i `uc ]
+"29
+[e $U 3  ]
+{
+"31
+[e :U 4 ]
+"32
+[e $ ! == -> ( _SD_SPI_IsMediaPresent ..  `i -> 0 `i 5  ]
+"33
+{
+"34
+[e = _stat -> -> 2 `i `uc ]
+"35
+}
+[e $U 6  ]
+"36
+[e :U 5 ]
+[e $ ! == -> ( _SD_SPI_IsMediaInitialized ..  `i -> 1 `i 7  ]
+"37
+{
+"38
+[e =& _stat -> ~ -> 1 `i `uc ]
+"39
+}
+[e :U 7 ]
+[e :U 6 ]
+"41
+[e $ ! == -> ( _SD_SPI_IsWriteProtected ..  `i -> 1 `i 8  ]
+"42
+{
+"43
+[e =| _stat -> -> 4 `i `uc ]
+"44
+}
+[e :U 8 ]
+"46
+[e $U 2  ]
+"48
+[e :U 9 ]
+"49
+[e $U 2  ]
+"50
+}
+[e $U 2  ]
+[e :U 3 ]
+[e [\ _pdrv , $ . `E85 0 4
+ 9 ]
+[e :U 2 ]
+"51
+[e ) _stat ]
+[e $UE 1  ]
+"52
+[e :UE 1 ]
+}
+"60
+[v _disk_initialize `(uc ~T0 @X0 1 ef1`uc ]
+"63
+{
+[e :U _disk_initialize ]
+"61
+[v _pdrv `uc ~T0 @X0 1 r1 ]
+"63
+[f ]
+"64
+[v _stat `uc ~T0 @X0 1 a ]
+[e = _stat -> -> 1 `i `uc ]
+"66
+[e $U 12  ]
+{
+"67
+[e :U 13 ]
+"68
+[e $ ! == -> ( _SD_SPI_MediaInitialize ..  `i -> 1 `i 14  ]
+"69
+{
+"70
+[e = _stat -> . `E12 0 `uc ]
+"71
+}
+[e $U 15  ]
+"72
+[e :U 14 ]
+"73
+{
+"74
+[e = _stat -> . `E12 1 `uc ]
+"75
+}
+[e :U 15 ]
+"76
+[e $U 11  ]
+"77
+[e :U 16 ]
+"78
+[e $U 11  ]
+"79
+}
+[e $U 11  ]
+[e :U 12 ]
+[e [\ _pdrv , $ . `E85 0 13
+ 16 ]
+[e :U 11 ]
+"81
+[e ) _stat ]
+[e $UE 10  ]
+"82
+[e :UE 10 ]
+}
+"90
+[v _disk_read `(E12 ~T0 @X0 1 ef4`uc`*uc`ul`ui ]
+"96
+{
+[e :U _disk_read ]
+"91
+[v _pdrv `uc ~T0 @X0 1 r1 ]
+"92
+[v _buff `*uc ~T0 @X0 1 r2 ]
+"93
+[v _sector `ul ~T0 @X0 1 r3 ]
+"94
+[v _count `ui ~T0 @X0 1 r4 ]
+"96
+[f ]
+"97
+[v _res `E12 ~T0 @X0 1 a ]
+[e = _res . `E12 4 ]
+"99
+[e $U 19  ]
+{
+"100
+[e :U 20 ]
+"101
+[e $ ! == -> ( _SD_SPI_SectorRead (3 , , _sector _buff -> _count `us `i -> 1 `i 21  ]
+"102
+{
+"103
+[e = _res . `E12 0 ]
+"104
+}
+[e $U 22  ]
+"105
+[e :U 21 ]
+"106
+{
+"107
+[e = _res . `E12 1 ]
+"108
+}
+[e :U 22 ]
+"109
+[e $U 18  ]
+"111
+[e :U 23 ]
+"112
+[e $U 18  ]
+"113
+}
+[e $U 18  ]
+[e :U 19 ]
+[e [\ _pdrv , $ . `E85 0 20
+ 23 ]
+[e :U 18 ]
+"115
+[e ) _res ]
+[e $UE 17  ]
+"116
+[e :UE 17 ]
+}
+"124
+[v _disk_write `(E12 ~T0 @X0 1 ef4`uc`*Cuc`ul`ui ]
+"130
+{
+[e :U _disk_write ]
+"125
+[v _pdrv `uc ~T0 @X0 1 r1 ]
+"126
+[v _buff `*Cuc ~T0 @X0 1 r2 ]
+"127
+[v _sector `ul ~T0 @X0 1 r3 ]
+"128
+[v _count `ui ~T0 @X0 1 r4 ]
+"130
+[f ]
+"131
+[v _res `E12 ~T0 @X0 1 a ]
+[e = _res . `E12 4 ]
+"133
+[e $U 26  ]
+{
+"134
+[e :U 27 ]
+"135
+[e $ ! == -> ( _SD_SPI_SectorWrite (3 , , _sector _buff -> _count `us `i -> 1 `i 28  ]
+"136
+{
+"137
+[e = _res . `E12 0 ]
+"138
+}
+[e $U 29  ]
+"139
+[e :U 28 ]
+"140
+{
+"141
+[e = _res . `E12 1 ]
+"142
+}
+[e :U 29 ]
+"143
+[e $U 25  ]
+"145
+[e :U 30 ]
+"146
+[e $U 25  ]
+"147
+}
+[e $U 25  ]
+[e :U 26 ]
+[e [\ _pdrv , $ . `E85 0 27
+ 30 ]
+[e :U 25 ]
+"149
+[e ) _res ]
+[e $UE 24  ]
+"150
+[e :UE 24 ]
+}
+"158
+[v _disk_ioctl `(E12 ~T0 @X0 1 ef3`uc`uc`*v ]
+"163
+{
+[e :U _disk_ioctl ]
+"159
+[v _pdrv `uc ~T0 @X0 1 r1 ]
+"160
+[v _cmd `uc ~T0 @X0 1 r2 ]
+"161
+[v _buff `*v ~T0 @X0 1 r3 ]
+"163
+[f ]
+"164
+[v _res `E12 ~T0 @X0 1 a ]
+[e = _res . `E12 0 ]
+"166
+[e $U 33  ]
+{
+"167
+[e :U 34 ]
+"168
+[e ) _res ]
+[e $UE 31  ]
+"170
+[e :U 35 ]
+"171
+[e $U 32  ]
+"172
+}
+[e $U 32  ]
+[e :U 33 ]
+[e [\ _pdrv , $ . `E85 0 34
+ 35 ]
+[e :U 32 ]
+"174
+[e ) . `E12 4 ]
+[e $UE 31  ]
+"175
+[e :UE 31 ]
+}

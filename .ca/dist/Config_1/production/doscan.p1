@@ -1,0 +1,675 @@
+Version 4.0 HI-TECH Software Intermediate Code
+"409 /Applications/microchip/xc8/v2.46/pic/include/c99/bits/alltypes.h
+[s S1 ]
+[n S1 _IO_FILE ]
+"95 /Applications/microchip/xc8/v2.46/pic/include/c99/stdio.h
+[v _ungetc `(i ~T0 @X0 0 ef2`i`*S1 ]
+"87
+[v _fgetc `(i ~T0 @X0 0 ef1`*S1 ]
+"12 /Applications/microchip/xc8/v2.46/pic/include/c99/errno.h
+[v _errno `i ~T0 @X0 0 e ]
+"31 /Applications/microchip/xc8/v2.46/pic/include/c99/stdlib.h
+[v _strtof `(f ~T0 @X0 0 ef2`*Cuc`**uc ]
+"14 /Applications/microchip/xc8/v2.46/pic/include/c99/stdarg.h
+[v ___va_arg `(*v ~T0 @X0 0 ev`*v ]
+[p i ___va_arg ]
+"40 /Applications/microchip/xc8/v2.46/pic/include/c99/string.h
+[v _strncmp `(i ~T0 @X0 0 ef3`*Cuc`*Cuc`ui ]
+"54 /Applications/microchip/xc8/v2.46/pic/sources/c99/common/doscan.c
+[v _asup `a ~T0 @X0 1 s ]
+"55
+[v _width `i ~T0 @X0 1 s ]
+"58
+[v _ncnv `i ~T0 @X0 1 s ]
+[v _nmatch `i ~T0 @X0 1 s ]
+"71
+[v _dbuf `uc ~T0 @X0 -> 80 `i s ]
+"74
+[v _skipws `(v ~T0 @X0 1 sf1`*S1 ]
+"75
+{
+[e :U _skipws ]
+"74
+[v _fp `*S1 ~T0 @X0 1 r1 ]
+"75
+[f ]
+"76
+[v _c `i ~T0 @X0 1 a ]
+"78
+[e $U 10  ]
+[e :U 11 ]
+{
+"79
+[e $ ! ! || == -> _c `ui -> 32 `ui < -> -> - -> _c `ui -> 9 `ui `uc `i -> 5 `i 13  ]
+{
+"80
+[e ( _ungetc (2 , _c _fp ]
+"81
+[e $U 12  ]
+"82
+}
+[e :U 13 ]
+"83
+}
+[e :U 10 ]
+"78
+[e $ != = _c ( _fgetc (1 _fp -U -> 1 `i 11  ]
+[e :U 12 ]
+"84
+[e :UE 9 ]
+}
+"274
+[v _is_inf_nan `(i ~T0 @X0 1 sf4`*S1`uc`i`i ]
+{
+[e :U _is_inf_nan ]
+[v _fp `*S1 ~T0 @X0 1 r1 ]
+[v _first `uc ~T0 @X0 1 r2 ]
+[v _pos `i ~T0 @X0 1 r3 ]
+[v _n `i ~T0 @X0 1 r4 ]
+[f ]
+"275
+[v _c `i ~T0 @X0 1 a ]
+[v _i `i ~T0 @X0 1 a ]
+[v _w `i ~T0 @X0 1 a ]
+[v F733 `*Cuc ~T0 @X0 -> 2 `i s ]
+[i F733
+:U ..
+"276
+:s 1C
+:s 2C
+..
+]
+[v _m `*Cuc ~T0 @X0 -> 2 `i a ]
+[e = _m F733 ]
+"279
+[e $ ! < _n + _pos -> 3 `i 15  ]
+{
+"280
+[e ) -> 0 `i ]
+[e $UE 14  ]
+"281
+}
+[e :U 15 ]
+"282
+[e = _i _pos ]
+"283
+[e = _w ? == -> ? < -> -> - -> _first `ui -> 65 `ui `uc `i -> 26 `i : | -> _first `i -> 32 `i -> _first `i `ui -> 105 `ui : -> 0 `i -> 1 `i ]
+"284
+[e = *U + &U _dbuf * -> -> ++ _i -> 1 `i `ui `ux -> -> # *U &U _dbuf `ui `ux _first ]
+"285
+[e $U 16  ]
+[e :U 17 ]
+{
+"286
+[e = _c ( _fgetc (1 _fp ]
+"287
+[e $ ! == _c -U -> 1 `i 19  ]
+{
+"288
+[e ) _c ]
+[e $UE 14  ]
+"289
+}
+[e :U 19 ]
+"290
+[e $ ! != ? < -> -> - -> _c `ui -> 65 `ui `uc `i -> 26 `i : | _c -> 32 `i _c -> *U + *U + &U _m * -> -> _w `ui `ux -> -> # *U &U _m `ui `ux * -> -> - _i _pos `ui `ux -> -> # *U *U + &U _m * -> -> _w `ui `ux -> -> # *U &U _m `ui `ux `ui `ux `i 20  ]
+{
+"292
+[e $U 18  ]
+"293
+}
+[e :U 20 ]
+"294
+[e = *U + &U _dbuf * -> -> ++ _i -> 1 `i `ui `ux -> -> # *U &U _dbuf `ui `ux -> _c `uc ]
+"295
+}
+[e :U 16 ]
+"285
+[e $ < _i + _pos -> 3 `i 17  ]
+[e :U 18 ]
+"297
+[e $ ! < _i + _pos -> 3 `i 21  ]
+{
+"299
+[e ( _ungetc (2 , _c _fp ]
+"300
+[e $U 22  ]
+[e :U 23 ]
+{
+"301
+[e ( _ungetc (2 , -> *U + &U _dbuf * -> -> =- _i -> 1 `i `ui `ux -> -> # *U &U _dbuf `ui `ux `i _fp ]
+"302
+}
+[e :U 22 ]
+"300
+[e $ > _i _pos 23  ]
+[e :U 24 ]
+"303
+[e ) -> 0 `i ]
+[e $UE 14  ]
+"304
+}
+[e :U 21 ]
+"305
+[e ) -> 3 `i ]
+[e $UE 14  ]
+"306
+[e :UE 14 ]
+}
+"308
+[v _atoaefg `(i ~T0 @X0 1 sf2`*S1`*d ]
+"309
+{
+[e :U _atoaefg ]
+"308
+[v _fp `*S1 ~T0 @X0 1 r1 ]
+[v _pld `*d ~T0 @X0 1 r2 ]
+"309
+[f ]
+"310
+[v _ep `*uc ~T0 @X0 1 a ]
+"311
+[v _c `i ~T0 @X0 1 a ]
+[v _e `i ~T0 @X0 1 a ]
+[v _i `i ~T0 @X0 1 a ]
+[v _w `i ~T0 @X0 1 a ]
+[v _s `i ~T0 @X0 1 a ]
+[v _j `i ~T0 @X0 1 a ]
+[v _n `i ~T0 @X0 1 a ]
+"312
+[v _d `a ~T0 @X0 1 a ]
+[v _hex `a ~T0 @X0 1 a ]
+"315
+[e ( _skipws (1 _fp ]
+"318
+[e = _w -> ? != _width -> 0 `i : -> _width `ui - -> # _dbuf `ui -> -> 1 `i `ui `i ]
+"319
+[e = _n -> ? < -> _w `ui - -> # _dbuf `ui -> -> 1 `i `ui : -> _w `ui - -> # _dbuf `ui -> -> 1 `i `ui `i ]
+"320
+[e = _s = _e = _i -> 0 `i ]
+"321
+[e = _hex = _d -> = _s -> 0 `i `a ]
+"322
+[e $U 26  ]
+[e :U 27 ]
+{
+"323
+[e = _c ( _fgetc (1 _fp ]
+"324
+[e $ ! && == _c -U -> 1 `i || != _width -> 0 `i == _i -> 0 `i 29  ]
+{
+"325
+[e ) _c ]
+[e $UE 25  ]
+"326
+}
+[e :U 29 ]
+"327
+[e $ ! && ! != _s -> 0 `i || == -> _c `ui -> 43 `ui == -> _c `ui -> 45 `ui 30  ]
+{
+"329
+[e $ ! ! || == _i -> 0 `i == _i _e 31  ]
+{
+"330
+[e ( _ungetc (2 , _c _fp ]
+"331
+[e $U 28  ]
+"332
+}
+[e :U 31 ]
+"333
+[e = _s -> 1 `i ]
+"334
+[e = *U + &U _dbuf * -> -> _i `ui `ux -> -> # *U &U _dbuf `ui `ux -> _c `uc ]
+"335
+[e =+ _i -> 1 `i ]
+"336
+[e =+ _nmatch -> 1 `i ]
+"337
+[e $U 26  ]
+"338
+}
+[e :U 30 ]
+"339
+[e $ ! && ! != -> _d `i -> 0 `i == -> _c `ui -> 46 `ui 32  ]
+{
+"341
+[e $ ! != _e -> 0 `i 33  ]
+{
+"342
+[e ( _ungetc (2 , _c _fp ]
+"343
+[e $U 28  ]
+"344
+}
+[e :U 33 ]
+"345
+[e = _d -> -> 1 `i `a ]
+"346
+[e = *U + &U _dbuf * -> -> _i `ui `ux -> -> # *U &U _dbuf `ui `ux -> _c `uc ]
+"347
+[e =+ _i -> 1 `i ]
+"348
+[e =+ _nmatch -> 1 `i ]
+"349
+[e $U 26  ]
+"350
+}
+[e :U 32 ]
+"351
+[e $ ! && ! != _e -> 0 `i != ? != -> _hex `i -> 0 `i : -> == -> ? < -> -> - -> _c `ui -> 65 `ui `uc `i -> 26 `i : | _c -> 32 `i _c `ui -> 112 `ui `i -> == -> ? < -> -> - -> _c `ui -> 65 `ui `uc `i -> 26 `i : | _c -> 32 `i _c `ui -> 101 `ui `i -> 0 `i 34  ]
+{
+"352
+[e = _e + _i -> 1 `i ]
+"353
+[e = _s -> 0 `i ]
+"354
+[e = *U + &U _dbuf * -> -> _i `ui `ux -> -> # *U &U _dbuf `ui `ux -> _c `uc ]
+"355
+[e =+ _i -> 1 `i ]
+"356
+[e =+ _nmatch -> 1 `i ]
+"357
+[e $U 26  ]
+"358
+}
+[e :U 34 ]
+"359
+[e $ ! && && && ! != _e -> 0 `i == _i + _s -> 1 `i == -> ? < -> -> - -> _c `ui -> 65 `ui `uc `i -> 26 `i : | _c -> 32 `i _c `ui -> 120 `ui == -> *U + &U _dbuf * -> -> - _i -> 1 `i `ui `ux -> -> # *U &U _dbuf `ui `ux `ui -> 48 `ui 35  ]
+{
+"361
+[e = _hex -> -> 1 `i `a ]
+"362
+[e = *U + &U _dbuf * -> -> _i `ui `ux -> -> # *U &U _dbuf `ui `ux -> _c `uc ]
+"363
+[e =+ _i -> 1 `i ]
+"364
+[e =+ _nmatch -> 1 `i ]
+"365
+[e $U 26  ]
+"366
+}
+[e :U 35 ]
+"367
+[e $ ! ! != ? != -> _hex `i -> 0 `i : -> || < -> -> - -> _c `ui -> 48 `ui `uc `i -> 10 `i < -> -> - -> | _c -> 32 `i `ui -> 97 `ui `uc `i -> 6 `i `i -> < -> -> - -> _c `ui -> 48 `ui `uc `i -> 10 `i `i -> 0 `i 36  ]
+{
+"371
+[e = _j ? < -> -> - -> _c `ui -> 65 `ui `uc `i -> 26 `i : | _c -> 32 `i _c ]
+"372
+[e $ ! && == _s _i || == -> _j `ui -> 105 `ui == -> _j `ui -> 110 `ui 37  ]
+{
+"373
+[e = _j ( _is_inf_nan (4 , , , _fp -> _c `uc _i _n ]
+"374
+[e $ ! <= _j -> 0 `i 38  ]
+{
+"375
+[e $U 28  ]
+"376
+}
+[e :U 38 ]
+"377
+[e =+ _i _j ]
+"378
+[e =+ _nmatch _j ]
+"379
+}
+[e $U 39  ]
+"380
+[e :U 37 ]
+{
+"381
+[e ( _ungetc (2 , _c _fp ]
+"382
+}
+[e :U 39 ]
+"383
+[e $U 28  ]
+"384
+}
+[e :U 36 ]
+"385
+[e = *U + &U _dbuf * -> -> _i `ui `ux -> -> # *U &U _dbuf `ui `ux -> _c `uc ]
+"386
+[e =+ _i -> 1 `i ]
+"387
+[e =+ _nmatch -> 1 `i ]
+"388
+}
+[e :U 26 ]
+"322
+[e $ < _i _n 27  ]
+[e :U 28 ]
+"389
+[e = *U + &U _dbuf * -> -> _i `ui `ux -> -> # *U &U _dbuf `ui `ux -> -> 0 `ui `uc ]
+"393
+[e = _e _errno ]
+"394
+[e = _errno -> 0 `i ]
+"395
+[e = *U _pld -> ( _strtof (2 , -> &U *U + &U _dbuf * -> -> -> 0 `i `ui `ux -> -> # *U &U _dbuf `ui `ux `*Cuc &U _ep `d ]
+"397
+[e = _d -> -> && != _errno -> 0 `i != _errno -> 34 `i `i `a ]
+"398
+[e = _errno _e ]
+"400
+[e ) ? || || != -> _d `i -> 0 `i ! != _i -> 0 `i == _ep &U *U + &U _dbuf * -> -> -> 0 `i `ui `ux -> -> # *U &U _dbuf `ui `ux : - -U -> 1 `i -> 1 `i -> ! != -> _asup `i -> 0 `i `i ]
+[e $UE 25  ]
+"401
+[e :UE 25 ]
+}
+"672
+[v _vfsfcnvrt `(i ~T0 @X0 1 sf3`*S1`**uc`**v ]
+"673
+{
+[e :U _vfsfcnvrt ]
+"672
+[v _fp `*S1 ~T0 @X0 1 r1 ]
+[v _fmt `**uc ~T0 @X0 1 r2 ]
+[v _ap `**v ~T0 @X0 1 r3 ]
+"673
+[f ]
+"674
+[v _cp `*uc ~T0 @X0 1 a ]
+[v _ct `uc ~T0 @X0 -> 3 `i a ]
+"675
+[v _c `i ~T0 @X0 1 a ]
+[v _i `i ~T0 @X0 1 a ]
+"676
+[v _ll `o ~T0 @X0 1 a ]
+"677
+[v _llu `uo ~T0 @X0 1 a ]
+"678
+[v _f `d ~T0 @X0 1 a ]
+"679
+[v _vp `*v ~T0 @X0 1 a ]
+"682
+[e $ ! == -> *U + *U _fmt * -> -> 0 `i `x -> -> # *U *U _fmt `i `x `ui -> 37 `ui 41  ]
+{
+"683
+[e =+ *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x ]
+"685
+[e = _asup -> = _width -> 0 `i `a ]
+"705
+[e = *U + &U _ct * -> -> -> 0 `i `ui `ux -> -> # *U &U _ct `ui `ux -> ? < -> -> - -> -> *U + *U _fmt * -> -> 0 `i `x -> -> # *U *U _fmt `i `x `i `ui -> 65 `ui `uc `i -> 26 `i : | -> *U + *U _fmt * -> -> 0 `i `x -> -> # *U *U _fmt `i `x `i -> 32 `i -> *U + *U _fmt * -> -> 0 `i `x -> -> # *U *U _fmt `i `x `i `uc ]
+"706
+[e $ ! != -> *U + &U _ct * -> -> -> 0 `i `ui `ux -> -> # *U &U _ct `ui `ux `i -> 0 `i 42  ]
+{
+"707
+[e = *U + &U _ct * -> -> -> 1 `i `ui `ux -> -> # *U &U _ct `ui `ux -> ? < -> -> - -> -> *U + *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x `i `ui -> 65 `ui `uc `i -> 26 `i : | -> *U + *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x `i -> 32 `i -> *U + *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x `i `uc ]
+"708
+[e $ ! != -> *U + &U _ct * -> -> -> 1 `i `ui `ux -> -> # *U &U _ct `ui `ux `i -> 0 `i 43  ]
+{
+"709
+[e = *U + &U _ct * -> -> -> 2 `i `ui `ux -> -> # *U &U _ct `ui `ux -> ? < -> -> - -> -> *U + *U _fmt * -> -> 2 `i `x -> -> # *U *U _fmt `i `x `i `ui -> 65 `ui `uc `i -> 26 `i : | -> *U + *U _fmt * -> -> 2 `i `x -> -> # *U *U _fmt `i `x `i -> 32 `i -> *U + *U _fmt * -> -> 2 `i `x -> -> # *U *U _fmt `i `x `i `uc ]
+"710
+}
+[e :U 43 ]
+"711
+}
+[e :U 42 ]
+"955
+[e $ ! || || || == -> *U + &U _ct * -> -> -> 0 `i `ui `ux -> -> # *U &U _ct `ui `ux `ui -> 97 `ui == -> *U + &U _ct * -> -> -> 0 `i `ui `ux -> -> # *U &U _ct `ui `ux `ui -> 101 `ui == -> *U + &U _ct * -> -> -> 0 `i `ui `ux -> -> # *U &U _ct `ui `ux `ui -> 102 `ui == -> *U + &U _ct * -> -> -> 0 `i `ui `ux -> -> # *U &U _ct `ui `ux `ui -> 103 `ui 44  ]
+"956
+{
+"958
+[e =+ *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x ]
+"959
+[e = _i ( _atoaefg (2 , _fp &U _f ]
+"960
+[e $ ! ! < _i -> 1 `i 45  ]
+{
+"961
+[e = _vp -> *U -> ( ___va_arg , (. -> *U -> _ap `***f `*v -> -> 0 `i `*f `**f `*v ]
+"962
+[e = *U -> _vp `*f -> _f `f ]
+"963
+}
+[e :U 45 ]
+"964
+[e ) _i ]
+[e $UE 40  ]
+"965
+}
+[e :U 44 ]
+"966
+[e $ ! || || || ! != ( _strncmp (3 , , -> &U _ct `*Cuc :s 5C - / -> 3 `ui -> # *U + :s 6C * -> -> 0 `i `x -> -> # *U :s 6C `i `x `ui -> -> 1 `i `ui -> 0 `i ! != ( _strncmp (3 , , -> &U _ct `*Cuc :s 9C - / -> 3 `ui -> # *U + :s 10C * -> -> 0 `i `x -> -> # *U :s 10C `i `x `ui -> -> 1 `i `ui -> 0 `i ! != ( _strncmp (3 , , -> &U _ct `*Cuc :s 13C - / -> 3 `ui -> # *U + :s 14C * -> -> 0 `i `x -> -> # *U :s 14C `i `x `ui -> -> 1 `i `ui -> 0 `i ! != ( _strncmp (3 , , -> &U _ct `*Cuc :s 17C - / -> 3 `ui -> # *U + :s 18C * -> -> 0 `i `x -> -> # *U :s 18C `i `x `ui -> -> 1 `i `ui -> 0 `i 46  ]
+"969
+{
+"971
+[e = _i ( _atoaefg (2 , _fp &U _f ]
+"972
+[e $ ! ! < _i -> 1 `i 47  ]
+{
+"973
+[e $ ! < -> -> - -> -> *U + *U _fmt * -> -> 0 `i `x -> -> # *U *U _fmt `i `x `i `ui -> 65 `ui `uc `i -> 26 `i 48  ]
+{
+"974
+[e = _vp -> *U -> ( ___va_arg , (. -> *U -> _ap `***d `*v -> -> 0 `i `*d `**d `*v ]
+"975
+[e = *U -> _vp `*d _f ]
+"976
+}
+[e $U 49  ]
+[e :U 48 ]
+{
+"977
+[e = _vp -> *U -> ( ___va_arg , (. -> *U -> _ap `***d `*v -> -> 0 `i `*d `**d `*v ]
+"978
+[e = *U -> _vp `*d -> _f `d ]
+"979
+}
+[e :U 49 ]
+"980
+}
+[e :U 47 ]
+"981
+[e =+ *U _fmt * -> - / -> 3 `ui -> # *U + :s 19C * -> -> 0 `i `x -> -> # *U :s 19C `i `x `ui -> -> 1 `i `ui `ux -> -> # *U *U _fmt `ui `ux ]
+"982
+[e ) _i ]
+[e $UE 40  ]
+"983
+}
+[e :U 46 ]
+"1453
+[e $ ! == -> *U + *U _fmt * -> -> 0 `i `x -> -> # *U *U _fmt `i `x `ui -> 37 `ui 50  ]
+{
+"1454
+[e ( _skipws (1 _fp ]
+"1455
+[e = _c ( _fgetc (1 _fp ]
+"1456
+[e $ ! == -> _c `ui -> 37 `ui 51  ]
+{
+"1457
+[e =+ *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x ]
+"1458
+[e =+ _nmatch -> 1 `i ]
+"1459
+[e ) -> 0 `i ]
+[e $UE 40  ]
+"1460
+}
+[e $U 52  ]
+"1461
+[e :U 51 ]
+[e $ ! != _c -U -> 1 `i 53  ]
+{
+"1462
+[e ( _ungetc (2 , _c _fp ]
+"1463
+}
+[e :U 53 ]
+[e :U 52 ]
+"1464
+[e ) - -U -> 1 `i -> 1 `i ]
+[e $UE 40  ]
+"1465
+}
+[e :U 50 ]
+"1468
+[e =+ *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x ]
+"1469
+[e ) -> 0 `i ]
+[e $UE 40  ]
+"1470
+}
+[e :U 41 ]
+"1473
+[e = _c ( _fgetc (1 _fp ]
+"1474
+[e $ ! || == -> *U *U + _fmt * -> -> 0 `i `x -> -> # *U _fmt `i `x `ui -> 32 `ui < -> -> - -> *U *U + _fmt * -> -> 0 `i `x -> -> # *U _fmt `i `x `ui -> 9 `ui `uc `i -> 5 `i 54  ]
+{
+"1476
+[e :U 57 ]
+{
+"1477
+[e =+ *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x ]
+"1478
+}
+[e $ || == -> *U *U + _fmt * -> -> 0 `i `x -> -> # *U _fmt `i `x `ui -> 32 `ui < -> -> - -> *U *U + _fmt * -> -> 0 `i `x -> -> # *U _fmt `i `x `ui -> 9 `ui `uc `i -> 5 `i 57  ]
+[e :U 56 ]
+"1480
+[e $U 58  ]
+[e :U 59 ]
+{
+"1481
+[e =+ _nmatch -> 1 `i ]
+"1482
+[e = _c ( _fgetc (1 _fp ]
+"1483
+}
+[e :U 58 ]
+"1480
+[e $ || == -> _c `ui -> 32 `ui < -> -> - -> _c `ui -> 9 `ui `uc `i -> 5 `i 59  ]
+[e :U 60 ]
+"1484
+[e $ ! != _c -U -> 1 `i 61  ]
+{
+"1485
+[e ( _ungetc (2 , _c _fp ]
+"1486
+}
+[e :U 61 ]
+"1487
+}
+[e $U 62  ]
+"1488
+[e :U 54 ]
+[e $ ! == _c -> *U *U + _fmt * -> -> 0 `i `x -> -> # *U _fmt `i `x `i 63  ]
+{
+"1489
+[e =+ *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x ]
+"1490
+[e =+ _nmatch -> 1 `i ]
+"1491
+}
+[e $U 64  ]
+[e :U 63 ]
+{
+"1492
+[e $ ! == _c -U -> 1 `i 65  ]
+{
+"1493
+[e ) -U -> 1 `i ]
+[e $UE 40  ]
+"1494
+}
+[e :U 65 ]
+"1495
+[e ( _ungetc (2 , _c _fp ]
+"1496
+[e ) - -U -> 1 `i -> 1 `i ]
+[e $UE 40  ]
+"1497
+}
+[e :U 64 ]
+[e :U 62 ]
+"1499
+[e ) -> 0 `i ]
+[e $UE 40  ]
+"1500
+[e :UE 40 ]
+}
+"1502
+[v _vfscanf `(i ~T0 @X0 1 ef3`*S1`*Cuc`**v ]
+"1503
+{
+[e :U _vfscanf ]
+"1502
+[v _fp `*S1 ~T0 @X0 1 r1 ]
+[v _fmt `*Cuc ~T0 @X0 1 r2 ]
+[v _ap `**v ~T0 @X0 1 r3 ]
+"1503
+[f ]
+"1504
+[v _cfmt `*uc ~T0 @X0 1 a ]
+"1505
+[v _n `i ~T0 @X0 1 a ]
+[v _saved_errno `i ~T0 @X0 1 a ]
+"1507
+[e = _cfmt -> _fmt `*uc ]
+"1508
+[e = _ncnv = _nmatch -> 0 `i ]
+"1509
+[e = _saved_errno _errno ]
+"1510
+[e $U 67  ]
+[e :U 68 ]
+{
+"1511
+[e = _errno -> 0 `i ]
+"1512
+[e = _n ( _vfsfcnvrt (3 , , _fp &U _cfmt _ap ]
+"1513
+[e $ ! < _n -> 0 `i 70  ]
+{
+"1514
+[e $U 69  ]
+"1515
+}
+[e :U 70 ]
+"1516
+[e =+ _ncnv _n ]
+"1517
+}
+[e :U 67 ]
+"1510
+[e $ != -> *U _cfmt `i -> 0 `i 68  ]
+[e :U 69 ]
+"1518
+[e = _errno _saved_errno ]
+"1519
+[e $ ! && == _n -U -> 1 `i == _ncnv -> 0 `i 71  ]
+{
+"1520
+[e ) _n ]
+[e $UE 66  ]
+"1521
+}
+[e :U 71 ]
+"1523
+[e ) _ncnv ]
+[e $UE 66  ]
+"1524
+[e :UE 66 ]
+}
+[a 2C 110 97 110 0 ]
+[a 15C 108 103 0 ]
+[a 16C 108 103 0 ]
+[a 17C 108 103 0 ]
+[a 18C 108 103 0 ]
+[a 1C 105 110 102 0 ]
+[a 8C 108 102 0 ]
+[a 10C 108 102 0 ]
+[a 11C 108 102 0 ]
+[a 12C 108 102 0 ]
+[a 13C 108 102 0 ]
+[a 14C 108 102 0 ]
+[a 4C 108 101 0 ]
+[a 6C 108 101 0 ]
+[a 7C 108 101 0 ]
+[a 9C 108 101 0 ]
+[a 3C 108 97 0 ]
+[a 5C 108 97 0 ]
+[a 19C 108 97 0 ]

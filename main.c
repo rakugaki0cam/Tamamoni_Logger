@@ -354,7 +354,8 @@ void main(void)
 
     LCD_initialize();
     PWM3_LoadDutyValue(100 * (0x03ff / 100));   //LCDバックライトオン　100% (10bit)
-    
+    PWM1_16BIT_Disable();           //VideoSyncLED off
+
     touch_init();
     
     //I2C

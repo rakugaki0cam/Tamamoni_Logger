@@ -1,0 +1,236 @@
+Version 4.0 HI-TECH Software Intermediate Code
+[v F393 `(v ~T0 @X0 0 tf ]
+[v F395 `(a ~T0 @X0 0 tf ]
+[v F397 `(uc ~T0 @X0 0 tf1`uc ]
+[v F400 `(v ~T0 @X0 0 tf2`*v`ui ]
+[v F404 `(v ~T0 @X0 0 tf2`*v`ui ]
+[v F408 `(v ~T0 @X0 0 tf2`*v`ui ]
+[v F412 `(v ~T0 @X0 0 tf1`uc ]
+[v F415 `(uc ~T0 @X0 0 tf ]
+[v F418 `(v ~T0 @X0 0 tf ]
+[v F417 `(v ~T0 @X0 0 tf1`*F418 ]
+[v F421 `(v ~T0 @X0 0 tf ]
+"57 mcc_generated_files/drivers/spi_master.h
+[s S3 `*F393 1 `*F395 1 `*F397 1 `*F400 1 `*F404 1 `*F408 1 `*F412 1 `*F415 1 `*F417 1 `*F421 1 ]
+[n S3 . spiClose spiOpen exchangeByte exchangeBlock writeBlock readBlock writeByte readByte setSpiISR spiISR ]
+"70 mcc_generated_files/drivers/../spi1.h
+[v _SPI1_Close `(v ~T0 @X0 0 ef ]
+"35 mcc_generated_files/drivers/spi_master.c
+[v _TOUCH_open `(a ~T0 @X0 0 ef ]
+"71 mcc_generated_files/drivers/../spi1.h
+[v _SPI1_ExchangeByte `(uc ~T0 @X0 0 ef1`uc ]
+"72
+[v _SPI1_ExchangeBlock `(v ~T0 @X0 0 ef2`*v`ui ]
+"73
+[v _SPI1_WriteBlock `(v ~T0 @X0 0 ef2`*v`ui ]
+"74
+[v _SPI1_ReadBlock `(v ~T0 @X0 0 ef2`*v`ui ]
+"75
+[v _SPI1_WriteByte `(v ~T0 @X0 0 ef1`uc ]
+"76
+[v _SPI1_ReadByte `(uc ~T0 @X0 0 ef ]
+[v F449 `(v ~T0 @X0 0 tf ]
+[v F448 `(v ~T0 @X0 0 tf1`*F449 ]
+[v F451 `(v ~T0 @X0 0 tf ]
+"36 mcc_generated_files/drivers/spi_master.c
+[v _LCDDMA_open `(a ~T0 @X0 0 ef ]
+[v F469 `(v ~T0 @X0 0 tf ]
+[v F468 `(v ~T0 @X0 0 tf1`*F469 ]
+[v F471 `(v ~T0 @X0 0 tf ]
+"37
+[v _SDFAST_open `(a ~T0 @X0 0 ef ]
+[v F489 `(v ~T0 @X0 0 tf ]
+[v F488 `(v ~T0 @X0 0 tf1`*F489 ]
+[v F491 `(v ~T0 @X0 0 tf ]
+"38
+[v _LCD_open `(a ~T0 @X0 0 ef ]
+[v F509 `(v ~T0 @X0 0 tf ]
+[v F508 `(v ~T0 @X0 0 tf1`*F509 ]
+[v F511 `(v ~T0 @X0 0 tf ]
+"39
+[v _SDSLOW_open `(a ~T0 @X0 0 ef ]
+[v F529 `(v ~T0 @X0 0 tf ]
+[v F528 `(v ~T0 @X0 0 tf1`*F529 ]
+[v F531 `(v ~T0 @X0 0 tf ]
+"50
+[c E358 0 1 2 3 4 5 .. ]
+[n E358 . TOUCH_CONFIG LCDDMA_CONFIG SDFAST_CONFIG LCD_CONFIG SDSLOW_CONFIG SPI1_DEFAULT  ]
+"69 mcc_generated_files/drivers/../spi1.h
+[v _SPI1_Open `(a ~T0 @X0 0 ef1`E358 ]
+"80 mcc_generated_files/drivers/spi_master.c
+[c E384 0 1 2 3 4 .. ]
+[n E384 . TOUCH LCDDMA SDFAST LCD SDSLOW  ]
+"41 mcc_generated_files/drivers/spi_master.c
+[v _spiMaster `CS3 ~T0 @X0 -> 5 `i e ]
+[i _spiMaster
+:U ..
+:U ..
+&U _SPI1_Close
+&U _TOUCH_open
+&U _SPI1_ExchangeByte
+&U _SPI1_ExchangeBlock
+&U _SPI1_WriteBlock
+&U _SPI1_ReadBlock
+&U _SPI1_WriteByte
+&U _SPI1_ReadByte
+-> -> -> 0 `i `*v `*F448
+-> -> -> 0 `i `*v `*F451
+..
+:U ..
+&U _SPI1_Close
+&U _LCDDMA_open
+&U _SPI1_ExchangeByte
+&U _SPI1_ExchangeBlock
+&U _SPI1_WriteBlock
+&U _SPI1_ReadBlock
+&U _SPI1_WriteByte
+&U _SPI1_ReadByte
+-> -> -> 0 `i `*v `*F468
+-> -> -> 0 `i `*v `*F471
+..
+:U ..
+&U _SPI1_Close
+&U _SDFAST_open
+&U _SPI1_ExchangeByte
+&U _SPI1_ExchangeBlock
+&U _SPI1_WriteBlock
+&U _SPI1_ReadBlock
+&U _SPI1_WriteByte
+&U _SPI1_ReadByte
+-> -> -> 0 `i `*v `*F488
+-> -> -> 0 `i `*v `*F491
+..
+:U ..
+&U _SPI1_Close
+&U _LCD_open
+&U _SPI1_ExchangeByte
+&U _SPI1_ExchangeBlock
+&U _SPI1_WriteBlock
+&U _SPI1_ReadBlock
+&U _SPI1_WriteByte
+&U _SPI1_ReadByte
+-> -> -> 0 `i `*v `*F508
+-> -> -> 0 `i `*v `*F511
+..
+:U ..
+&U _SPI1_Close
+&U _SDSLOW_open
+&U _SPI1_ExchangeByte
+&U _SPI1_ExchangeBlock
+&U _SPI1_WriteBlock
+&U _SPI1_ReadBlock
+&U _SPI1_WriteByte
+&U _SPI1_ReadByte
+-> -> -> 0 `i `*v `*F528
+-> -> -> 0 `i `*v `*F531
+..
+..
+]
+"49
+[v _TOUCH_open `(a ~T0 @X0 1 ef ]
+{
+[e :U _TOUCH_open ]
+[f ]
+"50
+[e ) ( _SPI1_Open (1 . `E358 0 ]
+[e $UE 4  ]
+"51
+[e :UE 4 ]
+}
+"53
+[v _LCDDMA_open `(a ~T0 @X0 1 ef ]
+{
+[e :U _LCDDMA_open ]
+[f ]
+"54
+[e ) ( _SPI1_Open (1 . `E358 1 ]
+[e $UE 5  ]
+"55
+[e :UE 5 ]
+}
+"57
+[v _SDFAST_open `(a ~T0 @X0 1 ef ]
+{
+[e :U _SDFAST_open ]
+[f ]
+"58
+[e ) ( _SPI1_Open (1 . `E358 2 ]
+[e $UE 6  ]
+"59
+[e :UE 6 ]
+}
+"61
+[v _LCD_open `(a ~T0 @X0 1 ef ]
+{
+[e :U _LCD_open ]
+[f ]
+"62
+[e ) ( _SPI1_Open (1 . `E358 3 ]
+[e $UE 7  ]
+"63
+[e :UE 7 ]
+}
+"65
+[v _SDSLOW_open `(a ~T0 @X0 1 ef ]
+{
+[e :U _SDSLOW_open ]
+[f ]
+"66
+[e ) ( _SPI1_Open (1 . `E358 4 ]
+[e $UE 8  ]
+"67
+[e :UE 8 ]
+}
+"80
+[v _spi_master_open `(a ~T0 @X0 1 ef1`E384 ]
+{
+[e :U _spi_master_open ]
+[v _config `E384 ~T0 @X0 1 r1 ]
+[f ]
+"81
+[e $U 11  ]
+{
+"82
+[e :U 12 ]
+"83
+[e ) ( _TOUCH_open ..  ]
+[e $UE 9  ]
+"84
+[e :U 13 ]
+"85
+[e ) ( _LCDDMA_open ..  ]
+[e $UE 9  ]
+"86
+[e :U 14 ]
+"87
+[e ) ( _SDFAST_open ..  ]
+[e $UE 9  ]
+"88
+[e :U 15 ]
+"89
+[e ) ( _LCD_open ..  ]
+[e $UE 9  ]
+"90
+[e :U 16 ]
+"91
+[e ) ( _SDSLOW_open ..  ]
+[e $UE 9  ]
+"92
+[e :U 17 ]
+"93
+[e ) -> -> 0 `i `a ]
+[e $UE 9  ]
+"94
+}
+[e $U 10  ]
+[e :U 11 ]
+[e [\ -> _config `ui , $ -> . `E384 0 `ui 12
+ , $ -> . `E384 1 `ui 13
+ , $ -> . `E384 2 `ui 14
+ , $ -> . `E384 3 `ui 15
+ , $ -> . `E384 4 `ui 16
+ 17 ]
+[e :U 10 ]
+"95
+[e :UE 9 ]
+}
