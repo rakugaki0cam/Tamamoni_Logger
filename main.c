@@ -217,6 +217,7 @@
  * 2024.03.02   ver.9.40    センサPT1オンでESPよりターゲットにスタート信号を送る、ためのRB0GPIO出力を追加。PT1_TO_ESP startHi 
  * 2024.03.10   ver.9.41    RB4(pin16) 設定なし　　--　ESP32 G15 予備
  * 2024.03.17   ver.9.42    ターゲットクリアの整理(不必要に多くクリアされていた)
+ * 2024.03.17   ver.9.43    WiFi無線<->LAN有線　切替時のターゲット表示修正
  * 
  * 
  *  ////モーションセンサーの発射時のタイミングログ取得にSMT1のタイマーを使っているけれど、着弾してしまうとタイマーが止まってしまう可能性がある。別タイマーにするか???
@@ -259,7 +260,7 @@ __EEPROM_DATA (0xf1, 0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.40"; 
+const char  version[] = "9.43"; 
 //FATfs関連 ここで定義しないとスペース確保できずにエラー
 FATFS       drive;
 FIL         file;

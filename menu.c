@@ -856,7 +856,7 @@ void    target_num_send(void){
     //ESP32へIDナンバーを送りペアリング
     esp_command_uart_send((uint8_t*)str_com_target_id, (float)target_id);
     __delay_ms(500);
-    sprintf(tmp_string, "Target #%2d        ", target_id);  //18文字
+    sprintf(tmp_string, "WiFi->Target#%d    ", target_id);  //18文字
     LCD_Printf(COL_WARNING, ROW_WARNING1, tmp_string, 1, PINK, 1);
     
 }

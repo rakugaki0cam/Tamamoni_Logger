@@ -926,11 +926,12 @@ void sensor_connect_check(void){
             CLCnCON = 0x80;                     //CLC8ENable -> LAN-RS485
             target_com_path = RS485;
             //
-            sprintf(tmp_string, "Target LAN        ");  //18文字
+            sprintf(tmp_string, "Target wiredLAN   ");  //18文字
             LCD_Printf(COL_WARNING, ROW_WARNING1, tmp_string, 1, PINK, 1);
             //debug
             //printf("%s\n", tmp_string);
             rx_buffer_clear();
+            target_graph_initialize();
         }
     }else{  //if(SENSOR4_LAN == 0)
         if ((RS485 == target_com_path) && (SENSOR4_WIFI == 1)){
@@ -939,11 +940,12 @@ void sensor_connect_check(void){
             CLCnCON = 0x00;                     //CLC8disable -> WIFI-ESP_NOW
             target_com_path = ESP_NOW;
             //
-            sprintf(tmp_string, "Target #%2d WiFi   ", target_id_read());  //18文字
+            sprintf(tmp_string, "Target#%d WiFi CON ", target_id_read());  //18文字
             LCD_Printf(COL_WARNING, ROW_WARNING1, tmp_string, 1, PINK, 1);
             //debug
             //printf("%s\n", tmp_string);
             rx_buffer_clear();
+            target_graph_initialize();
        }
     }
     //↑切換中に測定割り込みが入ると途中になりそうだけどセンサ4オンは測定開始から時間が経ってからだから大丈夫???
