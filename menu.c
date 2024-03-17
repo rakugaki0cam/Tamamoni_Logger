@@ -805,16 +805,18 @@ void target_menu(void) {
                     button_select_disp(but_sel, 1, button_target, NUM_BUTTON_TARGET);
                     //電子ターゲットにコマンドを送る
                     target_id = target_id_tmp;
+                    offset_h = offset_tmp;
+                    aim_h = aim_tmp;
+                    
                     esp_command_uart_send((uint8_t*)str_com_target_id, (float)target_id);
                     __delay_ms(200);    //つづけざまに送ると無効になるみたい
-                    offset_h = offset_tmp;
-                    command_uart_send((uint8_t*)str_com_offset, (float)offset_h);
-                    __delay_ms(200);    //つづけざまに送ると無効になるみたい
-                    aim_h = aim_tmp;
-                    command_uart_send((uint8_t*)str_com_aimpoint, (float)aim_h);
+                    //command_uart_send((uint8_t*)str_com_offset, (float)offset_h);
+                    //__delay_ms(200);    //つづけざまに送ると無効になるみたい
+                    //command_uart_send((uint8_t*)str_com_aimpoint, (float)aim_h);
                     //__delay_ms(200);
                     impact_plot_graph(DUMMY, DUMMY, DUMMY, REDRAW_NONE, RESET_DONE);    //ターゲットデータをクリア
                     __delay_ms(200);
+                    
                     write_rom_setup();
                     return;                 //menuを抜ける
                     break;
@@ -873,8 +875,8 @@ void    target_set_up_command(void){
     command_uart_send((uint8_t*)str_com_aimpoint, (float)aim_h);
     __delay_ms(200);
     command_uart_send((uint8_t*)str_com_bright, (float)bright);
-    __delay_ms(200);
-    target_lcd_clear_command();
+    //__delay_ms(200);
+    //target_lcd_clear_command();
 }
 
 
@@ -889,9 +891,9 @@ void    set_setup(void){
     //マト距離とエアソフトガンの種類とBB弾の種類のログデータへのセット
     
     sprintf(&bullet_CSVdata[DISTANCE][0],     "%8.3f", (float)dist_mm / 1000 + dist_m);
-    sprintf(&bullet_CSVdata[AIRSOFT_TYPE][0], "%s",    air_gun_text[gun_num]);     //12文字
+    sprintf(&bullet_CSVdata[AIRSOFT_TYPE][0], "%s",    air_gun_text[gun_num]);  //12文字
     sprintf(&bullet_CSVdata[BB_MASS][0],      "%6.3f", (float)bbmass_g / 1000);
-    sprintf(&bullet_CSVdata[BB_TYPE][0],      "%s",    bb_type_text[bb_num]);           //12文字
+    sprintf(&bullet_CSVdata[BB_TYPE][0],      "%s",    bb_type_text[bb_num]);   //12文字
     sprintf(&bullet_CSVdata[F_EXTRACT][0],    "%7d",   f_extract);
     sprintf(&bullet_CSVdata[TARGET_AIM_H][0], "%5d",   aim_h);
 

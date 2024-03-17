@@ -2,7 +2,7 @@
 
 manifest_file_version: 1.0.0
 project: BulletLogger_V9_Q43
-creation_date: 2024-03-02T21:07:43.076+09:00[Asia/Tokyo]
+creation_date: 2024-03-15T21:05:22.399+09:00[Asia/Tokyo]
 operating_system: Mac OS X
 mcc_mode: IDE
 mcc_mode_version: v6.20
@@ -19,7 +19,7 @@ device_library: {library_class: com.microchip.mcc.mcu8.Mcu8PeripheralLibrary, na
 packs: {name: PIC18F-Q_DFP, version: 1.25.433}
 modules:
 - {name: com.microchip.mcc.mcu8.Mcu8PeripheralLibrary, type: CLASSIC, version: 1.82.1}
-- {name: com.microchip.mcc.sdcard.SDCardLibrary, type: CLASSIC, version: 1.1.0}
-- {name: com.microchip.mcc.fatfs.FatFsLibrary, type: CLASSIC, version: 1.1.0}
 - {name: com.microchip.mcc.foundationservices.library.FoundationServicesLibrary, type: CLASSIC,
   version: 0.2.3}
+- {name: com.microchip.mcc.fatfs.FatFsLibrary, type: CLASSIC, version: 1.1.0}
+- {name: com.microchip.mcc.sdcard.SDCardLibrary, type: CLASSIC, version: 1.1.0}
