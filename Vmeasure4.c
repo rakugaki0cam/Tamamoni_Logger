@@ -83,6 +83,7 @@
  * 2023.07.22   着弾表示時のオフセット値が有線接続時には反映されていなかったので修正。
  * 2024.02.25   printfエラー表示を#ifdefにて停止
  * 2024.03.02   PT1_TO_ESP追加
+ * 2024.03.24   測定中インジケータ　マゼンタ-->黄色に変更
  * 
  * 
 */
@@ -964,8 +965,10 @@ void sensor_connect_check(void){
 void print_indicator(indicator_status_t stat){
     //測定中インジケータ表示
     if (stat == INDI_ON){
+        //color = YELLOW;
+        LCD_SetColor(0xff, 0xff, 0x00);
         //color = MAGENTA;
-        LCD_SetColor(0xff, 0x00, 0xff);
+        //LCD_SetColor(0xff, 0x00, 0xff);
     }else{
         //color = CYAN;
         LCD_SetColor(0x00, 0xff, 0xff);
