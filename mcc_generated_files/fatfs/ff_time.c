@@ -80,9 +80,9 @@ static DWORD decimalToFatTime(uint16_t year, uint8_t month, uint8_t day, uint8_t
 //user///////////////////////////////////////////
 DWORD get_fattime (void){
     //FAT time用に数値変換処理　RTC_RX8900に合わせた
-    unsigned char dd[7];
+    uint8_t dd[7];
     uint8_t i;
-    I2C1_ReadDataBlock(RX8900_ADDRESS, 0x10,dd,7);
+    I2C1_ReadDataBlock(RX8900_ADDRESS, 0x10, dd, 7);
     for (i = 0; i < 7; i++){
         dd[i] = (dd[i] >> 4) * 10 + (dd[i] & 0x0f);                     //BCD -> decimal　
     }

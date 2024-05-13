@@ -42,6 +42,10 @@ typedef enum  {
 } esp_register_t;
 
 
+//#define i2c1_Write1byteRegister i2c_master_write1byte
+//#define i2c1_WriteDataBlock i2c_master_readblock
+
+
 bool ESP32slave_Init(void){
     //ESP32 I2C slave ID check   
 #define DEBUG32_1//_no
@@ -66,50 +70,29 @@ bool ESP32slave_Init(void){
     return OK;
 }
 
-#define i2c1_Write1byteRegister i2c_master_write1byte
 
-#define i2c1_WriteDataBlock i2c_master_readblock
 
 //**** TARGET command **************************************************
 
-bool ESP32slave_ClearCommand(void){  
+void ESP32slave_ClearCommand(void){  
     //ESP32へターゲットクリア
     printf("> target clear\n");
-    if (i2c1_Write1byteRegister(ESP_SLAVE_ID, REG_TARGET_CLEAR, 0)){
-#ifdef DEBUG_ESP_SLAVE_0
-        printf("ESPslave error!\n");
-#endif
-        return ERROR;
-    }
-    return OK;
+    i2c_master_write1byte(ESP_SLAVE_ID, REG_TARGET_CLEAR, 0);
 }
 
 
-bool ESP32slave_ResetCommand(void){  
+void ESP32slave_ResetCommand(void){  
     //ESP32へターゲットリセット
     printf("** RESET ESP32 in 3 second **\n");
     __delay_ms(3000);
-    
-    if (i2c1_Write1byteRegister(ESP_SLAVE_ID, REG_TARGET_RESET, 0)){
-#ifdef DEBUG_ESP_SLAVE_0
-        printf("ESPslave error!\n");
-#endif
-        return ERROR;
-    }
-    return OK;
+    i2c_master_write1byte(ESP_SLAVE_ID, REG_TARGET_RESET, 0);
 }
 
 
-bool ESP32slave_DefaultSetCommand(void){  
+void ESP32slave_DefaultSetCommand(void){  
     //ESP32へターゲットデフォルトセッティング
     printf("> target default set \n");
-    if (i2c1_Write1byteRegister(ESP_SLAVE_ID, REG_TARGET_DEFAULT, 0)){
-#ifdef DEBUG_ESP_SLAVE_0
-        printf("ESPslave error!\n");
-#endif
-        return ERROR;
-    }
-    return OK;
+    i2c_master_write1byte(ESP_SLAVE_ID, REG_TARGET_DEFAULT, 0);
 }
 
 
@@ -124,12 +107,7 @@ bool ESP32slave_OffSetCommand(float offSet){
     //1バイト数値に変換
     val = (uint8_t)(offSet + 128);
     printf("> target Y offset %4d \n", val - 128);
-    if (i2c1_Write1byteRegister(ESP_SLAVE_ID, REG_TARGET_OFFSET, val)){
-#ifdef DEBUG_ESP_SLAVE_0
-        printf("ESPslave error!\n");
-#endif
-        return ERROR;
-    }
+    i2c_master_write1byte(ESP_SLAVE_ID, REG_TARGET_OFFSET, val);
     return OK;
 }
 
@@ -142,13 +120,8 @@ bool ESP32slave_AimpointCommand(float aimPoint){
     }
     //1バイト数値に変換
     printf("> aimpoint set %3.0f \n", aimPoint);
-    if (i2c1_Write1byteRegister(ESP_SLAVE_ID, REG_TARGET_AIMPOINT, (uint8_t)aimPoint)){
-#ifdef DEBUG_ESP_SLAVE_0
-        printf("ESPslave error!\n");
-#endif
-        return ERROR;
-    }
-    return OK;   
+    i2c_master_write1byte(ESP_SLAVE_ID, REG_TARGET_AIMPOINT, (uint8_t)aimPoint);
+    return OK;
 }
 
 
@@ -159,32 +132,19 @@ bool ESP32slave_BrightnessCommand(float brightness){
         return ERROR;
     }
     printf("> LCD backlight brightness set %3.0f \n", brightness);
-    if (i2c1_Write1byteRegister(ESP_SLAVE_ID, REG_TARGET_BRIGHT, (uint8_t)brightness)){
-#ifdef DEBUG_ESP_SLAVE_0
-        printf("ESPslave error!\n");
-#endif
-        return ERROR;
-    }
-    return OK;   
-    
-    
+    i2c_master_write1byte(ESP_SLAVE_ID, REG_TARGET_BRIGHT, (uint8_t)brightness);
+    return OK;
 }
 
 
 //**** DATA send **************************************************
 
-bool ESP32slave_SendImpactData(uint8_t* dataToEsp, uint8_t len){
+void ESP32slave_SendImpactData(uint8_t* dataToEsp, uint8_t len){
     //着弾データを送信
     //len:バイト数
     //送る前の変数の型は呼び出しの際(uint8_t*)でキャストすれば　なんでもOK。
 
-    if (i2c1_WriteDataBlock(ESP_SLAVE_ID, REG_DATA_IMPACT, &dataToEsp[0], len)){
-#ifdef DEBUG_ESP_SLAVE_0
-        printf("ESPslave error!\n");
-#endif
-        return ERROR;
-    }
-    return OK;
+    i2c_master_readblock(ESP_SLAVE_ID, REG_DATA_IMPACT, &dataToEsp[0], len);
 }
     
 /*  ポインタ変数を立てなくてもできるので、このやり方は無駄だけどポインタを理解するのには良いかも。
@@ -209,50 +169,31 @@ bool ESP32slave_SendImpactData(float* impactData, uint8_t len){
 */
 
 
-bool ESP32slave_SendPT1Status(uint8_t pt1Status){
+void ESP32slave_SendPT1Status(uint8_t pt1Status){
     //PT1接続ステータスをESP32へ送る
     //pt1Status..0:有線LAN, 1:無線WIFI (pt1con_sor_t)
     uint8_t     dataToEsp[1];
 
     dataToEsp[0] = pt1Status;
 
-    if (i2c1_WriteDataBlock(ESP_SLAVE_ID, REG_DATA_PT1CON, &dataToEsp[0], 1)){
-#ifdef DEBUG_ESP_SLAVE_0
-        printf("ESPslave error!\n");
-#endif
-        return ERROR;
-    }
-    return OK;
+    i2c_master_readblock(ESP_SLAVE_ID, REG_DATA_PT1CON, &dataToEsp[0], 1);
 }
 
 
 
-bool ESP32slave_SendMessage(uint8_t* textStr) {
+void ESP32slave_SendMessage(uint8_t* textStr) {
     //テキストメッセージをESP32へ送る。ESP側でLCDに表示    
-    if (i2c1_WriteDataBlock(ESP_SLAVE_ID, REG_DATA_MESSAGE, textStr, strlen((char*)textStr))){
-#ifdef DEBUG_ESP_SLAVE_0
-        printf("ESPslave error!\n");
-#endif
-        return ERROR;
-    }
-
-    return OK;   
+    i2c_master_readblock(ESP_SLAVE_ID, REG_DATA_MESSAGE, textStr, (uint8_t)strlen((char*)textStr));   
 }
 
 
 
 //**** sleep *******************************************************************
 
-bool ESP32slave_SleepCommand(void){  
+void ESP32slave_SleepCommand(void){  
     //ESP32へスリープ要請
 
-    if (i2c1_Write1byteRegister(ESP_SLAVE_ID, REG_TARGET_SLEEP, DATA_SLEEP_KEY)){
-#ifdef DEBUG_ESP_SLAVE_0
-        printf("ESPslave error!\n");
-#endif
-        return ERROR;
-    }
-    return OK;
+    i2c_master_write1byte(ESP_SLAVE_ID, REG_TARGET_SLEEP, DATA_SLEEP_KEY);
 }
 
 
