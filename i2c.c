@@ -234,6 +234,68 @@ void i2c_master_readblock(uint8_t address, uint8_t reg, unsigned char *data, uin
 }
 
 
+
+//ESP32slave
+bool    i2c1_ESP32ReadDataBlock(uint8_t i2cId, uint8_t reg, uint8_t* rxData, uint8_t len){
+    //レジスタのデータをつづけて読み出す
+    //**** ESP32スレーブ向け *****
+    //     WriteReadだと最初のレジスタが取り込めないようなので
+    //i2cId: I2C device ID (7bit)
+    //reg:  register address
+    //rxData:  data
+    //len:  num of data < 256
+    //ret val: 0:OK,1:error
+    
+#define DEBUGI2C5_no
+    
+    uint8_t txData[1];
+    uint8_t i;
+    
+    for(i = 0; i < len; i++){               //////////////////////////////////////////clear
+        rxData[i] = 0;
+    }
+    
+    txData[0] = reg;
+    if (i2c1_BusCheck()){
+        printf("I2C bus error!\n");
+        return ERROR;
+    }
+    i2c1Complete = false;
+    if(!I2C1_Write(i2cId, &txData[0], 1)){
+        printf("I2C write error!\n");
+        return ERROR;
+    }
+    if (i2c1_Wait()){
+        //printf("error!\n");
+        return ERROR;
+    }
+    //一度終了。間にストップコンディションが入る。    
+    if (i2c1_BusCheck()){
+        printf("I2C bus error!\n");
+        return ERROR;
+    }
+    i2c1Complete = false;
+    if(!I2C1_Read(i2cId, rxData, len)){
+        printf("I2C read error!\n");
+        return ERROR;
+    }
+    //
+    if (i2c1_Wait()){
+        //printf("error!\n");
+        return ERROR;
+    }
+#ifdef DEBUGI2C5
+    printf("I2C 0x%02X (0x%02X)-", i2cId, txData[0]);
+    for (i = 0;i < len; i++){
+        printf(" %02x", rxData[i]);
+    }
+    printf("\n");
+#endif
+    return OK;
+    
+}
+
+
 /**
  End of File
 */
