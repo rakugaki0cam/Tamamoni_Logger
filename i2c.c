@@ -255,35 +255,73 @@ bool    i2c1_ESP32ReadDataBlock(uint8_t i2cId, uint8_t reg, uint8_t* rxData, uin
         rxData[i] = 0;
     }
     
-    txData[0] = reg;
-    if (i2c1_BusCheck()){
-        printf("I2C bus error!\n");
-        return ERROR;
-    }
-    i2c1Complete = false;
-    if(!I2C1_Write(i2cId, &txData[0], 1)){
-        printf("I2C write error!\n");
-        return ERROR;
-    }
-    if (i2c1_Wait()){
+    //txData[0] = reg;
+    //if (i2c1_BusCheck()){
+    //    printf("I2C bus error!\n");
+    //    return ERROR;
+    //}
+    //i2c1Complete = false;
+    
+    
+//void i2c_master_write1byte(uint8_t address, uint8_t reg, uint8_t data){
+    i2c_master_initialize();
+    I2C1ADB1 = (uint8_t)(i2cId << 1);
+    wait4BusFree();
+    I2C1CNT = 2;
+    I2C1CON0bits.S = 1;
+    wait4Start();
+    sendByte(reg);
+    //sendByte(rxdata[0]);
+    wait4Stop();
+//}
+
+
+    //if(!I2C1_Write(i2cId, &txData[0], 1)){
+    //    printf("I2C write error!\n");
+    //    return ERROR;
+    //}
+    //if (i2c1_Wait()){
         //printf("error!\n");
-        return ERROR;
+    //    return ERROR;
+    //}
+
+//void i2c_master_readblock(uint8_t address, uint8_t reg, unsigned char *data, uint8_t len){
+    i2c_master_initialize();
+    //I2C1ADB1 = (uint8_t)(i2cId << 1);
+    wait4BusFree();
+    I2C1CNT = 1;
+    I2C1CON0bits.RSEN = 1;
+    I2C1CON0bits.S = 1; //Start
+    wait4Start();
+    //sendByte(reg);
+    wait4MDRSetcount(len);
+    i2cId = (uint8_t)(i2cId << 1);
+    I2C1ADB1 = (uint8_t)(i2cId| 0x01); //Change the R/W bit for read
+    I2C1CON0bits.S = 1; //Start
+    I2C1CON0bits.RSEN = 0;
+    wait4Start();
+    while(len--)
+    {
+        *rxData++ = receiveByte();
     }
+    wait4Stop();
+//}
+
     //一度終了。間にストップコンディションが入る。    
-    if (i2c1_BusCheck()){
-        printf("I2C bus error!\n");
-        return ERROR;
-    }
-    i2c1Complete = false;
-    if(!I2C1_Read(i2cId, rxData, len)){
-        printf("I2C read error!\n");
-        return ERROR;
-    }
+    //if (i2c1_BusCheck()){
+    //    printf("I2C bus error!\n");
+    //    return ERROR;
+    //}
+    //i2c1Complete = false;
+    //if(!I2C1_Read(i2cId, rxData, len)){
+    //    printf("I2C read error!\n");
+    //    return ERROR;
+    //}
     //
-    if (i2c1_Wait()){
-        //printf("error!\n");
-        return ERROR;
-    }
+    //if (i2c1_Wait()){
+    //    //printf("error!\n");
+    //    return ERROR;
+    //}
 #ifdef DEBUGI2C5
     printf("I2C 0x%02X (0x%02X)-", i2cId, txData[0]);
     for (i = 0;i < len; i++){
@@ -296,6 +334,5 @@ bool    i2c1_ESP32ReadDataBlock(uint8_t i2cId, uint8_t reg, uint8_t* rxData, uin
 }
 
 
-/**
- End of File
-*/
+
+
