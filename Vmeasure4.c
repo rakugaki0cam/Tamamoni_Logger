@@ -714,7 +714,7 @@ uint8_t vmeasure(void){
                 if (ESP_NOW == target_com_path){
                     shot_data[shot_buf_pointer].impact_offset_usec += WIFI_DELAY_USEC;      //WiFi無線の遅延時間を加算(オフセット遅延はマイナス値)
                 }else {
-                    shot_data[shot_buf_pointer].impact_y -= target_offset_h();              //有線接続時にはオフセット値の補正が必要(ターゲットPIC32は知らない値)
+                    shot_data[shot_buf_pointer].impact_y -= target_offset_h();              //有線接続時にはオフセット値の補正が必要(ターゲットPIC32は知らない値)/////////////
                 }
                 shot_data[shot_buf_pointer].status = DATA_RECIEVED;
                 rx_buffer_clear();

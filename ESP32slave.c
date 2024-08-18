@@ -24,7 +24,7 @@
 #define ERROR 1
 
 
-#define ESP_SLAVE_ID      0x24  //I2C ID ESP32 TAMAMONI
+#define ESP_SLAVE_ID      0x26  //I2C ID ESP32 TAMAMONI
 //register address
 typedef enum  {
     REG_ID_CHECK        = 0x01, //ID確認　返答"ESP"
@@ -53,7 +53,7 @@ bool ESP32slave_Init(void){
     uint8_t i2cRxData [4] = {0,0,0,0};  //エンドマークを含む
     uint8_t reply[] = "ESP";
     
-    printf("ESP32S3 init ");
+    printf("ESP32 init ");
     if(i2c1_ESP32ReadDataBlock(ESP_SLAVE_ID, 0x01, i2cRxData, 3)){
         printf("error!\n");
         return ERROR;
