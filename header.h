@@ -21,6 +21,7 @@
 
 #include "BME280_v2.h"
 #include "colorLCD.h"
+#include "ESP32slave.h"
 #include "font.h"
 #include "i2c.h"
 #include "mcc_generated_files/mcc.h"

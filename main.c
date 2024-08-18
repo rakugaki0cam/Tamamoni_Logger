@@ -219,6 +219,11 @@
  * 2024.03.17   ver.9.42    ターゲットクリアの整理(不必要に多くクリアされていた)
  * 2024.03.17   ver.9.43    WiFi無線<->LAN有線　切替時のターゲット表示修正
  * 
+ * _V9_5 edition
+ * 2024.05.13   ver.9.50    BRANCH　[i2c_toESPslave]
+ *                          ESP32との通信を　UART2 -> I2Cに変更。PIC：マスター、ESP:スレーブ 
+ * 
+ * 
  * 
  *  ////モーションセンサーの発射時のタイミングログ取得にSMT1のタイマーを使っているけれど、着弾してしまうとタイマーが止まってしまう可能性がある。別タイマーにするか???
  * 
@@ -260,7 +265,7 @@ __EEPROM_DATA (0xf1, 0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.43"; 
+const char  version[] = "9.50"; 
 //FATfs関連 ここで定義しないとスペース確保できずにエラー
 FATFS       drive;
 FIL         file;

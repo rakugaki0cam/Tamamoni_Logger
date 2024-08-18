@@ -211,7 +211,7 @@ uint8_t i2c_master_read1byte(uint8_t address, uint8_t reg){
 }
 
 
-void i2c_master_readblock(uint8_t address, uint8_t reg, unsigned char *data, uint8_t len){
+void i2c_master_readblock(uint8_t address, uint8_t reg, uint8_t* data, uint8_t len){
     i2c_master_initialize();
     I2C1ADB1 = (uint8_t)(address<<1);
     wait4BusFree();
@@ -234,6 +234,67 @@ void i2c_master_readblock(uint8_t address, uint8_t reg, unsigned char *data, uin
 }
 
 
-/**
- End of File
-*/
+
+//ESP32slave
+bool i2c1_ESP32ReadDataBlock(uint8_t i2cId, uint8_t reg, uint8_t* rxData, uint8_t len){
+    //レジスタのデータをつづけて読み出す
+    //**** ESP32スレーブ向け *****
+    //     WriteReadだと最初のレジスタが取り込めないようなので
+    //i2cId: I2C device ID (7bit)
+    //reg:  register address
+    //rxData:  data
+    //len:  num of data < 256
+    //ret val: 0:OK,1:error  
+#define DEBUGI2C5
+    uint8_t i;
+    
+    for(i = 0; i < len; i++){               //////////////////////////////////////////clear
+        rxData[i] = 0;
+    }
+    
+    //register write
+    i2c_master_initialize();
+    I2C1ADB1 = (uint8_t)(i2cId << 1);
+    wait4BusFree();
+    I2C1CNT = 1;
+    I2C1CON0bits.S = 1;
+    wait4Start();
+    sendByte(reg);
+    wait4Stop();
+    
+    //read block
+    i2c_master_initialize();
+    //I2C1ADB1 = (uint8_t)(i2cId << 1);
+    wait4BusFree();
+    //I2C1CNT = 1;
+    //I2C1CON0bits.RSEN = 1;/////////////////
+    //I2C1CON0bits.S = 1; //Start
+    //wait4Start();////////////////////////////////
+    //sendByte(reg);
+    wait4MDRSetcount(len);
+    i2cId = (uint8_t)(i2cId << 1);
+    I2C1ADB1 = (uint8_t)(i2cId| 0x01); //Change the R/W bit for read
+    I2C1CON0bits.S = 1; //Start
+    //I2C1CON0bits.RSEN = 0;/////////////////////////
+    wait4Start();
+    while(len--)
+    {
+        *rxData++ = receiveByte();
+    }
+    wait4Stop();
+    
+    //
+#ifdef DEBUGI2C5
+    printf("I2C 0x%02X (0x%02X)-", i2cId, reg);
+    for (i = 0;i < len; i++){
+        printf(" %02x", rxData[i]);
+    }
+    printf("\n");
+#endif
+    return 0;
+    
+}
+
+
+
+

@@ -14,9 +14,12 @@ typedef enum { I2C1_GOOD, I2C1_FAIL_TIMEOUT } i2c1_error;
 
 
 void i2c_master_initialize(void);
-void i2c_master_readblock(uint8_t address, uint8_t reg, uint8_t *data, uint8_t len);
-uint8_t i2c_master_read1byte(uint8_t address, uint8_t reg);
-void i2c_master_write1byte(uint8_t address, uint8_t reg, uint8_t data);
+void i2c_master_readblock(uint8_t, uint8_t, uint8_t*, uint8_t);
+uint8_t i2c_master_read1byte(uint8_t, uint8_t);
+void i2c_master_write1byte(uint8_t, uint8_t, uint8_t);
+bool i2c1_ESP32ReadDataBlock(uint8_t, uint8_t, uint8_t*, uint8_t);
+
+
 
 #endif	/* I2C_H */
 
