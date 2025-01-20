@@ -223,6 +223,7 @@
  * 2024.05.13   ver.9.50    BRANCH　[i2c_toESPslave]
  *                          ESP32との通信を　UART2 -> I2Cに変更。PIC：マスター、ESP:スレーブ 
  * 2024.08.18   ver.9.51    エアガン、BB弾種類を追加。
+ * 2025.01.20   ver.9.52    menu AIMPOINT_MIN 修正
  * 
  * 
  *  ////モーションセンサーの発射時のタイミングログ取得にSMT1のタイマーを使っているけれど、着弾してしまうとタイマーが止まってしまう可能性がある。別タイマーにするか???
@@ -265,7 +266,7 @@ __EEPROM_DATA (0xf1, 0x4a, 0x5a, 0x00, 0xff, 0xff, 0xff, 0xff);
 
 //global
 const char  title[] = "Bullet Logger V9";
-const char  version[] = "9.50"; 
+const char  version[] = "9.52"; 
 //FATfs関連 ここで定義しないとスペース確保できずにエラー
 FATFS       drive;
 FIL         file;
