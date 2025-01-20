@@ -128,7 +128,7 @@ const  uint8_t  str_com_bright[] = "BRIGHT";
 #define BRIGHTNESS_MAX  250
 
 
-#define AIR_GUN_NUM     16
+#define AIR_GUN_NUM     17
 char air_gun_text[AIR_GUN_NUM][13] = { //max12•¶Žš+1stopcode
     "dummy       ",
     "vfc M40A3   ",
@@ -138,6 +138,7 @@ char air_gun_text[AIR_GUN_NUM][13] = { //max12•¶Žš+1stopcode
     "VSR10-ProSna",
     "MagpulPro700",
     "AMOEBA AS-01",
+    "S&T M40A1   ",
     "vfc M110 GBB",
     "vfc M4A1 GBB",
     "vfc M27 GBB ",
@@ -148,7 +149,7 @@ char air_gun_text[AIR_GUN_NUM][13] = { //max12•¶Žš+1stopcode
     "others      ",
 };
 
-#define     BB_TYPE_NUM        8
+#define     BB_TYPE_NUM        9
 char bb_type_text[BB_TYPE_NUM][13] = {    //max12•¶Žš+1stopcode
     "dummy       ",
     "G&G Pla     ",
@@ -156,6 +157,7 @@ char bb_type_text[BB_TYPE_NUM][13] = {    //max12•¶Žš+1stopcode
     "Marui Bio   ",
     "BLS Pla     ",
     "BLS Bio     ",
+    "HIT CALL pla",
     "NovritschBio",
     "others      ",
 };
@@ -746,8 +748,8 @@ void target_menu(void) {
                             break;
                         case AIMPOINT:
                             aim_tmp--;
-                            if (aim_tmp < DIST_MM_MIN){
-                                aim_tmp = DIST_MM_MIN;
+                            if (aim_tmp < AIMPOINT_MIN){
+                                aim_tmp = AIMPOINT_MIN;
                             }
                             sprintf(tmp_string, "%3d", aim_tmp);
                             break;
