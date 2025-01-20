@@ -128,20 +128,22 @@ const  uint8_t  str_com_bright[] = "BRIGHT";
 #define BRIGHTNESS_MAX  250
 
 
-#define AIR_GUN_NUM     17
+#define AIR_GUN_NUM     19
 char air_gun_text[AIR_GUN_NUM][13] = { //max12•¶Žš+1stopcode
     "dummy       ",
+    "marui VSR-G ",
+    "marui VSR-PS",
+    "marui L96AWS",
+    "S&T M40A1   ",
     "vfc M40A3   ",
+    "marui M40A5 ",
     "ares M40A6  ",
-    "VSR10-G     ",
-    "VSR10Gstrobe",
-    "VSR10-ProSna",
     "MagpulPro700",
     "AMOEBA AS-01",
-    "S&T M40A1   ",
-    "vfc M110 GBB",
+    "VSR Strobe  ",
     "vfc M4A1 GBB",
     "vfc M27 GBB ",
+    "vfc M110 GBB",
     "vfc MP5 GBB ",
     "P99 U10motor",
     "M1911 air   ",
@@ -149,7 +151,7 @@ char air_gun_text[AIR_GUN_NUM][13] = { //max12•¶Žš+1stopcode
     "others      ",
 };
 
-#define     BB_TYPE_NUM        9
+#define     BB_TYPE_NUM        10
 char bb_type_text[BB_TYPE_NUM][13] = {    //max12•¶Žš+1stopcode
     "dummy       ",
     "G&G Pla     ",
@@ -159,6 +161,7 @@ char bb_type_text[BB_TYPE_NUM][13] = {    //max12•¶Žš+1stopcode
     "BLS Bio     ",
     "HIT CALL pla",
     "NovritschBio",
+    "GrandChamp  ",
     "others      ",
 };
 
